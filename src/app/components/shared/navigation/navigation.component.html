@@ -37,9 +37,6 @@
   <section id="mobile-nav" class="mobile-nav" aria-label="Menu mobile" role="dialog" aria-modal="true">
     <header class="mobile-nav__header">
       <span class="mobile-nav__title">Menu</span>
-      <button type="button" class="mobile-nav__close" (click)="closeMenu()" [attr.aria-label]="mobileCloseLabel()">
-        <span aria-hidden="true">&times;</span>
-      </button>
     </header>
     <ul class="mobile-nav__list" role="list">
       @for (item of primaryNavItems(); track item.path) {

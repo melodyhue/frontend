@@ -45,34 +45,38 @@ export const routes: Routes = [
     ],
   },
   {
-    path: 'profile',
+    path: '',
     component: PrivateLayoutComponent,
     children: [
       {
-        path: '',
-        component: ProfileComponent,
+        path: 'profile',
+        children: [
+          {
+            path: '',
+            component: ProfileComponent,
+          },
+          {
+            path: 'edit',
+            component: EditComponent,
+          },
+          {
+            path: 'security',
+            component: SecurityComponent,
+          },
+        ],
       },
       {
-        path: 'edit',
-        component: EditComponent,
-      },
-      {
-        path: 'security',
-        component: SecurityComponent,
-      },
-    ],
-  },
-  {
-    path: 'settings',
-    component: PrivateLayoutComponent,
-    children: [
-      {
-        path: 'general',
-        component: GeneralComponent,
-      },
-      {
-        path: 'appearance',
-        component: AppearanceComponent,
+        path: 'settings',
+        children: [
+          {
+            path: 'general',
+            component: GeneralComponent,
+          },
+          {
+            path: 'appearance',
+            component: AppearanceComponent,
+          },
+        ],
       },
     ],
   },

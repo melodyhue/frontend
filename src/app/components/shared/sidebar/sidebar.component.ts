@@ -31,6 +31,7 @@ interface SidebarItem {
   host: {
     class: 'sidebar',
     '[class.sidebar--collapsed]': 'isCollapsed()',
+    '[class.sidebar--ready]': 'isReady()',
   },
 })
 export class SidebarComponent {
@@ -38,6 +39,8 @@ export class SidebarComponent {
 
   private readonly platformId = inject(PLATFORM_ID);
   private readonly isBrowser = isPlatformBrowser(this.platformId);
+
+  readonly isReady = signal(false);
 
   private loadCollapsedState(): boolean {
     if (!this.isBrowser) {
@@ -67,6 +70,16 @@ export class SidebarComponent {
   }
 
   readonly isCollapsed = signal(this.loadCollapsedState());
+
+  constructor() {
+    if (this.isBrowser) {
+      if (typeof queueMicrotask === 'function') {
+        queueMicrotask(() => this.isReady.set(true));
+      } else {
+        setTimeout(() => this.isReady.set(true));
+      }
+    }
+  }
 
   readonly sections: readonly SidebarSection[] = [
     {

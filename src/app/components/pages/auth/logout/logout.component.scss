@@ -1,0 +1,35 @@
+:host {
+  display: block;
+  height: 100%;
+}
+
+.logout {
+  display: grid;
+  place-items: center;
+  height: 100%;
+  padding: 2rem;
+  background: #0a3228;
+}
+
+.logout__card {
+  padding: 2rem 1.75rem;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.85);
+  text-align: center;
+  max-width: 360px;
+}
+
+.logout__card h1 {
+  margin: 0 0 0.65rem;
+  font-size: clamp(1.5rem, 3vw, 1.75rem);
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.logout__card p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.6);
+}

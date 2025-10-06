@@ -6,6 +6,10 @@
   overflow: hidden;
 }
 
+:host:not(.sidebar--ready) {
+  transition: none;
+}
+
 :host.sidebar--collapsed {
   width: 64px;
 }
