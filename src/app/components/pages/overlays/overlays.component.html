@@ -25,9 +25,18 @@
     <table class="overlays__table">
       <thead>
         <tr>
-          <th>{{ tableHeaders().name }}</th>
-          <th>{{ tableHeaders().type }}</th>
-          <th>{{ tableHeaders().modified }}</th>
+          <th class="overlays__sortable" (click)="sortBy('name')">
+            {{ tableHeaders().name }}
+            <i class="fa-solid {{ getSortIcon('name') }}"></i>
+          </th>
+          <th class="overlays__sortable" (click)="sortBy('type')">
+            {{ tableHeaders().type }}
+            <i class="fa-solid {{ getSortIcon('type') }}"></i>
+          </th>
+          <th class="overlays__sortable" (click)="sortBy('lastModified')">
+            {{ tableHeaders().modified }}
+            <i class="fa-solid {{ getSortIcon('lastModified') }}"></i>
+          </th>
           <th class="overlays__table-actions">{{ tableHeaders().actions }}</th>
         </tr>
       </thead>

@@ -59,7 +59,6 @@
     }
   }
 
-  // Empty state
   &__empty {
     display: flex;
     flex-direction: column;
@@ -116,7 +115,6 @@
     }
   }
 
-  // Table
   &__table-container {
     overflow-x: auto;
     background: white;
@@ -196,6 +194,22 @@
     width: 200px;
   }
 
+  &__sortable {
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 150ms ease;
+
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.1) !important;
+    }
+
+    i {
+      margin-left: 0.5rem;
+      font-size: 0.75rem;
+      opacity: 0.7;
+    }
+  }
+
   &__type-badge {
     display: inline-block;
     padding: 0.25rem 0.75rem;
@@ -269,7 +283,6 @@
     }
   }
 
-  // Mobile responsive
   @media (max-width: 768px) {
     &__header {
       flex-direction: column;
@@ -295,8 +308,6 @@
     }
 
     &__table-name {
-      gap: 0.5rem;
-
       i {
         font-size: 1rem;
       }

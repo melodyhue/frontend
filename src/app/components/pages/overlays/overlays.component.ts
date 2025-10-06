@@ -22,7 +22,7 @@ export class OverlaysComponent {
   private readonly router = inject(Router);
 
   // Mock data - à remplacer par un service
-  readonly overlays = signal<Overlay[]>([
+  private readonly overlaysData = signal<Overlay[]>([
     {
       id: '1',
       name: 'Overlay principal',
@@ -45,6 +45,29 @@ export class OverlaysComponent {
       lastModified: new Date('2025-09-15'),
     },
   ]);
+
+  readonly sortColumn = signal<'name' | 'type' | 'lastModified'>('lastModified');
+  readonly sortDirection = signal<'asc' | 'desc'>('desc');
+
+  readonly overlays = computed(() => {
+    const data = [...this.overlaysData()];
+    const column = this.sortColumn();
+    const direction = this.sortDirection();
+
+    data.sort((a, b) => {
+      let comparison = 0;
+
+      if (column === 'name' || column === 'type') {
+        comparison = a[column].localeCompare(b[column]);
+      } else if (column === 'lastModified') {
+        comparison = a.lastModified.getTime() - b.lastModified.getTime();
+      }
+
+      return direction === 'asc' ? comparison : -comparison;
+    });
+
+    return data;
+  });
 
   readonly title = computed(() => {
     const locale = this.localeService.locale();
@@ -103,6 +126,24 @@ export class OverlaysComponent {
       month: 'short',
       day: 'numeric',
     }).format(date);
+  }
+
+  sortBy(column: 'name' | 'type' | 'lastModified'): void {
+    if (this.sortColumn() === column) {
+      // Toggle direction if same column
+      this.sortDirection.set(this.sortDirection() === 'asc' ? 'desc' : 'asc');
+    } else {
+      // New column, default to ascending
+      this.sortColumn.set(column);
+      this.sortDirection.set('asc');
+    }
+  }
+
+  getSortIcon(column: 'name' | 'type' | 'lastModified'): string {
+    if (this.sortColumn() !== column) {
+      return 'fa-sort';
+    }
+    return this.sortDirection() === 'asc' ? 'fa-sort-up' : 'fa-sort-down';
   }
 
   createOverlay(): void {
