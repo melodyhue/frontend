@@ -1,1 +1,180 @@
-<p>general works!</p>
+<div class="general">
+    <div class="general__header">
+        <h1 class="general__title">{{ content().title }}</h1>
+    </div>
+
+    <!-- Spotify Connection Section -->
+    <section class="general__section">
+        <div class="general__card">
+            <div class="general__card-header">
+                <div class="general__card-icon">
+                    <i class="fa-brands fa-spotify"></i>
+                </div>
+                <div class="general__card-info">
+                    <h2 class="general__card-title">{{ content().spotify.title }}</h2>
+                    <p class="general__card-description">{{ content().spotify.description }}</p>
+                    <p class="general__card-description">
+                        {{ content().spotify.setupGuide }}
+                        <a href="https://developer.spotify.com/dashboard" target="_blank" rel="noopener"
+                            class="general__link">
+                            {{ content().spotify.dashboardLink }}
+                            <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                        </a>
+                    </p>
+                </div>
+            </div>
+
+            <div class="general__card-content">
+                @if (!isSpotifyConfigured() && !isSpotifyConnected()) {
+                <!-- Redirect URI -->
+                <div class="general__form-field">
+                    <label class="general__label">{{ content().spotify.redirectUriLabel }}</label>
+                    <div class="general__input-group">
+                        <input type="text" [value]="redirectUri" readonly
+                            class="general__input general__input--readonly" />
+                        <button class="general__btn-icon" (click)="copyToClipboard(redirectUri)"
+                            [title]="content().spotify.copy">
+                            <i class="fa-solid fa-copy"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Client ID -->
+                <div class="general__form-field">
+                    <label class="general__label">{{ content().spotify.clientIdLabel }}</label>
+                    <input type="text" [value]="spotifyClientId()"
+                        (input)="spotifyClientId.set($any($event.target).value)" placeholder="1a2b3c4d5e6f7g8h9i0j"
+                        class="general__input" />
+                </div>
+
+                <!-- Client Secret -->
+                <div class="general__form-field">
+                    <label class="general__label">{{ content().spotify.clientSecretLabel }}</label>
+                    <div class="general__input-group">
+                        <input [type]="showClientSecret() ? 'text' : 'password'" [value]="spotifyClientSecret()"
+                            (input)="spotifyClientSecret.set($any($event.target).value)"
+                            placeholder="••••••••••••••••••••" class="general__input" />
+                        <button class="general__btn-icon" (click)="toggleClientSecretVisibility()"
+                            [title]="showClientSecret() ? content().spotify.hide : content().spotify.show">
+                            <i [class]="showClientSecret() ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye'"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <button class="general__btn general__btn--primary" (click)="saveSpotifyConfig()"
+                    [disabled]="!spotifyClientId() || !spotifyClientSecret()">
+                    <i class="fa-solid fa-floppy-disk"></i>
+                    {{ content().spotify.save }}
+                </button>
+                } @else if (isSpotifyConfigured() && !isSpotifyConnected()) {
+                <div class="general__status">
+                    <span class="general__status-label">Status:</span>
+                    <span class="general__status-badge general__status-badge--info">
+                        <i class="fa-solid fa-circle-check"></i>
+                        {{ content().spotify.configured }}
+                    </span>
+                </div>
+
+                <div class="general__actions">
+                    <button class="general__btn general__btn--primary" (click)="connectSpotify()">
+                        <i class="fa-brands fa-spotify"></i>
+                        {{ content().spotify.connect }}
+                    </button>
+                    <button class="general__btn general__btn--secondary" (click)="reconfigureSpotify()">
+                        <i class="fa-solid fa-gear"></i>
+                        {{ content().spotify.reconfigure }}
+                    </button>
+                </div>
+                } @else {
+                <div class="general__status">
+                    <span class="general__status-label">Status:</span>
+                    <span class="general__status-badge general__status-badge--success">
+                        <i class="fa-solid fa-circle-check"></i>
+                        {{ content().spotify.connected }}
+                    </span>
+                </div>
+
+                <button class="general__btn general__btn--secondary" (click)="disconnectSpotify()">
+                    <i class="fa-solid fa-link-slash"></i>
+                    {{ content().spotify.disconnect }}
+                </button>
+                }
+            </div>
+        </div>
+    </section>
+
+    <!-- Default Overlay Color Section -->
+    <section class="general__section">
+        <div class="general__card">
+            <div class="general__card-header">
+                <div class="general__card-icon">
+                    <i class="fa-solid fa-palette"></i>
+                </div>
+                <div class="general__card-info">
+                    <h2 class="general__card-title">{{ content().overlay.title }}</h2>
+                    <p class="general__card-description">{{ content().overlay.description }}</p>
+                </div>
+            </div>
+
+            <div class="general__card-content">
+                <div class="general__color-picker">
+                    <label class="general__color-label">{{ content().overlay.label }}</label>
+
+                    <div class="general__color-controls">
+                        <!-- Color Picker Input -->
+                        <div class="general__color-swatch">
+                            <input type="color" [value]="defaultColor()"
+                                (input)="updateDefaultColor($any($event.target).value)" class="general__color-field"
+                                [title]="content().overlay.label" />
+                            <div class="general__color-preview-mini" [style.background-color]="defaultColor()"></div>
+                        </div>
+
+                        <!-- Hex Input -->
+                        <div class="general__hex-input" [class.general__hex-input--error]="hexInputError()">
+                            <span class="general__hex-prefix">#</span>
+                            <input #hexInput type="text" value="0a3228"
+                                (input)="updateDefaultColorFromHex($any($event.target).value, hexInput)"
+                                (keydown)="onHexKeyDown($event)" (beforeinput)="onHexBeforeInput($event)"
+                                (paste)="onHexPaste($event)" (blur)="validateHexColor($any($event.target).value)"
+                                placeholder="0a3228" maxlength="6" autocomplete="off" spellcheck="false"
+                                class="general__input general__input--hex"
+                                [class.general__input--error]="hexInputError()" />
+                        </div>
+                    </div>
+
+                    @if (hexInputError()) {
+                    <div class="general__error-message">
+                        <i class="fa-solid fa-circle-exclamation"></i>
+                        {{ hexInputError() }}
+                    </div>
+                    }
+
+                    <!-- Large Preview -->
+                    <div class="general__color-preview-large" [style.background-color]="defaultColor()">
+                        <div class="general__color-preview-badge">
+                            <span class="general__color-preview-text">{{ defaultColor() }}</span>
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="general__actions">
+                        <button class="general__btn general__btn--primary" (click)="saveDefaultColor()"
+                            [disabled]="!hasColorChanges()">
+                            <i class="fa-solid fa-floppy-disk"></i>
+                            {{ content().overlay.save }}
+                        </button>
+                        <button class="general__btn general__btn--secondary" (click)="deleteDefaultColor()"
+                            [disabled]="!hasColorChanges()">
+                            <i class="fa-solid fa-xmark"></i>
+                            {{ content().overlay.delete }}
+                        </button>
+                        <button class="general__btn general__btn--secondary" (click)="resetDefaultColor()">
+                            <i class="fa-solid fa-rotate-left"></i>
+                            {{ content().overlay.reset }}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>

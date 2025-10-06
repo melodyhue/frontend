@@ -6,8 +6,10 @@
 
 .auth {
   display: grid;
-  place-items: center;
+  align-content: start;
+  justify-items: center;
   padding: 1.5rem 1.5rem;
+  padding-top: 15vh;
   height: 100%;
   background: #0a3228;
   overflow-y: auto;
@@ -177,32 +179,30 @@
 
 @media (max-width: 600px) {
   .auth {
-    padding: 0.75rem;
-    align-content: center;
-    padding-top: 1rem;
-    padding-bottom: 5rem;
+    padding: 2rem 2rem;
+    align-content: start;
   }
 
   .auth__card {
     width: 100%;
-    padding: 1.25rem 1rem;
+    padding: 1.5rem 1.25rem;
     border-radius: 10px;
   }
 
   .auth__header {
-    margin-bottom: 1.25rem;
+    margin-bottom: 1.5rem;
   }
 
   .auth__header h1 {
-    font-size: 1.4rem;
+    font-size: 1.5rem;
   }
 
   .auth__subtitle {
-    font-size: 0.85rem;
+    font-size: 0.875rem;
   }
 
   .auth__form {
-    gap: 0.9rem;
+    gap: 1rem;
   }
 
   .form-field {
@@ -210,29 +210,29 @@
   }
 
   .form-field label {
-    font-size: 0.85rem;
+    font-size: 0.875rem;
   }
 
   .form-field input[type='text'],
   .form-field input[type='email'],
   .form-field input[type='password'] {
-    padding: 0.65rem 0.75rem;
-    font-size: 0.9rem;
+    padding: 0.75rem;
+    font-size: 1rem;
   }
 
   .checkbox {
-    font-size: 0.8rem;
+    font-size: 0.875rem;
   }
 
   .auth__submit {
-    padding: 0.7rem 1rem;
-    font-size: 0.9rem;
+    padding: 0.875rem;
+    font-size: 1rem;
     margin-top: 0.25rem;
   }
 
   .form-row {
     flex-direction: column;
-    gap: 0.85rem;
+    gap: 1rem;
   }
 
   .form-row--split .form-field {

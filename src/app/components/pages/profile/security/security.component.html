@@ -1,1 +1,145 @@
-<p>security works!</p>
+<div class="security">
+    <div class="security__header">
+        <h1 class="security__title">{{ title() }}</h1>
+    </div>
+
+    @if (successMessage()) {
+    <div class="security__success">
+        <i class="fa-solid fa-circle-check"></i>
+        <span>{{ successMessage() }}</span>
+    </div>
+    }
+
+    <!-- Change Password Card -->
+    <form [formGroup]="passwordForm" (ngSubmit)="onSubmitPassword()" class="security__card">
+        <h2 class="security__card-title">
+            <i class="fa-solid fa-lock"></i>
+            {{ labels().changePassword }}
+        </h2>
+
+        <!-- Current Password -->
+        <div class="security__field">
+            <label class="security__label" for="currentPassword">
+                {{ labels().currentPassword }}
+                <span class="security__required">*</span>
+            </label>
+            <div class="security__password-field">
+                <input id="currentPassword" [type]="showCurrentPassword() ? 'text' : 'password'"
+                    formControlName="currentPassword" class="security__input"
+                    [class.security__input--error]="passwordForm.get('currentPassword')?.invalid && passwordForm.get('currentPassword')?.touched">
+                <button type="button" class="security__toggle-password"
+                    (click)="showCurrentPassword.set(!showCurrentPassword())">
+                    <i [class]="showCurrentPassword() ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye'"></i>
+                </button>
+            </div>
+            @if (getPasswordError('currentPassword')) {
+            <span class="security__error">{{ getPasswordError('currentPassword') }}</span>
+            }
+        </div>
+
+        <!-- New Password -->
+        <div class="security__field">
+            <label class="security__label" for="newPassword">
+                {{ labels().newPassword }}
+                <span class="security__required">*</span>
+            </label>
+            <div class="security__password-field">
+                <input id="newPassword" [type]="showNewPassword() ? 'text' : 'password'" formControlName="newPassword"
+                    class="security__input"
+                    [class.security__input--error]="passwordForm.get('newPassword')?.invalid && passwordForm.get('newPassword')?.touched">
+                <button type="button" class="security__toggle-password"
+                    (click)="showNewPassword.set(!showNewPassword())">
+                    <i [class]="showNewPassword() ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye'"></i>
+                </button>
+            </div>
+            @if (getPasswordError('newPassword')) {
+            <span class="security__error">{{ getPasswordError('newPassword') }}</span>
+            }
+
+            <!-- Password Strength Indicator -->
+            @if (passwordForm.get('newPassword')?.value) {
+            <div class="security__strength">
+                <div class="security__strength-bars">
+                    <div class="security__strength-bar"
+                        [class.security__strength-bar--weak]="getPasswordStrength() >= 1"
+                        [class.security__strength-bar--medium]="getPasswordStrength() >= 2"
+                        [class.security__strength-bar--strong]="getPasswordStrength() >= 3"></div>
+                    <div class="security__strength-bar"
+                        [class.security__strength-bar--weak]="getPasswordStrength() >= 2"
+                        [class.security__strength-bar--medium]="getPasswordStrength() >= 3"
+                        [class.security__strength-bar--strong]="getPasswordStrength() >= 4"></div>
+                    <div class="security__strength-bar"
+                        [class.security__strength-bar--weak]="getPasswordStrength() >= 3"
+                        [class.security__strength-bar--medium]="getPasswordStrength() >= 4"
+                        [class.security__strength-bar--strong]="getPasswordStrength() >= 5"></div>
+                    <div class="security__strength-bar"
+                        [class.security__strength-bar--strong]="getPasswordStrength() >= 5"></div>
+                </div>
+                <span class="security__strength-text">{{ getPasswordStrengthLabel() }}</span>
+            </div>
+            }
+        </div>
+
+        <!-- Confirm Password -->
+        <div class="security__field">
+            <label class="security__label" for="confirmPassword">
+                {{ labels().confirmPassword }}
+                <span class="security__required">*</span>
+            </label>
+            <div class="security__password-field">
+                <input id="confirmPassword" [type]="showConfirmPassword() ? 'text' : 'password'"
+                    formControlName="confirmPassword" class="security__input"
+                    [class.security__input--error]="passwordForm.get('confirmPassword')?.invalid && passwordForm.get('confirmPassword')?.touched || passwordForm.errors?.['passwordMismatch'] && passwordForm.get('confirmPassword')?.touched">
+                <button type="button" class="security__toggle-password"
+                    (click)="showConfirmPassword.set(!showConfirmPassword())">
+                    <i [class]="showConfirmPassword() ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye'"></i>
+                </button>
+            </div>
+            @if (getPasswordError('confirmPassword')) {
+            <span class="security__error">{{ getPasswordError('confirmPassword') }}</span>
+            }
+        </div>
+
+        <div class="security__actions">
+            <button type="button" class="security__btn security__btn--cancel" (click)="cancel()">
+                {{ labels().cancel }}
+            </button>
+            <button type="submit" class="security__btn security__btn--save"
+                [disabled]="passwordForm.invalid || isSaving()">
+                @if (isSaving()) {
+                <i class="fa-solid fa-spinner fa-spin"></i>
+                <span>{{ labels().saving }}</span>
+                } @else {
+                <i class="fa-solid fa-floppy-disk"></i>
+                <span>{{ labels().save }}</span>
+                }
+            </button>
+        </div>
+    </form>
+
+    <!-- Two-Factor Authentication Card -->
+    <div class="security__card">
+        <div class="security__card-header">
+            <div>
+                <h2 class="security__card-title">
+                    <i class="fa-solid fa-shield-halved"></i>
+                    {{ labels().twoFactor }}
+                </h2>
+                <p class="security__card-desc">{{ labels().twoFactorDesc }}</p>
+            </div>
+            <div class="security__status-badge" [class.security__status-badge--enabled]="twoFactorEnabled()">
+                <i [class]="twoFactorEnabled() ? 'fa-solid fa-circle-check' : 'fa-solid fa-circle-xmark'"></i>
+                {{ twoFactorEnabled() ? labels().enabled : labels().disabled }}
+            </div>
+        </div>
+
+        <div class="security__2fa-content">
+            <button type="button" class="security__btn security__btn--2fa"
+                [class.security__btn--2fa-disable]="twoFactorEnabled()">
+                <i [class]="twoFactorEnabled() ? 'fa-solid fa-xmark' : 'fa-solid fa-shield'"></i>
+                <span>{{ twoFactorEnabled() ? labels().disable2FA : labels().enable2FA }}</span>
+                <span class="security__coming-soon">{{ labels().comingSoon }}</span>
+            </button>
+        </div>
+    </div>
+</div>

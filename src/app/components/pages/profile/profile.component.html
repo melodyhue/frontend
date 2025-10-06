@@ -1,1 +1,76 @@
-<p>profile works!</p>
+<div class="profile">
+  <div class="profile__header">
+    <h1 class="profile__title">{{ title() }}</h1>
+    <div class="profile__actions">
+      <button class="profile__btn profile__btn--secondary" (click)="goToSecurity()">
+        <i class="fa-solid fa-shield-halved"></i>
+        <span>{{ securityButtonLabel() }}</span>
+      </button>
+      <button class="profile__btn profile__btn--primary" (click)="editProfile()">
+        <i class="fa-solid fa-pen"></i>
+        <span>{{ editButtonLabel() }}</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="profile__content">
+    <!-- Avatar Section -->
+    <div class="profile__card profile__card--avatar">
+      <div class="profile__avatar-display">
+        @if (user().avatarType === 'gravatar' && gravatarAvailable()) {
+        <img [src]="gravatarUrl()" alt="Avatar" class="profile__avatar-img">
+        } @else {
+        <div class="profile__avatar-initials" [style.background-color]="user().avatarColor">
+          {{ initials() }}
+        </div>
+        }
+      </div>
+      <h2 class="profile__username">{{ user().username }}</h2>
+    </div>
+
+    <!-- User Info Section -->
+    <div class="profile__card">
+      <h3 class="profile__card-title">
+        <i class="fa-solid fa-user"></i>
+        {{ labels().username }}
+      </h3>
+      <p class="profile__info-value">{{ user().username }}</p>
+    </div>
+
+    <div class="profile__card">
+      <h3 class="profile__card-title">
+        <i class="fa-solid fa-envelope"></i>
+        {{ labels().email }}
+      </h3>
+      <p class="profile__info-value">{{ user().email }}</p>
+    </div>
+
+    <div class="profile__card">
+      <h3 class="profile__card-title">
+        <i class="fa-solid fa-calendar"></i>
+        {{ labels().memberSince }}
+      </h3>
+      <p class="profile__info-value">{{ formatDate(user().createdAt) }}</p>
+    </div>
+
+    <div class="profile__card">
+      <h3 class="profile__card-title">
+        <i class="fa-brands fa-spotify"></i>
+        {{ labels().spotifyStatus }}
+      </h3>
+      <div class="profile__status">
+        @if (user().spotifyConnected) {
+        <span class="profile__status-badge profile__status-badge--connected">
+          <i class="fa-solid fa-circle-check"></i>
+          {{ labels().connected }}
+        </span>
+        } @else {
+        <span class="profile__status-badge profile__status-badge--disconnected">
+          <i class="fa-solid fa-circle-xmark"></i>
+          {{ labels().notConnected }}
+        </span>
+        }
+      </div>
+    </div>
+  </div>
+</div>

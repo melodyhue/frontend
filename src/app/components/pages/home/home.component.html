@@ -1,3 +1,54 @@
-<main>
+<div class="home">
+  <!-- Hero Section -->
+  <section class="home__hero">
+    <div class="home__hero-content">
+      <h1 class="home__hero-title">{{ content().hero.title }}</h1>
+      <p class="home__hero-subtitle">{{ content().hero.subtitle }}</p>
+      <p class="home__hero-description">{{ content().hero.description }}</p>
+      <div class="home__hero-actions">
+        <button class="home__btn home__btn--primary" (click)="goToRegister()">
+          {{ content().hero.ctaPrimary }}
+          <i class="fa-solid fa-arrow-right"></i>
+        </button>
+        <button class="home__btn home__btn--secondary" (click)="goToAbout()">
+          {{ content().hero.ctaSecondary }}
+        </button>
+      </div>
+    </div>
+    <div class="home__hero-visual">
+      <div class="home__hero-icon">
+        <img src="assets/img/MelodyHueWhite/MelodyHue White Text.svg" alt="MelodyHue" class="home__hero-logo">
+      </div>
+    </div>
 
-</main>
+    <!-- Scroll Indicator -->
+    <div class="home__scroll-indicator">
+      <span class="home__scroll-text">{{ content().hero.scrollHint }}</span>
+      <i class="fa-solid fa-chevron-down home__scroll-arrow"></i>
+    </div>
+  </section>
+
+  <!-- Quick Info Section -->
+  <section class="home__quick-info">
+    <h2 class="home__quick-info-title">{{ content().quickInfo.title }}</h2>
+    <div class="home__steps">
+      @for (item of content().quickInfo.items; track $index) {
+      <div class="home__step">
+        <div class="home__step-number">{{ $index + 1 }}</div>
+        <span class="home__step-title">{{ getItemTitle(item) }}</span>
+      </div>
+      }
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="home__cta">
+    <div class="home__cta-content">
+      <h2 class="home__cta-title">{{ content().cta.title }}</h2>
+      <button class="home__btn home__btn--primary home__btn--large" (click)="goToRegister()">
+        {{ content().cta.button }}
+        <i class="fa-solid fa-arrow-right"></i>
+      </button>
+    </div>
+  </section>
+</div>

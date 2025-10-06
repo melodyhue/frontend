@@ -31,6 +31,18 @@ export class LocaleService {
 
     if (this.documentRef?.documentElement) {
       this.documentRef.documentElement.lang = currentLocale;
+
+      // Update meta language tag
+      const metaLanguage = this.documentRef.querySelector('meta[name="language"]');
+      if (metaLanguage) {
+        metaLanguage.setAttribute('content', currentLocale);
+      }
+
+      // Update og:locale meta tag
+      const ogLocale = this.documentRef.querySelector('meta[property="og:locale"]');
+      if (ogLocale) {
+        ogLocale.setAttribute('content', currentLocale === 'fr' ? 'fr_FR' : 'en_US');
+      }
     }
 
     if (this.isBrowser) {
@@ -58,11 +70,24 @@ export class LocaleService {
   private resolveInitialLocale(): SupportedLocale {
     const fallbackLocale: SupportedLocale = 'fr';
 
+    // 1. Check stored preference first
     const storedLocale = this.readStoredLocale();
     if (storedLocale) {
       return storedLocale;
     }
 
+    // 2. Detect browser language
+    if (this.isBrowser) {
+      const browserLang = navigator.language.toLowerCase();
+      if (browserLang.startsWith('en')) {
+        return 'en';
+      }
+      if (browserLang.startsWith('fr')) {
+        return 'fr';
+      }
+    }
+
+    // 3. Check document lang attribute
     const documentLocale = this.documentRef?.documentElement?.lang;
     if (documentLocale === 'en') {
       return 'en';

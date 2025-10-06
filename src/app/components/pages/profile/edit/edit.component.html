@@ -1,1 +1,140 @@
-<p>edit works!</p>
+<div class="edit-profile">
+    <div class="edit-profile__header">
+        <h1 class="edit-profile__title">{{ title() }}</h1>
+    </div>
+
+    @if (successMessage()) {
+    <div class="edit-profile__success">
+        <i class="fa-solid fa-circle-check"></i>
+        <span>{{ successMessage() }}</span>
+    </div>
+    }
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="edit-profile__form">
+        <!-- Basic Info Card -->
+        <div class="edit-profile__card">
+            <h2 class="edit-profile__card-title">Informations de base</h2>
+
+            <!-- Username -->
+            <div class="edit-profile__field">
+                <label class="edit-profile__label" for="username">
+                    {{ labels().username }}
+                    <span class="edit-profile__required">*</span>
+                </label>
+                <input id="username" type="text" formControlName="username" class="edit-profile__input"
+                    [class.edit-profile__input--error]="form.get('username')?.invalid && form.get('username')?.touched">
+                @if (getError('username')) {
+                <span class="edit-profile__error">{{ getError('username') }}</span>
+                }
+            </div>
+
+            <!-- Email -->
+            <div class="edit-profile__field">
+                <label class="edit-profile__label" for="email">
+                    {{ labels().email }}
+                    <span class="edit-profile__required">*</span>
+                </label>
+                <input id="email" type="email" formControlName="email" class="edit-profile__input"
+                    [class.edit-profile__input--error]="form.get('email')?.invalid && form.get('email')?.touched">
+                @if (getError('email')) {
+                <span class="edit-profile__error">{{ getError('email') }}</span>
+                }
+            </div>
+        </div>
+
+        <!-- Avatar Settings Card -->
+        <div class="edit-profile__card">
+            <h2 class="edit-profile__card-title">{{ labels().avatarSettings }}</h2>
+
+            <!-- Avatar Type Selection -->
+            <div class="edit-profile__avatar-types">
+                <!-- Gravatar Option -->
+                <div class="edit-profile__avatar-option" (click)="setAvatarType('gravatar')">
+                    <input type="radio" id="gravatar" formControlName="avatarType" value="gravatar">
+                    <div class="edit-profile__option-content">
+                        <div class="edit-profile__option-preview">
+                            @if (gravatarAvailable()) {
+                            <img [src]="gravatarUrl()" alt="Gravatar" class="edit-profile__option-preview-img">
+                            } @else {
+                            <div class="edit-profile__option-preview-initials"
+                                [style.background-color]="form.get('avatarColor')?.value || '#0a3228'">
+                                {{ initials() }}
+                            </div>
+                            }
+                        </div>
+                        <div class="edit-profile__option-info">
+                            <strong>{{ labels().useGravatar }}</strong>
+                            @if (gravatarLoading()) {
+                            <small class="edit-profile__checking">
+                                <i class="fa-solid fa-spinner fa-spin"></i>
+                                {{ labels().checking }}
+                            </small>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Gravatar Unavailable Warning -->
+                @if (!gravatarAvailable() && !gravatarLoading() && form.get('avatarType')?.value === 'gravatar') {
+                <div class="edit-profile__gravatar-unavailable">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                    <p>{{ labels().gravatarNotAvailable }}</p>
+                    <button type="button" class="edit-profile__link-btn" (click)="openGravatar()">
+                        <i class="fa-solid fa-external-link"></i>
+                        {{ labels().createGravatar }}
+                    </button>
+                </div>
+                }
+
+                <!-- Initials Option -->
+                <div class="edit-profile__avatar-option" (click)="setAvatarType('initials')">
+                    <input type="radio" id="initials" formControlName="avatarType" value="initials">
+                    <div class="edit-profile__option-content">
+                        <div class="edit-profile__option-preview edit-profile__option-preview-initials"
+                            [style.background-color]="form.get('avatarColor')?.value || '#0a3228'">
+                            {{ initials() }}
+                        </div>
+                        <strong>{{ labels().useInitials }}</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Color Picker (only show for initials) -->
+            @if (form.get('avatarType')?.value === 'initials') {
+            <div class="edit-profile__color-picker">
+                <label class="edit-profile__color-label">
+                    {{ labels().chooseColor }}
+                </label>
+                <div class="edit-profile__colors">
+                    @for (color of avatarColors; track color) {
+                    <div class="edit-profile__color-swatch"
+                        [class.edit-profile__color-swatch--active]="form.get('avatarColor')?.value === color"
+                        [style.background-color]="color" (click)="setAvatarColor(color)">
+                        @if (form.get('avatarColor')?.value === color) {
+                        <i class="fa-solid fa-check"></i>
+                        }
+                    </div>
+                    }
+                </div>
+            </div>
+            }
+        </div>
+
+        <!-- Actions -->
+        <div class="edit-profile__actions">
+            <button type="button" class="edit-profile__btn edit-profile__btn--cancel" (click)="cancel()">
+                {{ labels().cancel }}
+            </button>
+            <button type="submit" class="edit-profile__btn edit-profile__btn--save"
+                [disabled]="form.invalid || isSaving()">
+                @if (isSaving()) {
+                <i class="fa-solid fa-spinner fa-spin"></i>
+                <span>{{ labels().saving }}</span>
+                } @else {
+                <i class="fa-solid fa-floppy-disk"></i>
+                <span>{{ labels().save }}</span>
+                }
+            </button>
+        </div>
+    </form>
+</div>

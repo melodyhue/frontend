@@ -1,0 +1,61 @@
+<div class="about">
+  <!-- Banner Header -->
+  <div class="about__banner">
+    <div class="about__banner-content">
+      <div class="about__banner-icon">
+        <i class="fa-solid fa-circle-info"></i>
+      </div>
+      <h1 class="about__banner-title">{{ title() }}</h1>
+    </div>
+    <div class="about__banner-decoration">
+      <i class="fa-solid fa-music"></i>
+      <i class="fa-solid fa-palette"></i>
+      <i class="fa-solid fa-video"></i>
+    </div>
+  </div>
+
+  <!-- Hero Section -->
+  <div class="about__card about__card--hero">
+    <h2 class="about__hero-title">{{ content().hero.title }}</h2>
+    <p class="about__hero-subtitle">{{ content().hero.subtitle }}</p>
+    <p class="about__hero-description">{{ content().hero.description }}</p>
+  </div>
+
+  <!-- Features Section -->
+  <div class="about__section">
+    <h2 class="about__section-title">
+      <i class="fa-solid fa-star"></i>
+      {{ content().features.title }}
+    </h2>
+    <div class="about__features">
+      @for (feature of features; track feature.titleEn) {
+      <div class="about__feature">
+        <div class="about__feature-icon">
+          <i class="fa-solid {{ feature.icon }}"></i>
+        </div>
+        <h3 class="about__feature-title">{{ getFeatureTitle(feature) }}</h3>
+        <p class="about__feature-description">{{ getFeatureDescription(feature) }}</p>
+      </div>
+      }
+    </div>
+  </div>
+
+  <!-- How it works Section -->
+  <div class="about__section">
+    <h2 class="about__section-title">
+      <i class="fa-solid fa-gears"></i>
+      {{ content().howItWorks.title }}
+    </h2>
+    <div class="about__steps">
+      @for (step of content().howItWorks.steps; track step.number) {
+      <div class="about__step">
+        <div class="about__step-number">{{ step.number }}</div>
+        <div class="about__step-content">
+          <h3 class="about__step-title">{{ step.title }}</h3>
+          <p class="about__step-description">{{ step.description }}</p>
+        </div>
+      </div>
+      }
+    </div>
+  </div>
+</div>
