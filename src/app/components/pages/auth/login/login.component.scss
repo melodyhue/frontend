@@ -1,14 +1,16 @@
 :host {
   display: block;
   height: 100%;
+  overflow: hidden;
 }
 
 .auth {
   display: grid;
   place-items: center;
-  padding: 2rem 1.5rem;
+  padding: 1.5rem 1.5rem;
   height: 100%;
   background: #0a3228;
+  overflow-y: auto;
 }
 
 .auth__card {
@@ -49,6 +51,11 @@
 .auth__link:hover,
 .auth__link:focus-visible {
   color: #d2faf0;
+}
+
+.auth__link--small {
+  font-size: 0.85rem;
+  font-weight: 500;
 }
 
 .auth__form {
@@ -112,6 +119,11 @@
   color: rgba(255, 255, 255, 0.7);
 }
 
+.form-row--between {
+  justify-content: space-between;
+  align-items: center;
+}
+
 .checkbox {
   display: inline-flex;
   align-items: center;
@@ -137,7 +149,7 @@
   font-family: 'Inter', system-ui, sans-serif;
   color: #0a3228;
   background: #6df0cf;
-  transition: transform 120ms ease, box-shadow 120ms ease, background-color 150ms ease;
+  transition: transform 120ms ease, background-color 150ms ease;
   cursor: pointer;
 }
 
@@ -145,7 +157,6 @@
 .auth__submit:focus-visible:not([disabled]) {
   transform: translateY(-1px);
   background: #d2faf0;
-  box-shadow: 0 8px 20px rgba(109, 240, 207, 0.3);
   outline: none;
 }
 
@@ -167,12 +178,61 @@
 }
 
 @media (max-width: 480px) {
+  .auth {
+    padding: 0.75rem;
+    align-content: center;
+    padding-top: 1rem;
+    padding-bottom: 5rem;
+  }
+
   .auth__card {
-    padding: 1.5rem 1.25rem;
+    width: 100%;
+    padding: 1.25rem 1rem;
+    border-radius: 10px;
+  }
+
+  .auth__header {
+    margin-bottom: 1.25rem;
+  }
+
+  .auth__header h1 {
+    font-size: 1.4rem;
+  }
+
+  .auth__subtitle {
+    font-size: 0.85rem;
+  }
+
+  .auth__form {
+    gap: 1rem;
+  }
+
+  .form-field {
+    gap: 0.4rem;
+  }
+
+  .form-field label {
+    font-size: 0.85rem;
+  }
+
+  .form-field input[type='email'],
+  .form-field input[type='password'] {
+    padding: 0.65rem 0.75rem;
+    font-size: 0.9rem;
+  }
+
+  .checkbox {
+    font-size: 0.8rem;
+  }
+
+  .auth__submit {
+    padding: 0.7rem 1rem;
+    font-size: 0.9rem;
   }
 
   .form-row {
     flex-direction: column;
     align-items: flex-start;
+    gap: 0.5rem;
   }
 }

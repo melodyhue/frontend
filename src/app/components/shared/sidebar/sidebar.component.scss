@@ -14,6 +14,14 @@
   width: 64px;
 }
 
+:host {
+  --sidebar-width: clamp(220px, 25vw, 280px);
+}
+
+:host.sidebar--collapsed {
+  --sidebar-width: 64px;
+}
+
 .sidebar-container {
   display: flex;
   flex-direction: column;
@@ -48,7 +56,7 @@
   display: block;
   height: auto;
   width: 100%;
-  max-width: 70px;
+  max-width: 150px;
 }
 
 .sidebar-toggle {

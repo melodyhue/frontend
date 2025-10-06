@@ -1,0 +1,34 @@
+<div class="settings-page">
+  <header class="settings-header">
+    <h1 class="settings-title">{{ title() }}</h1>
+    <p class="settings-description">{{ description() }}</p>
+  </header>
+
+  <div class="settings-content">
+    <div class="language-selector">
+      <h2 class="language-selector__title">{{ selectLanguageLabel() }}</h2>
+
+      <div class="language-options">
+        @for (option of localeOptions; track option.code) {
+        <button type="button" class="language-option"
+          [class.language-option--active]="localeService.locale() === option.code" (click)="selectLocale(option.code)"
+          [attr.aria-pressed]="localeService.locale() === option.code"
+          [attr.aria-label]="(option.code === 'fr' ? 'Sélectionner Français' : 'Select English') + (localeService.locale() === option.code ? ' (actif)' : '')">
+          <div class="language-option__content">
+            <i class="fa-solid fa-globe language-option__icon" aria-hidden="true"></i>
+            <div class="language-option__text">
+              <span class="language-option__name">
+                {{ option.code === 'fr' ? 'Français' : 'English' }}
+              </span>
+              <span class="language-option__code">{{ option.code.toUpperCase() }}</span>
+            </div>
+          </div>
+          @if (localeService.locale() === option.code) {
+          <i class="fa-solid fa-circle-check language-option__check" aria-hidden="true"></i>
+          }
+        </button>
+        }
+      </div>
+    </div>
+  </div>
+</div>

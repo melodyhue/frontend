@@ -1,19 +1,18 @@
 <aside class="sidebar-container" aria-label="Menu de navigation du profil">
   <div class="sidebar-header">
     @if (!isCollapsed()) {
-    <a class="sidebar-logo" routerLink="/profile" aria-label="Retour à l'accueil">
-      <img ngSrc="/assets/img/MelodyHueWhite/MelodyHue White Texte.svg" width="116" height="48" alt="MelodyHue"
+    <a class="sidebar-logo" routerLink="/profile" [attr.aria-label]="logoAriaLabel()">
+      <img ngSrc="/assets/img/MelodyHueWhite/MelodyHue White Long Texte.svg" width="230" height="48" alt="MelodyHue"
         priority>
     </a>
     }
-    <button type="button" class="sidebar-toggle" (click)="toggleCollapse()"
-      [attr.aria-label]="isCollapsed() ? 'Déplier la sidebar' : 'Replier la sidebar'">
+    <button type="button" class="sidebar-toggle" (click)="toggleCollapse()" [attr.aria-label]="collapseAriaLabel()">
       <i [class]="isCollapsed() ? 'fa-solid fa-angles-right' : 'fa-solid fa-angles-left'" aria-hidden="true"></i>
     </button>
   </div>
 
   <nav class="sidebar-nav">
-    @for (section of sections; track section.title) {
+    @for (section of localizedSections(); track section.title) {
     <div class="sidebar-section">
       @if (!isCollapsed()) {
       <h2 class="sidebar-section__title">{{ section.title }}</h2>

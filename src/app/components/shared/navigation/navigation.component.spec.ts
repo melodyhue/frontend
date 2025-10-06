@@ -2,6 +2,7 @@ import { DOCUMENT } from '@angular/common';
 import { provideZonelessChangeDetection } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { LocaleService } from '../../../core/services/locale.service';
 
 import { NavigationComponent } from './navigation.component';
 
@@ -9,6 +10,7 @@ describe('NavigationComponent', () => {
   let component: NavigationComponent;
   let fixture: ComponentFixture<NavigationComponent>;
   let documentRef: Document;
+  let localeService: LocaleService;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -17,6 +19,7 @@ describe('NavigationComponent', () => {
     }).compileComponents();
 
     documentRef = TestBed.inject(DOCUMENT);
+    localeService = TestBed.inject(LocaleService);
     documentRef.documentElement.lang = 'fr';
     window.localStorage.removeItem('melodyhue:locale');
     fixture = TestBed.createComponent(NavigationComponent);
@@ -26,6 +29,10 @@ describe('NavigationComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('should use LocaleService for locale management', () => {
+    expect(component.locale()).toBe(localeService.locale());
   });
 
   it('should default to French locale', () => {

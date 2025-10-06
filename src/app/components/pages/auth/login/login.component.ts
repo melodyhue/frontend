@@ -10,6 +10,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { isPlatformBrowser } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { AUTH_TOKEN_STORAGE_KEY } from '../../../../core/constants/storage-keys';
+import { LocaleService } from '../../../../core/services/locale.service';
 
 @Component({
   selector: 'app-login',
@@ -23,9 +24,50 @@ export class LoginComponent {
   private readonly router = inject(Router);
   private readonly platformId = inject(PLATFORM_ID);
   private readonly isBrowser = isPlatformBrowser(this.platformId);
+  readonly localeService = inject(LocaleService);
 
   readonly submissionInProgress = signal(false);
   private readonly submitAttempted = signal(false);
+
+  readonly title = computed(() => (this.localeService.locale() === 'fr' ? 'Connexion' : 'Log in'));
+
+  readonly subtitle = computed(() =>
+    this.localeService.locale() === 'fr' ? 'Pas encore de compte ?' : "Don't have an account?"
+  );
+
+  readonly createAccountLink = computed(() =>
+    this.localeService.locale() === 'fr' ? 'Créer un compte' : 'Sign up'
+  );
+
+  readonly emailLabel = computed(() =>
+    this.localeService.locale() === 'fr' ? 'Adresse e-mail' : 'Email address'
+  );
+
+  readonly passwordLabel = computed(() =>
+    this.localeService.locale() === 'fr' ? 'Mot de passe' : 'Password'
+  );
+
+  readonly rememberMeLabel = computed(() =>
+    this.localeService.locale() === 'fr' ? 'Se souvenir de moi' : 'Remember me'
+  );
+
+  readonly submitButtonLabel = computed(() =>
+    this.localeService.locale() === 'fr' ? 'Se connecter' : 'Log in'
+  );
+
+  readonly submittingLabel = computed(() =>
+    this.localeService.locale() === 'fr' ? 'Connexion…' : 'Logging in…'
+  );
+
+  readonly formDescription = computed(() =>
+    this.localeService.locale() === 'fr'
+      ? 'Tous les champs sont obligatoires sauf indication contraire.'
+      : 'All fields are required unless otherwise indicated.'
+  );
+
+  readonly forgotPasswordLink = computed(() =>
+    this.localeService.locale() === 'fr' ? 'Mot de passe oublié ?' : 'Forgot password?'
+  );
 
   readonly form = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
@@ -77,15 +119,17 @@ export class LoginComponent {
       return '';
     }
 
+    const isFr = this.localeService.locale() === 'fr';
+
     if (control.errors['required']) {
-      return 'Adresse e-mail obligatoire';
+      return isFr ? 'Adresse e-mail obligatoire' : 'Email address is required';
     }
 
     if (control.errors['email']) {
-      return 'Adresse e-mail invalide';
+      return isFr ? 'Adresse e-mail invalide' : 'Invalid email address';
     }
 
-    return 'Adresse e-mail invalide';
+    return isFr ? 'Adresse e-mail invalide' : 'Invalid email address';
   }
 
   getPasswordErrorMessage(): string {
@@ -94,14 +138,16 @@ export class LoginComponent {
       return '';
     }
 
+    const isFr = this.localeService.locale() === 'fr';
+
     if (control.errors['required']) {
-      return 'Mot de passe obligatoire';
+      return isFr ? 'Mot de passe obligatoire' : 'Password is required';
     }
 
     if (control.errors['minlength']) {
-      return 'Au moins 8 caractères requis';
+      return isFr ? 'Au moins 8 caractères requis' : 'At least 8 characters required';
     }
 
-    return 'Mot de passe invalide';
+    return isFr ? 'Mot de passe invalide' : 'Invalid password';
   }
 }

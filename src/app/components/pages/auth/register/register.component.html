@@ -1,21 +1,21 @@
 <section class="auth">
     <div class="auth__card">
         <header class="auth__header">
-            <h1>Création de compte</h1>
+            <h1>{{ title() }}</h1>
             <p class="auth__subtitle">
-                Déjà inscrit ?
-                <a routerLink="/auth/login" class="auth__link">Se connecter</a>
+                {{ subtitle() }}
+                <a routerLink="/auth/login" class="auth__link">{{ loginLink() }}</a>
             </p>
         </header>
 
         <form class="auth__form" [formGroup]="form" (ngSubmit)="onSubmit()" aria-describedby="register-form-description"
             aria-live="polite" novalidate>
             <p id="register-form-description" class="visually-hidden">
-                Tous les champs sont obligatoires et doivent être valides pour créer votre compte.
+                {{ formDescription() }}
             </p>
 
             <div class="form-field">
-                <label for="username">Pseudo</label>
+                <label for="username">{{ usernameLabel() }}</label>
                 <input id="username" type="text" formControlName="username" autocomplete="username" minlength="3"
                     maxlength="30" [class.form-field__input--invalid]="canShowUsernameError()"
                     [attr.aria-invalid]="canShowUsernameError()"
@@ -26,7 +26,7 @@
             </div>
 
             <div class="form-field">
-                <label for="email">Adresse e-mail</label>
+                <label for="email">{{ emailLabel() }}</label>
                 <input id="email" type="email" formControlName="email" autocomplete="email"
                     [class.form-field__input--invalid]="canShowEmailError()" [attr.aria-invalid]="canShowEmailError()"
                     [attr.aria-describedby]="canShowEmailError() ? 'email-error' : null" />
@@ -36,7 +36,7 @@
             </div>
 
             <div class="form-field">
-                <label for="password">Mot de passe</label>
+                <label for="password">{{ passwordLabel() }}</label>
                 <input id="password" type="password" formControlName="password" autocomplete="new-password"
                     [class.form-field__input--invalid]="canShowPasswordError()"
                     [attr.aria-invalid]="canShowPasswordError()"
@@ -47,7 +47,7 @@
             </div>
 
             <div class="form-field">
-                <label for="confirmPassword">Confirmation du mot de passe</label>
+                <label for="confirmPassword">{{ confirmPasswordLabel() }}</label>
                 <input id="confirmPassword" type="password" formControlName="confirmPassword"
                     autocomplete="new-password" [class.form-field__input--invalid]="canShowConfirmPasswordError()"
                     [attr.aria-invalid]="canShowConfirmPasswordError()"
@@ -60,22 +60,22 @@
             <label class="checkbox">
                 <input type="checkbox" formControlName="acceptTerms" />
                 <span>
-                    J'accepte les
-                    <a routerLink="/legal/terms" class="auth__link">conditions d'utilisation</a>
-                    et la
-                    <a routerLink="/legal/privacy" class="auth__link">politique de confidentialité</a>.
+                    {{ acceptTermsLabel() }}
+                    <a routerLink="/legal/terms" class="auth__link">{{ termsLink() }}</a>
+                    {{ andText() }}
+                    <a routerLink="/legal/privacy" class="auth__link">{{ privacyLink() }}</a>.
                 </span>
             </label>
             @if (shouldShowAcceptTermsError()) {
-            <p class="form-field__error">Vous devez accepter les conditions pour continuer</p>
+            <p class="form-field__error">{{ getAcceptTermsError() }}</p>
             }
 
             <button type="submit" class="auth__submit" [disabled]="submissionInProgress()"
                 [attr.aria-busy]="submissionInProgress()">
                 @if (submissionInProgress()) {
-                <span>Création en cours…</span>
+                <span>{{ submittingLabel() }}</span>
                 } @else {
-                <span>Créer mon compte</span>
+                <span>{{ submitButtonLabel() }}</span>
                 }
             </button>
         </form>

@@ -1,0 +1,72 @@
+<div class="overlays">
+  <div class="overlays__header">
+    <div class="overlays__header-content">
+      <h1 class="overlays__title">{{ title() }}</h1>
+      <p class="overlays__description">{{ description() }}</p>
+    </div>
+    <button class="overlays__create-btn" (click)="createOverlay()">
+      <i class="fa-solid fa-plus"></i>
+      <span>{{ createButtonLabel() }}</span>
+    </button>
+  </div>
+
+  @if (overlays().length === 0) {
+  <div class="overlays__empty">
+    <i class="fa-solid fa-layer-group overlays__empty-icon"></i>
+    <h2 class="overlays__empty-title">{{ emptyStateTitle() }}</h2>
+    <p class="overlays__empty-message">{{ emptyStateMessage() }}</p>
+    <button class="overlays__empty-btn" (click)="createOverlay()">
+      <i class="fa-solid fa-plus"></i>
+      <span>{{ createButtonLabel() }}</span>
+    </button>
+  </div>
+  } @else {
+  <div class="overlays__table-container">
+    <table class="overlays__table">
+      <thead>
+        <tr>
+          <th>{{ tableHeaders().name }}</th>
+          <th>{{ tableHeaders().type }}</th>
+          <th>{{ tableHeaders().modified }}</th>
+          <th class="overlays__table-actions">{{ tableHeaders().actions }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (overlay of overlays(); track overlay.id) {
+        <tr>
+          <td class="overlays__table-name">
+            <i class="fa-solid fa-layer-group"></i>
+            <span>{{ overlay.name }}</span>
+          </td>
+          <td>
+            <span class="overlays__type-badge">{{ overlay.type }}</span>
+          </td>
+          <td>{{ formatDate(overlay.lastModified) }}</td>
+          <td class="overlays__table-actions">
+            <div class="overlays__actions">
+              <button class="overlays__action-btn overlays__action-btn--view" (click)="viewOverlay(overlay.id)"
+                [attr.aria-label]="actionLabels().view" [title]="actionLabels().view">
+                <i class="fa-solid fa-eye"></i>
+              </button>
+              <button class="overlays__action-btn overlays__action-btn--edit" (click)="editOverlay(overlay.id)"
+                [attr.aria-label]="actionLabels().edit" [title]="actionLabels().edit">
+                <i class="fa-solid fa-pen"></i>
+              </button>
+              <button class="overlays__action-btn overlays__action-btn--duplicate"
+                (click)="duplicateOverlay(overlay.id)" [attr.aria-label]="actionLabels().duplicate"
+                [title]="actionLabels().duplicate">
+                <i class="fa-solid fa-copy"></i>
+              </button>
+              <button class="overlays__action-btn overlays__action-btn--delete" (click)="deleteOverlay(overlay.id)"
+                [attr.aria-label]="actionLabels().delete" [title]="actionLabels().delete">
+                <i class="fa-solid fa-trash"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+  }
+</div>
