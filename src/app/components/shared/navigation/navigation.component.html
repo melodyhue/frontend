@@ -1,0 +1,71 @@
+<nav aria-label="Navigation principale">
+  <a class="logo" routerLink="/" aria-label="Accueil MelodyHue">
+    <img ngSrc="/assets/img/MelodyHueWhite/MelodyHue White Texte.svg" width="116" height="48" alt="MelodyHue" priority>
+  </a>
+  <ul class="main-links" role="list">
+    @for (item of primaryNavItems(); track item.path) {
+    <li>
+      <a [routerLink]="item.path" routerLinkActive="active" [routerLinkActiveOptions]="item.matchOptions">
+        {{ item.label }}
+      </a>
+    </li>
+    }
+  </ul>
+  <div class="spacer" aria-hidden="true"></div>
+  <ul class="auth-links" role="list">
+    @for (item of authNavItems(); track item.path) {
+    <li>
+      <a [routerLink]="item.path" routerLinkActive="active" [routerLinkActiveOptions]="item.matchOptions">
+        {{ item.label }}
+      </a>
+    </li>
+    }
+  </ul>
+  <app-button variant="secondary" size="sm" class="locale-btn--desktop" (clicked)="toggleLocale()"
+    [ariaLabel]="'Changer la langue vers ' + (locale() === 'fr' ? 'anglais' : 'français')">
+    🌐 {{ locale().toUpperCase() }}
+  </app-button>
+  <div class="mobile-toggle" role="button" tabindex="0" (click)="toggleMenu()" [attr.aria-expanded]="isMenuOpen()"
+    aria-controls="mobile-nav" [attr.aria-label]="isMenuOpen() ? mobileToggleLabels().close : mobileToggleLabels().open"
+    (keydown)="onToggleKey($event)">
+    <span class="line" aria-hidden="true"></span>
+    <span class="line" aria-hidden="true"></span>
+    <span class="line" aria-hidden="true"></span>
+  </div>
+  @if (isMenuOpen()) {
+  <div class="overlay" (click)="closeMenu()" aria-hidden="true"></div>
+  <section id="mobile-nav" class="mobile-nav" aria-label="Menu mobile" role="dialog" aria-modal="true">
+    <header class="mobile-nav__header">
+      <span class="mobile-nav__title">Menu</span>
+      <button type="button" class="mobile-nav__close" (click)="closeMenu()" [attr.aria-label]="mobileCloseLabel()">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </header>
+    <ul class="mobile-nav__list" role="list">
+      @for (item of primaryNavItems(); track item.path) {
+      <li>
+        <a [routerLink]="item.path" routerLinkActive="active" [routerLinkActiveOptions]="item.matchOptions"
+          (click)="closeMenu()">
+          {{ item.label }}
+        </a>
+      </li>
+      }
+    </ul>
+    <ul class="mobile-nav__list mobile-nav__list--auth" role="list">
+      @for (item of authNavItems(); track item.path) {
+      <li>
+        <a [routerLink]="item.path" routerLinkActive="active" [routerLinkActiveOptions]="item.matchOptions"
+          (click)="closeMenu()">
+          {{ item.label }}
+        </a>
+      </li>
+      }
+    </ul>
+    <app-button variant="secondary" [fullWidth]="true" class="locale-btn--mobile" (clicked)="toggleLocale(true)"
+      [ariaLabel]="'Changer la langue vers ' + (locale() === 'fr' ? 'anglais' : 'français')">
+      🌐 {{ locale().toUpperCase() }} • {{ locale() === 'fr' ? 'Langue' : 'Language' }}
+    </app-button>
+  </section>
+  }
+  <p class="visually-hidden" aria-live="polite">Langue actuelle : {{ activeLocaleLabel() }}</p>
+</nav>

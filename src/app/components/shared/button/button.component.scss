@@ -1,0 +1,131 @@
+:host {
+  display: inline-block;
+}
+
+:host.app-button--full-width {
+  display: block;
+  width: 100%;
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-weight: 600;
+  text-align: center;
+  text-decoration: none;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  outline: none;
+  transition: all 160ms ease;
+  white-space: nowrap;
+  user-select: none;
+}
+
+.button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+:host.app-button--full-width .button {
+  width: 100%;
+}
+
+// Tailles
+:host.app-button--sm .button {
+  padding: 0.5rem 1rem;
+  font-size: 0.85rem;
+}
+
+:host.app-button--md .button {
+  padding: 0.65rem 1.25rem;
+  font-size: 0.9rem;
+}
+
+:host.app-button--lg .button {
+  padding: 0.85rem 1.75rem;
+  font-size: 1rem;
+}
+
+// Variante Primary
+:host.app-button--primary .button {
+  background: #6df0cf;
+  color: #0a3228;
+  border: 1px solid transparent;
+}
+
+:host.app-button--primary .button:hover:not(:disabled) {
+  background: #7ff5d8;
+}
+
+:host.app-button--primary .button:focus-visible {
+  box-shadow: 0 0 0 3px rgba(109, 240, 207, 0.4);
+}
+
+:host.app-button--primary .button:active:not(:disabled) {
+  background: #5de0bf;
+}
+
+// Variante Secondary
+:host.app-button--secondary .button {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+:host.app-button--secondary .button:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+:host.app-button--secondary .button:focus-visible {
+  border-color: rgba(109, 240, 207, 0.6);
+  box-shadow: 0 0 0 3px rgba(109, 240, 207, 0.25);
+}
+
+:host.app-button--secondary .button:active:not(:disabled) {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+// Variante Outline
+:host.app-button--outline .button {
+  background: transparent;
+  color: #6df0cf;
+  border: 1px solid #6df0cf;
+}
+
+:host.app-button--outline .button:hover:not(:disabled) {
+  background: rgba(109, 240, 207, 0.1);
+  border-color: #7ff5d8;
+}
+
+:host.app-button--outline .button:focus-visible {
+  box-shadow: 0 0 0 3px rgba(109, 240, 207, 0.25);
+}
+
+:host.app-button--outline .button:active:not(:disabled) {
+  background: rgba(109, 240, 207, 0.15);
+}
+
+// Variante Ghost
+:host.app-button--ghost .button {
+  background: transparent;
+  color: rgba(255, 255, 255, 0.85);
+  border: 1px solid transparent;
+}
+
+:host.app-button--ghost .button:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+:host.app-button--ghost .button:focus-visible {
+  border-color: rgba(109, 240, 207, 0.6);
+  box-shadow: 0 0 0 3px rgba(109, 240, 207, 0.25);
+}
+
+:host.app-button--ghost .button:active:not(:disabled) {
+  background: rgba(255, 255, 255, 0.12);
+}

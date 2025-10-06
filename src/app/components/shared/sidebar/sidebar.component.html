@@ -1,0 +1,37 @@
+<aside class="sidebar-container" aria-label="Menu de navigation du profil">
+  <div class="sidebar-header">
+    @if (!isCollapsed()) {
+    <a class="sidebar-logo" routerLink="/profile" aria-label="Retour à l'accueil">
+      <img ngSrc="/assets/img/MelodyHueWhite/MelodyHue White Texte.svg" width="116" height="48" alt="MelodyHue"
+        priority>
+    </a>
+    }
+    <button type="button" class="sidebar-toggle" (click)="toggleCollapse()"
+      [attr.aria-label]="isCollapsed() ? 'Déplier la sidebar' : 'Replier la sidebar'">
+      <i [class]="isCollapsed() ? 'fa-solid fa-angles-right' : 'fa-solid fa-angles-left'" aria-hidden="true"></i>
+    </button>
+  </div>
+
+  <nav class="sidebar-nav">
+    @for (section of sections; track section.title) {
+    <div class="sidebar-section">
+      @if (!isCollapsed()) {
+      <h2 class="sidebar-section__title">{{ section.title }}</h2>
+      }
+      <ul class="sidebar-list" role="list">
+        @for (item of section.items; track item.path) {
+        <li class="sidebar-list__item">
+          <a [routerLink]="item.path" routerLinkActive="active" [routerLinkActiveOptions]="getMatchOptions(item.exact)"
+            class="sidebar-link" [attr.title]="isCollapsed() ? item.label : null">
+            <i [class]="item.icon + ' sidebar-link__icon'" aria-hidden="true"></i>
+            @if (!isCollapsed()) {
+            <span class="sidebar-link__label">{{ item.label }}</span>
+            }
+          </a>
+        </li>
+        }
+      </ul>
+    </div>
+    }
+  </nav>
+</aside>
