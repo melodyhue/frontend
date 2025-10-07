@@ -113,6 +113,17 @@ export class SidebarComponent {
       ],
     },
     {
+      title: { fr: 'Développeur', en: 'Developer' },
+      items: [
+        {
+          path: '/developer/api',
+          label: { fr: 'Mon API', en: 'My API' },
+          icon: 'fa-solid fa-code',
+          exact: true,
+        },
+      ],
+    },
+    {
       title: { fr: 'Paramètres', en: 'Settings' },
       items: [
         {

@@ -28,13 +28,20 @@ export class GeneralComponent {
   readonly hexInputRef = viewChild<ElementRef<HTMLInputElement>>('hexInput');
   readonly isSpotifyConfigured = signal(false);
   readonly isSpotifyConnected = signal(false);
-  readonly defaultColor = signal('#0a3228');
-  readonly savedColor = signal('#0a3228');
-  readonly initialDefaultColor = '#0a3228';
+  readonly defaultColor = signal('#25d865');
+  readonly savedColor = signal('#25d865');
+  readonly initialDefaultColor = '#25d865';
   readonly spotifyClientId = signal('');
   readonly spotifyClientSecret = signal('');
   readonly showClientSecret = signal(false);
-  readonly redirectUri = 'https://melodyhue.com/auth/spotify/callback';
+  private readonly origin = signal<string>('#');
+  readonly redirectUri = computed(() => {
+    const base = this.origin();
+    // Fallback à l'URL publique si rendu SSR
+    return base === '#'
+      ? 'https://melodyhue.com/auth/spotify/callback'
+      : `${base}/auth/spotify/callback`;
+  });
   readonly hexInputError = signal<string | null>(null);
 
   readonly hasColorChanges = computed(() => this.defaultColor() !== this.savedColor());
@@ -42,6 +49,8 @@ export class GeneralComponent {
   constructor() {
     // Synchronize input value when defaultColor changes (only in browser)
     if (this.isBrowser) {
+      // Initialiser la base comme dans API
+      this.origin.set(window.location.origin);
       effect(() => {
         const hexInput = this.hexInputRef()?.nativeElement;
         const currentColor = this.defaultColor();
@@ -124,7 +133,7 @@ export class GeneralComponent {
   connectSpotify(): void {
     // TODO: Rediriger vers Spotify OAuth
     const clientId = this.spotifyClientId();
-    const redirectUri = encodeURIComponent(this.redirectUri);
+    const redirectUri = encodeURIComponent(this.redirectUri());
     const scopes = encodeURIComponent('user-read-currently-playing user-read-playback-state');
     const spotifyAuthUrl = `https://accounts.spotify.com/authorize?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}&scope=${scopes}`;
 

@@ -21,6 +21,9 @@ import { CreateComponent } from './components/pages/overlays/create/create.compo
 import { CopyComponent } from './components/pages/overlays/copy/copy.component';
 import { DeleteComponent } from './components/pages/overlays/delete/delete.component';
 import { ViewComponent } from './components/pages/overlays/view/view.component';
+import { ApiComponent } from './components/pages/developer/api/api.component';
+import { InfosComponent } from './components/pages/developer/api/infos/infos.component';
+import { ColorComponent } from './components/pages/developer/api/color/color.component';
 
 export const routes: Routes = [
   {
@@ -105,6 +108,23 @@ export const routes: Routes = [
           {
             path: 'delete/:id',
             component: DeleteComponent,
+          },
+        ],
+      },
+      {
+        path: 'developer',
+        children: [
+          {
+            path: 'api',
+            component: ApiComponent,
+          },
+          {
+            path: 'api/:userId/infos',
+            component: InfosComponent,
+          },
+          {
+            path: 'api/:userId/color',
+            component: ColorComponent,
           },
         ],
       },

@@ -29,8 +29,8 @@
         <div class="general__form-field">
           <label class="general__label">{{ content().spotify.redirectUriLabel }}</label>
           <div class="general__input-group">
-            <input type="text" [value]="redirectUri" readonly class="general__input general__input--readonly" />
-            <button class="general__btn-icon" (click)="copyToClipboard(redirectUri)" [title]="content().spotify.copy">
+            <input type="text" [value]="redirectUri()" readonly class="general__input general__input--readonly" />
+            <button class="general__btn-icon" (click)="copyToClipboard(redirectUri())" [title]="content().spotify.copy">
               <i class="fa-solid fa-copy"></i>
             </button>
           </div>
