@@ -70,14 +70,14 @@
             <p class="form-field__error">{{ getAcceptTermsError() }}</p>
             }
 
-            <button type="submit" class="auth__submit" [disabled]="submissionInProgress()"
+            <app-button type="submit" [fullWidth]="true" variant="accent" [disabled]="submissionInProgress()"
                 [attr.aria-busy]="submissionInProgress()">
                 @if (submissionInProgress()) {
                 <span>{{ submittingLabel() }}</span>
                 } @else {
                 <span>{{ submitButtonLabel() }}</span>
                 }
-            </button>
+            </app-button>
         </form>
     </div>
 </section>

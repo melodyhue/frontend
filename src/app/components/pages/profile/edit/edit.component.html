@@ -122,11 +122,10 @@
 
         <!-- Actions -->
         <div class="edit-profile__actions">
-            <button type="button" class="edit-profile__btn edit-profile__btn--cancel" (click)="cancel()">
+            <app-button variant="cancel" (clicked)="cancel()">
                 {{ labels().cancel }}
-            </button>
-            <button type="submit" class="edit-profile__btn edit-profile__btn--save"
-                [disabled]="form.invalid || isSaving()">
+            </app-button>
+            <app-button variant="success" type="submit" [disabled]="form.invalid || isSaving()">
                 @if (isSaving()) {
                 <i class="fa-solid fa-spinner fa-spin"></i>
                 <span>{{ labels().saving }}</span>
@@ -134,7 +133,7 @@
                 <i class="fa-solid fa-floppy-disk"></i>
                 <span>{{ labels().save }}</span>
                 }
-            </button>
+            </app-button>
         </div>
     </form>
 </div>

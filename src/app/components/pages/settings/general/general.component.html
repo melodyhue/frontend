@@ -61,11 +61,11 @@
                     </div>
                 </div>
 
-                <button class="general__btn general__btn--primary" (click)="saveSpotifyConfig()"
+                <app-button variant="primary" (clicked)="saveSpotifyConfig()"
                     [disabled]="!spotifyClientId() || !spotifyClientSecret()">
                     <i class="fa-solid fa-floppy-disk"></i>
                     {{ content().spotify.save }}
-                </button>
+                </app-button>
                 } @else if (isSpotifyConfigured() && !isSpotifyConnected()) {
                 <div class="general__status">
                     <span class="general__status-label">Status:</span>
@@ -76,14 +76,14 @@
                 </div>
 
                 <div class="general__actions">
-                    <button class="general__btn general__btn--primary" (click)="connectSpotify()">
+                    <app-button variant="primary" (clicked)="connectSpotify()">
                         <i class="fa-brands fa-spotify"></i>
                         {{ content().spotify.connect }}
-                    </button>
-                    <button class="general__btn general__btn--secondary" (click)="reconfigureSpotify()">
+                    </app-button>
+                    <app-button variant="secondary" (clicked)="reconfigureSpotify()">
                         <i class="fa-solid fa-gear"></i>
                         {{ content().spotify.reconfigure }}
-                    </button>
+                    </app-button>
                 </div>
                 } @else {
                 <div class="general__status">
@@ -94,10 +94,10 @@
                     </span>
                 </div>
 
-                <button class="general__btn general__btn--secondary" (click)="disconnectSpotify()">
+                <app-button variant="secondary" (clicked)="disconnectSpotify()">
                     <i class="fa-solid fa-link-slash"></i>
                     {{ content().spotify.disconnect }}
-                </button>
+                </app-button>
                 }
             </div>
         </div>
@@ -158,20 +158,19 @@
 
                     <!-- Actions -->
                     <div class="general__actions">
-                        <button class="general__btn general__btn--primary" (click)="saveDefaultColor()"
-                            [disabled]="!hasColorChanges()">
+                        <app-button variant="primary" (clicked)="saveDefaultColor()" [disabled]="!hasColorChanges()">
                             <i class="fa-solid fa-floppy-disk"></i>
                             {{ content().overlay.save }}
-                        </button>
-                        <button class="general__btn general__btn--secondary" (click)="deleteDefaultColor()"
+                        </app-button>
+                        <app-button variant="secondary" (clicked)="deleteDefaultColor()"
                             [disabled]="!hasColorChanges()">
                             <i class="fa-solid fa-xmark"></i>
                             {{ content().overlay.delete }}
-                        </button>
-                        <button class="general__btn general__btn--secondary" (click)="resetDefaultColor()">
+                        </app-button>
+                        <app-button variant="secondary" (clicked)="resetDefaultColor()">
                             <i class="fa-solid fa-rotate-left"></i>
                             {{ content().overlay.reset }}
-                        </button>
+                        </app-button>
                     </div>
                 </div>
             </div>

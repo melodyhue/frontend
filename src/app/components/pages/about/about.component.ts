@@ -1,5 +1,7 @@
 import { Component, ChangeDetectionStrategy, computed, inject } from '@angular/core';
+import { Router } from '@angular/router';
 import { LocaleService } from '../../../core/services/locale.service';
+import { ButtonComponent } from '../../shared/button/button.component';
 
 interface Feature {
   icon: string;
@@ -11,13 +13,14 @@ interface Feature {
 
 @Component({
   selector: 'app-about',
-  imports: [],
+  imports: [ButtonComponent],
   templateUrl: './about.component.html',
   styleUrl: './about.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AboutComponent {
   private readonly localeService = inject(LocaleService);
+  private readonly router = inject(Router);
 
   readonly title = computed(() => {
     const locale = this.localeService.locale();
@@ -69,6 +72,15 @@ export class AboutComponent {
                 : 'Add your overlays as Browser Source for smooth and responsive integration',
           },
         ],
+      },
+      cta: {
+        title:
+          locale === 'fr' ? 'Prêt à améliorer vos streams ?' : 'Ready to enhance your streams?',
+        description:
+          locale === 'fr'
+            ? 'Créez votre compte gratuitement et commencez à utiliser MelodyHue dès maintenant.'
+            : 'Create your free account and start using MelodyHue right now.',
+        button: locale === 'fr' ? 'Créer un compte' : 'Create Account',
       },
     };
   });
@@ -134,5 +146,9 @@ export class AboutComponent {
   getFeatureDescription(feature: Feature): string {
     const locale = this.localeService.locale();
     return locale === 'fr' ? feature.descriptionFr : feature.descriptionEn;
+  }
+
+  goToRegister(): void {
+    this.router.navigate(['/auth/register']);
   }
 }

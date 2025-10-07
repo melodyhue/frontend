@@ -2,10 +2,11 @@ import { Component, ChangeDetectionStrategy, computed, signal, inject } from '@a
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { LocaleService } from '../../../../core/services/locale.service';
+import { ButtonComponent } from '../../../shared/button/button.component';
 
 @Component({
   selector: 'app-forgot-password',
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, ButtonComponent],
   templateUrl: './forgot-password.component.html',
   styleUrl: './forgot-password.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

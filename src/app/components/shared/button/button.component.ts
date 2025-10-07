@@ -1,6 +1,14 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 
-type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost';
+type ButtonVariant =
+  | 'primary'
+  | 'secondary'
+  | 'outline'
+  | 'ghost'
+  | 'danger'
+  | 'cancel'
+  | 'success'
+  | 'accent';
 type ButtonSize = 'sm' | 'md' | 'lg';
 type ButtonType = 'button' | 'submit' | 'reset';
 

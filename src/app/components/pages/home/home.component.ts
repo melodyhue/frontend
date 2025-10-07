@@ -1,10 +1,11 @@
 import { Component, ChangeDetectionStrategy, computed, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { LocaleService } from '../../../core/services/locale.service';
+import { ButtonComponent } from '../../shared/button/button.component';
 
 @Component({
   selector: 'app-home',
-  imports: [],
+  imports: [ButtonComponent],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -12,10 +12,11 @@ import { isPlatformBrowser } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { AUTH_TOKEN_STORAGE_KEY } from '../../../../core/constants/storage-keys';
 import { LocaleService } from '../../../../core/services/locale.service';
+import { ButtonComponent } from '../../../shared/button/button.component';
 
 @Component({
   selector: 'app-register',
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, ButtonComponent],
   templateUrl: './register.component.html',
   styleUrl: './register.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

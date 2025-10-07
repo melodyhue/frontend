@@ -1,6 +1,7 @@
 import { Component, ChangeDetectionStrategy, computed, signal, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { LocaleService } from '../../../core/services/locale.service';
+import { ButtonComponent } from '../../shared/button/button.component';
 
 interface Overlay {
   id: string;
@@ -12,7 +13,7 @@ interface Overlay {
 
 @Component({
   selector: 'app-overlays',
-  imports: [],
+  imports: [ButtonComponent],
   templateUrl: './overlays.component.html',
   styleUrl: './overlays.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

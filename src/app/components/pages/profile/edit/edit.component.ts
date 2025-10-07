@@ -10,6 +10,7 @@ import { Router } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { LocaleService } from '../../../../core/services/locale.service';
 import { md5 } from '../../../../core/utils/md5.util';
+import { ButtonComponent } from '../../../shared/button/button.component';
 
 type AvatarType = 'gravatar' | 'initials';
 
@@ -23,7 +24,7 @@ interface UserProfile {
 
 @Component({
   selector: 'app-edit',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, ButtonComponent],
   templateUrl: './edit.component.html',
   styleUrl: './edit.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

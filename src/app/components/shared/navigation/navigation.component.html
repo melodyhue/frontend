@@ -23,7 +23,7 @@
   </ul>
   <app-button variant="secondary" size="sm" class="locale-btn--desktop" (clicked)="toggleLocale()"
     [ariaLabel]="'Changer la langue vers ' + (locale() === 'fr' ? 'anglais' : 'français')">
-    🌐 {{ locale().toUpperCase() }}
+    <i class="fa-solid fa-language"></i> {{ locale().toUpperCase() }}
   </app-button>
   <div class="mobile-toggle" role="button" tabindex="0" (click)="toggleMenu()" [attr.aria-expanded]="isMenuOpen()"
     aria-controls="mobile-nav" [attr.aria-label]="isMenuOpen() ? mobileToggleLabels().close : mobileToggleLabels().open"
@@ -60,7 +60,8 @@
     </ul>
     <app-button variant="secondary" [fullWidth]="true" class="locale-btn--mobile" (clicked)="toggleLocale(true)"
       [ariaLabel]="'Changer la langue vers ' + (locale() === 'fr' ? 'anglais' : 'français')">
-      🌐 {{ locale().toUpperCase() }} • {{ locale() === 'fr' ? 'Langue' : 'Language' }}
+      <i class="fa-solid fa-language"></i> {{ locale().toUpperCase() }} • {{ locale() === 'fr' ? 'Langue' : 'Language'
+      }}
     </app-button>
   </section>
   }

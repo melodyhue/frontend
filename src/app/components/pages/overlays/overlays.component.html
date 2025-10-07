@@ -4,10 +4,10 @@
       <h1 class="overlays__title">{{ title() }}</h1>
       <p class="overlays__description">{{ description() }}</p>
     </div>
-    <button class="overlays__create-btn" (click)="createOverlay()">
+    <app-button variant="primary" (clicked)="createOverlay()">
       <i class="fa-solid fa-plus"></i>
       <span>{{ createButtonLabel() }}</span>
-    </button>
+    </app-button>
   </div>
 
   @if (overlays().length === 0) {
@@ -15,10 +15,10 @@
     <i class="fa-solid fa-layer-group overlays__empty-icon"></i>
     <h2 class="overlays__empty-title">{{ emptyStateTitle() }}</h2>
     <p class="overlays__empty-message">{{ emptyStateMessage() }}</p>
-    <button class="overlays__empty-btn" (click)="createOverlay()">
+    <app-button variant="primary" (clicked)="createOverlay()">
       <i class="fa-solid fa-plus"></i>
       <span>{{ createButtonLabel() }}</span>
-    </button>
+    </app-button>
   </div>
   } @else {
   <div class="overlays__table-container">

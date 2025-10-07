@@ -58,4 +58,17 @@
       }
     </div>
   </div>
+
+  <!-- CTA Section -->
+  <div class="about__cta">
+    <div class="about__cta-icon">
+      <i class="fa-solid fa-rocket"></i>
+    </div>
+    <h2 class="about__cta-title">{{ content().cta.title }}</h2>
+    <p class="about__cta-description">{{ content().cta.description }}</p>
+    <app-button variant="accent" size="lg" (clicked)="goToRegister()">
+      {{ content().cta.button }}
+      <i class="fa-solid fa-arrow-right"></i>
+    </app-button>
+  </div>
 </div>

@@ -6,13 +6,13 @@
       <p class="home__hero-subtitle">{{ content().hero.subtitle }}</p>
       <p class="home__hero-description">{{ content().hero.description }}</p>
       <div class="home__hero-actions">
-        <button class="home__btn home__btn--primary" (click)="goToRegister()">
+        <app-button variant="primary" size="lg" (clicked)="goToRegister()">
           {{ content().hero.ctaPrimary }}
           <i class="fa-solid fa-arrow-right"></i>
-        </button>
-        <button class="home__btn home__btn--secondary" (click)="goToAbout()">
+        </app-button>
+        <app-button variant="secondary" size="lg" (clicked)="goToAbout()">
           {{ content().hero.ctaSecondary }}
-        </button>
+        </app-button>
       </div>
     </div>
     <div class="home__hero-visual">
@@ -45,10 +45,10 @@
   <section class="home__cta">
     <div class="home__cta-content">
       <h2 class="home__cta-title">{{ content().cta.title }}</h2>
-      <button class="home__btn home__btn--primary home__btn--large" (click)="goToRegister()">
+      <app-button variant="accent" size="lg" (clicked)="goToRegister()">
         {{ content().cta.button }}
         <i class="fa-solid fa-arrow-right"></i>
-      </button>
+      </app-button>
     </div>
   </section>
 </div>

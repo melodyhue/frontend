@@ -11,10 +11,11 @@ import {
 } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { LocaleService } from '../../../../core/services/locale.service';
+import { ButtonComponent } from '../../../shared/button/button.component';
 
 @Component({
   selector: 'app-general',
-  imports: [],
+  imports: [ButtonComponent],
   templateUrl: './general.component.html',
   styleUrl: './general.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

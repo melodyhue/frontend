@@ -9,6 +9,7 @@ import {
 import { Router } from '@angular/router';
 import { LocaleService } from '../../../core/services/locale.service';
 import { md5 } from '../../../core/utils/md5.util';
+import { ButtonComponent } from '../../shared/button/button.component';
 
 type AvatarType = 'gravatar' | 'initials';
 
@@ -24,7 +25,7 @@ interface UserProfile {
 
 @Component({
   selector: 'app-profile',
-  imports: [],
+  imports: [ButtonComponent],
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
