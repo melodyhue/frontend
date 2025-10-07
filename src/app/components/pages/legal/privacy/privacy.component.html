@@ -1,21 +1,21 @@
 <div class="legal">
-    <div class="legal__container">
-        <header class="legal__header">
-            <h1>{{ title() }}</h1>
-            <p class="legal__date">{{ lastUpdated() }}</p>
-        </header>
+  <div class="legal__container">
+    <header class="legal__header">
+      <h1>{{ title() }}</h1>
+      <p class="legal__date">{{ lastUpdated() }}</p>
+    </header>
 
-        <div class="legal__content">
-            @for (section of content().sections; track section.title) {
-            <section class="legal__section">
-                <h2>{{ section.title }}</h2>
-                <p>{{ section.content }}</p>
-            </section>
-            }
-        </div>
-
-        <footer class="legal__footer">
-            <button type="button" (click)="goBack()" class="legal__link">{{ backLink() }}</button>
-        </footer>
+    <div class="legal__content">
+      @for (section of content().sections; track section.title) {
+      <section class="legal__section">
+        <h2>{{ section.title }}</h2>
+        <p>{{ section.content }}</p>
+      </section>
+      }
     </div>
+
+    <footer class="legal__footer">
+      <button type="button" (click)="goBack()" class="legal__link">{{ backLink() }}</button>
+    </footer>
+  </div>
 </div>

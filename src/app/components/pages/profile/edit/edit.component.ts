@@ -93,7 +93,7 @@ export class EditComponent {
       createGravatar: locale === 'fr' ? 'Créer un compte Gravatar' : 'Create Gravatar Account',
       chooseColor:
         locale === 'fr' ? 'Choisir une couleur pour les initiales' : 'Choose a color for initials',
-      cancel: locale === 'fr' ? 'Réinitialiser' : 'Reset',
+      cancel: locale === 'fr' ? 'Annuler' : 'Cancel',
       save: locale === 'fr' ? 'Enregistrer' : 'Save',
       saving: locale === 'fr' ? 'Enregistrement...' : 'Saving...',
       checking: locale === 'fr' ? 'Vérification...' : 'Checking...',

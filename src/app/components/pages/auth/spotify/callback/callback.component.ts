@@ -4,8 +4,6 @@ import { Component } from '@angular/core';
   selector: 'app-callback',
   imports: [],
   templateUrl: './callback.component.html',
-  styleUrl: './callback.component.scss'
+  styleUrl: './callback.component.scss',
 })
-export class CallbackComponent {
-
-}
+export class CallbackComponent {}

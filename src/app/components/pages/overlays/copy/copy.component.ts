@@ -4,8 +4,6 @@ import { Component } from '@angular/core';
   selector: 'app-copy',
   imports: [],
   templateUrl: './copy.component.html',
-  styleUrl: './copy.component.scss'
+  styleUrl: './copy.component.scss',
 })
-export class CopyComponent {
-
-}
+export class CopyComponent {}

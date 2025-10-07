@@ -94,7 +94,7 @@ export class GeneralComponent {
         label: locale === 'fr' ? 'Couleur' : 'Color',
         save: locale === 'fr' ? 'Enregistrer' : 'Save',
         reset: locale === 'fr' ? 'Réinitialiser' : 'Reset to Default',
-        delete: locale === 'fr' ? 'Supprimer' : 'Delete',
+        cancel: locale === 'fr' ? 'Annuler' : 'Cancel',
         invalidHex:
           locale === 'fr'
             ? 'Code couleur invalide. Utilisez exactement 6 caractères hexadécimaux (0-9, A-F)'

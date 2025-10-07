@@ -71,7 +71,7 @@ export class SecurityComponent {
       disable2FA: locale === 'fr' ? 'Désactiver 2FA' : 'Disable 2FA',
       enabled: locale === 'fr' ? 'Activé' : 'Enabled',
       disabled: locale === 'fr' ? 'Désactivé' : 'Disabled',
-      cancel: locale === 'fr' ? 'Réinitialiser' : 'Reset',
+      cancel: locale === 'fr' ? 'Annuler' : 'Cancel',
       cancelDelete: locale === 'fr' ? 'Annuler' : 'Cancel',
       save: locale === 'fr' ? 'Enregistrer' : 'Save',
       saving: locale === 'fr' ? 'Enregistrement...' : 'Saving...',

@@ -4,8 +4,6 @@ import { Component } from '@angular/core';
   selector: 'app-delete',
   imports: [],
   templateUrl: './delete.component.html',
-  styleUrl: './delete.component.scss'
+  styleUrl: './delete.component.scss',
 })
-export class DeleteComponent {
-
-}
+export class DeleteComponent {}

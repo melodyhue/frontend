@@ -5,7 +5,9 @@ import {
   signal,
   inject,
   effect,
+  PLATFORM_ID,
 } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { Router } from '@angular/router';
 import { LocaleService } from '../../../core/services/locale.service';
 import { md5 } from '../../../core/utils/md5.util';
@@ -33,6 +35,8 @@ interface UserProfile {
 export class ProfileComponent {
   private readonly localeService = inject(LocaleService);
   private readonly router = inject(Router);
+  private readonly platformId = inject(PLATFORM_ID);
+  private readonly isBrowser = isPlatformBrowser(this.platformId);
 
   // Mock data - à remplacer par un service
   readonly user = signal<UserProfile>({
@@ -95,6 +99,12 @@ export class ProfileComponent {
   }
 
   private checkGravatarAvailability(url: string): void {
+    // Ne vérifier que côté navigateur
+    if (!this.isBrowser) {
+      this.gravatarLoading.set(false);
+      return;
+    }
+
     this.gravatarLoading.set(true);
     const img = new Image();
     img.onload = () => {

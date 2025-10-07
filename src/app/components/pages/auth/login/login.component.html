@@ -1,57 +1,56 @@
 <section class="auth">
-    <div class="auth__card">
-        <header class="auth__header">
-            <h1>{{ title() }}</h1>
-            <p class="auth__subtitle">
-                {{ subtitle() }}
-                <a routerLink="/auth/register" class="auth__link">{{ createAccountLink() }}</a>
-            </p>
-        </header>
+  <div class="auth__card">
+    <header class="auth__header">
+      <h1>{{ title() }}</h1>
+      <p class="auth__subtitle">
+        {{ subtitle() }}
+        <a routerLink="/auth/register" class="auth__link">{{ createAccountLink() }}</a>
+      </p>
+    </header>
 
-        <form class="auth__form" [formGroup]="form" (ngSubmit)="onSubmit()" aria-describedby="auth-form-description"
-            aria-live="polite" novalidate>
-            <p id="auth-form-description" class="visually-hidden">
-                {{ formDescription() }}
-            </p>
+    <form class="auth__form" [formGroup]="form" (ngSubmit)="onSubmit()" aria-describedby="auth-form-description"
+      aria-live="polite" novalidate>
+      <p id="auth-form-description" class="visually-hidden">
+        {{ formDescription() }}
+      </p>
 
-            <div class="form-field">
-                <label for="email">{{ emailLabel() }}</label>
-                <input id="email" type="email" formControlName="email" autocomplete="email"
-                    [class.form-field__input--invalid]="canShowEmailError()" [attr.aria-invalid]="canShowEmailError()"
-                    [attr.aria-describedby]="canShowEmailError() ? 'email-error' : null" />
-                @if (canShowEmailError()) {
-                <p id="email-error" class="form-field__error">{{ getEmailErrorMessage() }}</p>
-                }
-            </div>
+      <div class="form-field">
+        <label for="email">{{ emailLabel() }}</label>
+        <input id="email" type="email" formControlName="email" autocomplete="email"
+          [class.form-field__input--invalid]="canShowEmailError()" [attr.aria-invalid]="canShowEmailError()"
+          [attr.aria-describedby]="canShowEmailError() ? 'email-error' : null" />
+        @if (canShowEmailError()) {
+        <p id="email-error" class="form-field__error">{{ getEmailErrorMessage() }}</p>
+        }
+      </div>
 
-            <div class="form-field">
-                <label for="password">{{ passwordLabel() }}</label>
-                <input id="password" type="password" formControlName="password" autocomplete="current-password"
-                    [class.form-field__input--invalid]="canShowPasswordError()"
-                    [attr.aria-invalid]="canShowPasswordError()"
-                    [attr.aria-describedby]="canShowPasswordError() ? 'password-error' : null" />
-                @if (canShowPasswordError()) {
-                <p id="password-error" class="form-field__error">{{ getPasswordErrorMessage() }}</p>
-                }
-            </div>
+      <div class="form-field">
+        <label for="password">{{ passwordLabel() }}</label>
+        <input id="password" type="password" formControlName="password" autocomplete="current-password"
+          [class.form-field__input--invalid]="canShowPasswordError()" [attr.aria-invalid]="canShowPasswordError()"
+          [attr.aria-describedby]="canShowPasswordError() ? 'password-error' : null" />
+        @if (canShowPasswordError()) {
+        <p id="password-error" class="form-field__error">{{ getPasswordErrorMessage() }}</p>
+        }
+      </div>
 
-            <div class="form-row form-row--between">
-                <label class="checkbox">
-                    <input type="checkbox" formControlName="rememberMe" />
-                    <span>{{ rememberMeLabel() }}</span>
-                </label>
-                <a routerLink="/auth/forgot-password" class="auth__link auth__link--small">{{ forgotPasswordLink()
-                    }}</a>
-            </div>
+      <div class="form-row form-row--between">
+        <label class="checkbox">
+          <input type="checkbox" formControlName="rememberMe" />
+          <span>{{ rememberMeLabel() }}</span>
+        </label>
+        <a routerLink="/auth/forgot-password" class="auth__link auth__link--small">{{ forgotPasswordLink()
+          }}</a>
+      </div>
 
-            <app-button type="submit" [fullWidth]="true" variant="accent" [disabled]="submissionInProgress()"
-                [attr.aria-busy]="submissionInProgress()">
-                @if (submissionInProgress()) {
-                <span>{{ submittingLabel() }}</span>
-                } @else {
-                <span>{{ submitButtonLabel() }}</span>
-                }
-            </app-button>
-        </form>
-    </div>
+      <app-button type="submit" [fullWidth]="true" variant="accent" [disabled]="submissionInProgress()"
+        [attr.aria-busy]="submissionInProgress()">
+        @if (submissionInProgress()) {
+        <span>{{ submittingLabel() }}</span>
+        } @else {
+        <span>{{ submitButtonLabel() }}</span>
+        }
+      </app-button>
+    </form>
+  </div>
 </section>
