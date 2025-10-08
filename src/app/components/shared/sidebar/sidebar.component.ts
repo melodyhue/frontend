@@ -143,13 +143,21 @@ export class SidebarComponent {
         },
       ],
     },
-    // {
-    //   title: { fr: 'Compte', en: 'Account' },
-    //   items: [
-    //     { path: '/account/subscription', label: { fr: 'Abonnement', en: 'Subscription' }, icon: 'fa-solid fa-gem' },
-    //     { path: '/account/billing', label: { fr: 'Facturation', en: 'Billing' }, icon: 'fa-solid fa-credit-card' },
-    //   ],
-    // },
+    {
+      title: { fr: 'Administration', en: 'Administration' },
+      items: [
+        {
+          path: '/admin',
+          label: { fr: 'Tableau de bord', en: 'Dashboard' },
+          icon: 'fa-solid fa-tachometer-alt',
+        },
+        {
+          path: '/admin/users',
+          label: { fr: 'Utilisateurs', en: 'Users' },
+          icon: 'fa-solid fa-users',
+        },
+      ],
+    },
     {
       title: { fr: 'Actions', en: 'Actions' },
       items: [

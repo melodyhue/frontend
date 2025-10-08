@@ -72,14 +72,13 @@ export class LoginComponent {
 
   readonly form = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required, Validators.minLength(8)]],
+    password: ['', [Validators.required]],
     rememberMe: [true],
   });
 
   readonly controls = this.form.controls;
 
-  readonly canShowEmailError = computed(() => this.shouldShowError('email'));
-  readonly canShowPasswordError = computed(() => this.shouldShowError('password'));
+  readonly canShowFormError = computed(() => this.shouldShowFormError());
 
   onSubmit(): void {
     this.submitAttempted.set(true);
@@ -98,57 +97,62 @@ export class LoginComponent {
     queueMicrotask(() => {
       if (this.isBrowser) {
         const expiration = this.controls.rememberMe.value ? 'persistent' : 'session';
-        window.localStorage.setItem(
-          AUTH_TOKEN_STORAGE_KEY,
-          JSON.stringify({ session: expiration, createdAt: new Date().toISOString() })
-        );
+
+        // Simuler la réponse d'authentification avec le rôle utilisateur
+        // En production, ces données viendraient du serveur d'authentification
+        const userRole = this.getUserRole(this.controls.email.value);
+
+        // TODO: Récupérer ces infos depuis le backend après authentification
+        // Placeholder 2FA: on suppose que l'utilisateur a activé la 2FA côté serveur.
+        const twoFactorEnabled = true; // placeholder à remplacer par la valeur serveur
+        const tokenPayload = {
+          session: expiration,
+          createdAt: new Date().toISOString(),
+          role: userRole,
+          email: this.controls.email.value,
+          twoFactorEnabled,
+          twoFactorVerified: false, // sera mis à true après OTP
+        } as const;
+
+        window.localStorage.setItem(AUTH_TOKEN_STORAGE_KEY, JSON.stringify(tokenPayload));
+      }
+
+      // Redirection conditionnelle selon la 2FA
+      const stored = this.isBrowser ? window.localStorage.getItem(AUTH_TOKEN_STORAGE_KEY) : null;
+      let goToOtp = false;
+      try {
+        const parsed = stored ? JSON.parse(stored) : null;
+        goToOtp = !!(parsed?.twoFactorEnabled && !parsed?.twoFactorVerified);
+      } catch {
+        // ignore: si parsing échoue, on considère pas de 2FA
       }
 
       this.submissionInProgress.set(false);
-      this.router.navigateByUrl('/profile');
+      if (goToOtp) {
+        this.router.navigateByUrl('/auth/login/otp');
+      } else {
+        this.router.navigateByUrl('/profile');
+      }
     });
   }
 
-  private shouldShowError(controlName: keyof typeof this.controls): boolean {
-    const control = this.controls[controlName];
-    return control.invalid && (control.touched || this.submitAttempted());
+  private shouldShowFormError(): boolean {
+    const emailControl = this.controls.email;
+    const passwordControl = this.controls.password;
+    return (
+      (emailControl.invalid || passwordControl.invalid) &&
+      (emailControl.touched || passwordControl.touched || this.submitAttempted())
+    );
   }
 
-  getEmailErrorMessage(): string {
-    const control = this.controls.email;
-    if (!control.errors) {
-      return '';
-    }
-
+  getFormErrorMessage(): string {
     const isFr = this.localeService.locale() === 'fr';
-
-    if (control.errors['required']) {
-      return isFr ? 'Adresse e-mail obligatoire' : 'Email address is required';
-    }
-
-    if (control.errors['email']) {
-      return isFr ? 'Adresse e-mail invalide' : 'Invalid email address';
-    }
-
-    return isFr ? 'Adresse e-mail invalide' : 'Invalid email address';
+    return isFr ? 'Email ou mot de passe invalide' : 'Invalid email or password';
   }
 
-  getPasswordErrorMessage(): string {
-    const control = this.controls.password;
-    if (!control.errors) {
-      return '';
-    }
-
-    const isFr = this.localeService.locale() === 'fr';
-
-    if (control.errors['required']) {
-      return isFr ? 'Mot de passe obligatoire' : 'Password is required';
-    }
-
-    if (control.errors['minlength']) {
-      return isFr ? 'Au moins 8 caractères requis' : 'At least 8 characters required';
-    }
-
-    return isFr ? 'Mot de passe invalide' : 'Invalid password';
+  private getUserRole(email: string): 'admin' | 'user' | 'moderator' {
+    // TODO: Récupérer le rôle depuis le backend après authentification
+    // Placeholder temporaire - en attente de l'intégration backend
+    return 'user'; // Par défaut, tous les utilisateurs auront le rôle 'user'
   }
 }

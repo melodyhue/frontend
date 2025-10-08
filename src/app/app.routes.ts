@@ -24,6 +24,7 @@ import { ViewComponent } from './components/pages/overlays/view/view.component';
 import { ApiComponent } from './components/pages/developer/api/api.component';
 import { InfosComponent } from './components/pages/developer/api/infos/infos.component';
 import { ColorComponent } from './components/pages/developer/api/color/color.component';
+import { OtpComponent } from './components/pages/auth/login/otp/otp.component';
 
 export const routes: Routes = [
   {
@@ -45,7 +46,17 @@ export const routes: Routes = [
     children: [
       {
         path: 'login',
-        component: LoginComponent,
+        children: [
+          {
+            path: '',
+            pathMatch: 'full',
+            component: LoginComponent,
+          },
+          {
+            path: 'otp',
+            component: OtpComponent,
+          },
+        ],
       },
       {
         path: 'register',
