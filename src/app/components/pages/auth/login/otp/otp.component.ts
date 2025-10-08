@@ -13,8 +13,12 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { isPlatformBrowser } from '@angular/common';
 import { ButtonComponent } from '../../../../shared/button/button.component';
-import { AUTH_TOKEN_STORAGE_KEY } from '../../../../../core/constants/storage-keys';
+import {
+  AUTH_TICKET_STORAGE_KEY,
+  AUTH_TOKEN_STORAGE_KEY,
+} from '../../../../../core/constants/storage-keys';
 import { LocaleService } from '../../../../../core/services/locale.service';
+import { AuthService } from '../../../../../core/services/auth.service';
 
 @Component({
   selector: 'app-otp',
@@ -29,9 +33,11 @@ export class OtpComponent {
   private readonly platformId = inject(PLATFORM_ID);
   private readonly isBrowser = isPlatformBrowser(this.platformId);
   readonly localeService = inject(LocaleService);
+  private readonly authService = inject(AuthService);
 
   readonly submissionInProgress = signal(false);
   private readonly submitAttempted = signal(false);
+  readonly errorMessage = signal<string>('');
 
   // Texte/i18n
   readonly title = computed(() =>
@@ -98,6 +104,7 @@ export class OtpComponent {
 
   onSubmit(): void {
     this.submitAttempted.set(true);
+    this.errorMessage.set('');
 
     if (this.form.invalid) {
       this.form.markAllAsTouched();
@@ -110,42 +117,66 @@ export class OtpComponent {
 
     this.submissionInProgress.set(true);
 
-    // Simulation de la vérification OTP côté serveur
-    queueMicrotask(() => {
-      if (this.isBrowser) {
-        const code = this.codeValue();
-        if (!/^\d{6}$/.test(code)) {
-          this.submissionInProgress.set(false);
-          this.form.markAllAsTouched();
-          return;
-        }
-        try {
-          const existing = window.localStorage.getItem(AUTH_TOKEN_STORAGE_KEY);
-          const now = new Date().toISOString();
-          const parsed = existing ? JSON.parse(existing) : {};
-
-          const updated = {
-            ...parsed,
-            twoFactorVerified: true,
-            twoFactorVerifiedAt: now,
-            twoFactorCodePreview: code,
-          } as Record<string, unknown>;
-
-          window.localStorage.setItem(AUTH_TOKEN_STORAGE_KEY, JSON.stringify(updated));
-        } catch {
-          // En cas d’erreur de parsing, on repart sur un objet propre
-          window.localStorage.setItem(
-            AUTH_TOKEN_STORAGE_KEY,
-            JSON.stringify({
-              twoFactorVerified: true,
-              twoFactorVerifiedAt: new Date().toISOString(),
-            })
-          );
-        }
-      }
-
+    const code = this.codeValue();
+    if (!/^\d{6}$/.test(code)) {
       this.submissionInProgress.set(false);
-      this.router.navigateByUrl('/profile');
+      this.form.markAllAsTouched();
+      return;
+    }
+
+    const ticket = this.authService.readTicket();
+    if (!ticket) {
+      this.submissionInProgress.set(false);
+      this.form.markAllAsTouched();
+      return;
+    }
+
+    this.authService.loginStep2Totp({ ticket, totp: code }).subscribe({
+      next: (tokens) => {
+        this.errorMessage.set('');
+        this.authService.storeTokenPair(tokens);
+        // Nettoyer le ticket
+        if (this.isBrowser) {
+          try {
+            window.localStorage.removeItem(AUTH_TICKET_STORAGE_KEY);
+          } catch {}
+        }
+        this.submissionInProgress.set(false);
+        this.router.navigateByUrl('/profile');
+      },
+      error: (err) => {
+        this.submissionInProgress.set(false);
+        this.form.markAllAsTouched();
+        const status = err?.status ?? 0;
+        const apiMsg: string | undefined =
+          typeof err?.error === 'string'
+            ? err.error
+            : typeof err?.error?.message === 'string'
+            ? err.error.message
+            : undefined;
+        const isFr = this.localeService.locale() === 'fr';
+        let msg = apiMsg;
+        if (!msg) {
+          if (status === 0) {
+            msg = isFr
+              ? 'Impossible de joindre le serveur. Vérifiez votre connexion.'
+              : 'Cannot reach server. Check your connection.';
+          } else if (status === 400 || status === 401) {
+            msg = isFr ? 'Code de vérification invalide.' : 'Invalid verification code.';
+          } else if (status === 403) {
+            msg = isFr ? 'Accès refusé.' : 'Access denied.';
+          } else if (status === 429) {
+            msg = isFr
+              ? 'Trop de tentatives, réessayez plus tard.'
+              : 'Too many attempts, try later.';
+          } else if (status >= 500) {
+            msg = isFr ? 'Erreur serveur. Réessayez plus tard.' : 'Server error. Please try later.';
+          } else {
+            msg = isFr ? 'Une erreur est survenue.' : 'An error occurred.';
+          }
+        }
+        this.errorMessage.set(msg);
+      },
     });
   }
 

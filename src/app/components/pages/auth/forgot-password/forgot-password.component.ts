@@ -3,6 +3,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { LocaleService } from '../../../../core/services/locale.service';
 import { ButtonComponent } from '../../../shared/button/button.component';
+import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
   selector: 'app-forgot-password',
@@ -14,6 +15,7 @@ import { ButtonComponent } from '../../../shared/button/button.component';
 export class ForgotPasswordComponent {
   private readonly fb = inject(FormBuilder).nonNullable;
   private readonly localeService = inject(LocaleService);
+  private readonly authService = inject(AuthService);
 
   readonly isSubmitting = signal(false);
   readonly emailSent = signal(false);
@@ -82,10 +84,14 @@ export class ForgotPasswordComponent {
 
     this.isSubmitting.set(true);
 
-    // Simuler l'envoi d'un e-mail
-    setTimeout(() => {
-      this.isSubmitting.set(false);
-      this.emailSent.set(true);
-    }, 1500);
+    this.authService.forgotPassword({ email: this.form.controls.email.value }).subscribe({
+      next: () => {
+        this.isSubmitting.set(false);
+        this.emailSent.set(true);
+      },
+      error: () => {
+        this.isSubmitting.set(false);
+      },
+    });
   }
 }

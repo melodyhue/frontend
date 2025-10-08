@@ -3,6 +3,8 @@ import { Router } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, Validators, AbstractControl } from '@angular/forms';
 import { LocaleService } from '../../../../core/services/locale.service';
 import { ButtonComponent } from '../../../shared/button/button.component';
+import { UsersService } from '../../../../core/services/users.service';
+import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
   selector: 'app-security',
@@ -15,6 +17,8 @@ export class SecurityComponent {
   private readonly localeService = inject(LocaleService);
   private readonly router = inject(Router);
   private readonly fb = inject(FormBuilder);
+  private readonly usersService = inject(UsersService);
+  private readonly authService = inject(AuthService);
 
   readonly isSaving = signal<boolean>(false);
   readonly successMessage = signal<string>('');
@@ -130,32 +134,40 @@ export class SecurityComponent {
   }
 
   onSubmitPassword(): void {
-    if (this.passwordForm.valid) {
-      this.isSaving.set(true);
-      this.successMessage.set('');
-
-      // Simuler l'enregistrement
-      setTimeout(() => {
+    if (!this.passwordForm.valid || this.isSaving()) return;
+    this.isSaving.set(true);
+    this.successMessage.set('');
+    const old_password = this.passwordForm.controls.currentPassword.value!;
+    const new_password = this.passwordForm.controls.newPassword.value!;
+    this.usersService.changePassword({ old_password, new_password }).subscribe({
+      next: () => {
         this.isSaving.set(false);
         const locale = this.localeService.locale();
         this.successMessage.set(
           locale === 'fr' ? 'Mot de passe modifié avec succès !' : 'Password changed successfully!'
         );
-
-        // Réinitialiser le formulaire
         this.passwordForm.reset();
-
-        // Effacer le message après 5 secondes
-        setTimeout(() => {
-          this.successMessage.set('');
-        }, 5000);
-      }, 1000);
-    }
+        setTimeout(() => this.successMessage.set(''), 5000);
+      },
+      error: () => {
+        this.isSaving.set(false);
+      },
+    });
   }
 
   toggle2FA(): void {
-    // TODO: Implémenter la logique 2FA
-    this.twoFactorEnabled.update((v) => !v);
+    // Si pas activé → setup + verify (demander un code à l’utilisateur dans l’UI)
+    if (!this.twoFactorEnabled()) {
+      this.authService.twoFASetup().subscribe({
+        next: (setup) => {
+          // TODO UI: afficher setup.otpauth_url sous forme de QR, saisir un code et appeler verify
+          console.log('2FA setup:', setup);
+        },
+      });
+    } else {
+      // Désactivation à définir côté API (non présent dans OpenAPI fourni)
+      this.twoFactorEnabled.set(false);
+    }
   }
 
   cancel(): void {
@@ -242,18 +254,25 @@ export class SecurityComponent {
   }
 
   onSubmitDeleteAccount(): void {
-    if (this.deleteAccountForm.valid) {
-      this.isDeleting.set(true);
+    if (!this.deleteAccountForm.valid || this.isDeleting()) return;
+    this.isDeleting.set(true);
 
-      // Simuler la suppression du compte
-      setTimeout(() => {
+    const password = this.deleteAccountForm.controls.password.value!;
+    this.usersService.deleteAccount({ password }).subscribe({
+      next: () => {
+        // Nettoyer l'auth et rediriger vers l'accueil
+        this.authService.clearAuth();
         this.isDeleting.set(false);
-        // TODO: Implémenter la vraie logique de suppression avec l'API
-        // Pour l'instant, on redirige vers la page d'accueil
-        console.log('Account deletion confirmed');
-        // this.router.navigate(['/']);
-      }, 2000);
-    }
+        this.router.navigate(['/']);
+      },
+      error: (err) => {
+        this.isDeleting.set(false);
+        // Marquer les champs pour affichage des erreurs
+        this.deleteAccountForm.markAllAsTouched();
+        // Optionnel: afficher un message simple si 401/403
+        console.error('Delete account failed', err);
+      },
+    });
   }
 
   getDeleteError(fieldName: string): string {

@@ -5,12 +5,16 @@ import {
   signal,
   inject,
   effect,
+  PLATFORM_ID,
 } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { Router } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { LocaleService } from '../../../../core/services/locale.service';
 import { md5 } from '../../../../core/utils/md5.util';
 import { ButtonComponent } from '../../../shared/button/button.component';
+import { UsersService } from '../../../../core/services/users.service';
+import { SettingsService } from '../../../../core/services/settings.service';
 
 type AvatarType = 'gravatar' | 'initials';
 
@@ -33,38 +37,41 @@ export class EditComponent {
   private readonly localeService = inject(LocaleService);
   private readonly router = inject(Router);
   private readonly fb = inject(FormBuilder);
+  private readonly usersService = inject(UsersService);
+  private readonly settingsService = inject(SettingsService);
+  private readonly platformId = inject(PLATFORM_ID);
+  private readonly isBrowser = isPlatformBrowser(this.platformId);
 
   readonly isSaving = signal<boolean>(false);
   readonly successMessage = signal<string>('');
 
   // User data
   user = signal<UserProfile>({
-    id: '1',
-    username: 'Laxe4k',
-    email: 'Laxe4k@hotmail.com',
+    id: '',
+    username: '',
+    email: '',
     avatarType: 'gravatar',
     avatarColor: '#0a3228',
   });
+  readonly loading = signal<boolean>(true);
+  readonly error = signal<string | null>(null);
+  // Indique si les préférences d'avatar sont chargées depuis /settings/me
+  readonly settingsLoading = signal<boolean>(true);
 
   // Gravatar state
   gravatarLoading = signal(false);
-  gravatarAvailable = signal(true);
+  gravatarAvailable = signal(false);
+  currentEmail = signal('');
 
   // Available colors for initials
-  avatarColors = [
-    '#0a3228',
-    '#6df0cf',
-    '#d2faf0',
-    '#1a5c4d',
-    '#2d7a6b',
-    '#409788',
-    '#ff6b6b',
-    '#4ecdc4',
-    '#45b7d1',
-    '#f9ca24',
-    '#6c5ce7',
-    '#a29bfe',
-  ];
+  avatarColors = ['#c97b7b', '#e3a76f', '#f0d58c', '#7aa06f', '#6d8faf', '#9c83c5', '#e9a1b1'];
+
+  private normalizeHexColor(input: string | undefined | null, fallback: string): string {
+    if (!input) return fallback;
+    const v = String(input).trim();
+    const hex = v.startsWith('#') ? v.slice(1) : v;
+    return /^[0-9a-fA-F]{6}$/.test(hex) ? `#${hex.toLowerCase()}` : fallback;
+  }
 
   readonly form = this.fb.nonNullable.group({
     username: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(50)]],
@@ -113,8 +120,9 @@ export class EditComponent {
   });
 
   gravatarUrl = computed(() => {
-    const email = this.user().email.toLowerCase().trim();
-    const hash = md5(email);
+    const email = (this.currentEmail() || '').toLowerCase().trim();
+    if (!email) return '';
+    const hash = md5(email).toLowerCase();
     return `https://www.gravatar.com/avatar/${hash}?d=404&s=200`;
   });
 
@@ -128,52 +136,105 @@ export class EditComponent {
   });
 
   constructor() {
-    // Load user data into form
-    effect(
-      () => {
-        const user = this.user();
-        this.form.patchValue({
-          username: user.username,
-          email: user.email,
-          avatarType: user.avatarType,
-          avatarColor: user.avatarColor,
+    // Charger l'utilisateur depuis l'API
+    this.usersService.me().subscribe({
+      next: (u) => {
+        const prev = this.user();
+        this.user.set({
+          ...prev,
+          id: u.id,
+          username: u.username,
+          email: u.email,
         });
+        this.loading.set(false);
       },
-      { allowSignalWrites: true }
-    );
+      error: () => {
+        this.error.set('failed');
+        this.loading.set(false);
+      },
+    });
 
-    // Check Gravatar when email changes
-    effect(
-      () => {
-        const email = this.form.get('email')?.value;
-        if (email && this.form.get('email')?.valid) {
-          this.checkGravatarAvailability(email);
-        }
+    // Charger les paramètres (avatar)
+    this.settingsService.getSettings().subscribe({
+      next: (s: any) => {
+        const rawMode =
+          typeof s?.avatar_mode === 'string' ? (s.avatar_mode as string).toLowerCase() : '';
+        const mode = (rawMode === 'initials' ? 'initials' : 'gravatar') as AvatarType;
+        const color = this.normalizeHexColor(
+          typeof s?.avatar_color === 'string' ? (s.avatar_color as string) : '',
+          this.avatarColors[0]
+        );
+        const current = this.user();
+        this.user.set({ ...current, avatarType: mode, avatarColor: color });
+        // Mettre à jour le formulaire avec les valeurs chargées
+        this.form.patchValue({ avatarType: mode, avatarColor: color });
+        this.settingsLoading.set(false);
       },
-      { allowSignalWrites: true }
-    );
+      error: () => {
+        this.settingsLoading.set(false);
+      },
+    });
+    // Load user data into form
+    effect(() => {
+      const user = this.user();
+      this.form.patchValue({
+        username: user.username,
+        email: user.email,
+        avatarType: user.avatarType,
+        avatarColor: user.avatarColor,
+      });
+    });
+
+    // Check Gravatar when email or avatar type changes
+    effect(() => {
+      const type = this.form.get('avatarType')?.value as AvatarType;
+      const formEmail = (this.form.get('email')?.value as string | null | undefined) || '';
+      const formValid = this.form.get('email')?.valid ?? false;
+      const fallbackEmail = (this.user().email || '').trim();
+      const emailToCheck = formValid ? formEmail : fallbackEmail;
+      this.currentEmail.set(emailToCheck);
+      if (type === 'gravatar' && emailToCheck) {
+        // Reset availability while checking to avoid loading a possibly wrong image
+        this.gravatarAvailable.set(false);
+        this.checkGravatarAvailability(emailToCheck);
+      } else {
+        // Pas d'email ou email invalide ou type != gravatar => pas de gravatar
+        this.gravatarAvailable.set(false);
+      }
+    });
   }
 
   async checkGravatarAvailability(email: string) {
+    if (!this.isBrowser) {
+      this.gravatarLoading.set(false);
+      return;
+    }
     this.gravatarLoading.set(true);
+    // Désactiver l'image pendant la vérification
+    this.gravatarAvailable.set(false);
 
     try {
-      const hash = md5(email.toLowerCase().trim());
+      const hash = md5(email.toLowerCase().trim()).toLowerCase();
       const url = `https://www.gravatar.com/avatar/${hash}?d=404&s=200`;
 
       // Utiliser une image pour contourner CORS
       const img = new Image();
+      const expectedMode = this.form.get('avatarType')?.value as AvatarType;
 
       const checkPromise = new Promise<boolean>((resolve) => {
         img.onload = () => resolve(true);
         img.onerror = () => resolve(false);
 
-        // Timeout après 5 secondes
-        setTimeout(() => resolve(false), 5000);
+        // Timeout après 12 secondes (réduit les faux négatifs en réseau lent)
+        setTimeout(() => resolve(false), 12000);
       });
 
       img.src = url;
       const isAvailable = await checkPromise;
+      // Ne pas écraser si l'utilisateur a changé de préférence (initials) pendant le check
+      if ((this.form.get('avatarType')?.value as AvatarType) !== expectedMode) {
+        return;
+      }
       this.gravatarAvailable.set(isAvailable);
     } catch {
       this.gravatarAvailable.set(false);
@@ -183,7 +244,19 @@ export class EditComponent {
   }
 
   setAvatarType(type: AvatarType) {
-    this.form.patchValue({ avatarType: type });
+    // Si on passe de gravatar -> initials pour la première fois, imposer la 1ère couleur de la palette
+    const prevType = (this.form.get('avatarType')?.value as AvatarType) || this.user().avatarType;
+    if (type === 'initials') {
+      const currentColor = this.form.get('avatarColor')?.value as string;
+      const normalized = this.normalizeHexColor(currentColor, '');
+      const needDefaultColor = prevType !== 'initials' || !normalized;
+      this.form.patchValue({
+        avatarType: type,
+        avatarColor: needDefaultColor ? this.avatarColors[0] : normalized,
+      });
+    } else {
+      this.form.patchValue({ avatarType: type });
+    }
   }
 
   setAvatarColor(color: string) {
@@ -195,33 +268,82 @@ export class EditComponent {
   }
 
   onSubmit(): void {
-    if (this.form.valid) {
-      this.isSaving.set(true);
-      this.successMessage.set('');
+    if (!this.form.valid || this.isSaving()) {
+      return;
+    }
 
-      // Simuler l'enregistrement
-      setTimeout(() => {
-        this.isSaving.set(false);
-        const locale = this.localeService.locale();
-        this.successMessage.set(
-          locale === 'fr' ? 'Profil mis à jour avec succès !' : 'Profile updated successfully!'
-        );
+    this.isSaving.set(true);
+    this.successMessage.set('');
 
-        // Mettre à jour les données utilisateur avec les nouvelles valeurs
-        const formValue = this.form.value;
-        this.user.set({
-          ...this.user(),
-          username: formValue.username || this.user().username,
-          email: formValue.email || this.user().email,
-          avatarType: (formValue.avatarType as AvatarType) || this.user().avatarType,
-          avatarColor: formValue.avatarColor || this.user().avatarColor,
-        });
+    const current = this.user();
+    const formValue = this.form.value;
+    const usernameChanged = !!formValue.username && formValue.username !== current.username;
+    const emailChanged = !!formValue.email && formValue.email !== current.email;
+    const avatarChanged =
+      (formValue.avatarType as AvatarType) !== current.avatarType ||
+      (formValue.avatarType === 'initials' && formValue.avatarColor !== current.avatarColor);
 
-        // Effacer le message après 5 secondes
-        setTimeout(() => {
-          this.successMessage.set('');
-        }, 5000);
-      }, 1000);
+    const afterSuccess = () => {
+      const locale = this.localeService.locale();
+      this.successMessage.set(
+        locale === 'fr' ? 'Profil mis à jour avec succès !' : 'Profile updated successfully!'
+      );
+      // Mettre à jour l'état local
+      this.user.set({
+        ...current,
+        username: formValue.username || current.username,
+        email: formValue.email || current.email,
+        avatarType: (formValue.avatarType as AvatarType) || current.avatarType,
+        avatarColor: formValue.avatarColor || current.avatarColor,
+      });
+      this.isSaving.set(false);
+      setTimeout(() => this.successMessage.set(''), 5000);
+    };
+
+    const onError = () => {
+      this.isSaving.set(false);
+    };
+
+    // Préparer payload des settings si l'avatar a changé
+    const settingsPayload = (() => {
+      const mode = formValue.avatarType as AvatarType;
+      if (mode === 'gravatar') {
+        return { avatar_mode: 'gravatar' } as const;
+      }
+      return { avatar_mode: 'initials', avatar_color: formValue.avatarColor } as const;
+    })();
+
+    // Chaîne séquentielle: username -> email -> settings si nécessaire
+    const doUpdateUsername = () =>
+      this.usersService.updateUsername({ username: formValue.username! }).subscribe({
+        next: () =>
+          emailChanged ? doUpdateEmail() : avatarChanged ? doUpdateSettings() : afterSuccess(),
+        error: onError,
+      });
+
+    const doUpdateEmail = () =>
+      this.usersService.updateEmail({ email: formValue.email! }).subscribe({
+        next: () => (avatarChanged ? doUpdateSettings() : afterSuccess()),
+        error: onError,
+      });
+
+    const doUpdateSettings = () =>
+      this.settingsService.updateSettings(settingsPayload as any).subscribe({
+        next: afterSuccess,
+        error: onError,
+      });
+
+    if (usernameChanged) {
+      doUpdateUsername();
+    } else if (emailChanged) {
+      doUpdateEmail();
+    } else {
+      if (avatarChanged) {
+        doUpdateSettings();
+      } else {
+        // Rien à mettre à jour côté API, on rafraîchit juste l’état local (avatar prefs locales)
+        afterSuccess();
+      }
     }
   }
 

@@ -1,1 +1,9 @@
-<p>color works!</p>
+<section class="api-block">
+  @if (loading()) {
+  <p>Loading…</p>
+  } @else if (error()) {
+  <p>Erreur de chargement.</p>
+  } @else {
+  <pre class="api-json">{{ data() | json }}</pre>
+  }
+</section>

@@ -12,6 +12,8 @@ import { Router } from '@angular/router';
 import { LocaleService } from '../../../core/services/locale.service';
 import { md5 } from '../../../core/utils/md5.util';
 import { ButtonComponent } from '../../shared/button/button.component';
+import { UsersService } from '../../../core/services/users.service';
+import { SettingsService } from '../../../core/services/settings.service';
 
 type AvatarType = 'gravatar' | 'initials';
 
@@ -37,20 +39,33 @@ export class ProfileComponent {
   private readonly router = inject(Router);
   private readonly platformId = inject(PLATFORM_ID);
   private readonly isBrowser = isPlatformBrowser(this.platformId);
+  private readonly usersService = inject(UsersService);
+  private normalizeHexColor(input: unknown, fallback = '#0a3228'): string {
+    const v = typeof input === 'string' ? input.trim() : '';
+    if (!v) return fallback;
+    const hex = v.startsWith('#') ? v : `#${v}`;
+    return /^#?[0-9a-fA-F]{6}$/.test(v) || /^#[0-9a-fA-F]{6}$/.test(hex)
+      ? hex.toLowerCase()
+      : fallback;
+  }
+  private readonly settingsService = inject(SettingsService);
 
-  // Mock data - à remplacer par un service
+  // État utilisateur (chargé depuis l'API)
   readonly user = signal<UserProfile>({
-    id: '1',
-    username: 'Laxe4k',
-    email: 'Laxe4k@hotmail.com',
-    createdAt: new Date('2025-10-06'),
+    id: '',
+    username: '',
+    email: '',
+    createdAt: new Date(),
     spotifyConnected: false,
     avatarType: 'gravatar',
     avatarColor: '#0a3228',
   });
+  readonly loading = signal<boolean>(true);
+  readonly error = signal<string | null>(null);
 
   readonly gravatarAvailable = signal<boolean>(false);
   readonly gravatarLoading = signal<boolean>(true);
+  readonly settingsLoading = signal<boolean>(true);
 
   readonly title = computed(() => {
     const locale = this.localeService.locale();
@@ -80,8 +95,9 @@ export class ProfileComponent {
   });
 
   readonly gravatarUrl = computed(() => {
-    const email = this.user().email.toLowerCase().trim();
-    const hash = md5(email);
+    const email = (this.user().email || '').toLowerCase().trim();
+    if (!email) return '';
+    const hash = md5(email).toLowerCase();
     return `https://www.gravatar.com/avatar/${hash}?d=404&s=200`;
   });
 
@@ -91,9 +107,55 @@ export class ProfileComponent {
   });
 
   constructor() {
-    // Vérifier si Gravatar est disponible
+    // Charger l'utilisateur depuis l'API
+    this.usersService.me().subscribe({
+      next: (u) => {
+        const prev = this.user();
+        this.user.set({
+          ...prev,
+          id: u.id,
+          username: u.username,
+          email: u.email,
+          createdAt: new Date(u.created_at),
+          spotifyConnected: false,
+        });
+        this.loading.set(false);
+      },
+      error: () => {
+        this.error.set('failed');
+        this.loading.set(false);
+      },
+    });
+
+    // Charger les paramètres d'avatar
+    this.settingsService.getSettings().subscribe({
+      next: (s: any) => {
+        const rawMode =
+          typeof s?.avatar_mode === 'string' ? (s.avatar_mode as string).toLowerCase() : '';
+        const mode: AvatarType = rawMode === 'initials' ? 'initials' : 'gravatar';
+        const color: string = this.normalizeHexColor(s?.avatar_color);
+        this.user.update((u) => ({ ...u, avatarType: mode, avatarColor: color }));
+        this.settingsLoading.set(false);
+      },
+      error: () => {
+        this.settingsLoading.set(false);
+      },
+    });
+
+    // Vérifier si Gravatar est disponible lorsque mode=gravatar
     effect(() => {
+      if (this.user().avatarType !== 'gravatar') {
+        this.gravatarAvailable.set(false);
+        this.gravatarLoading.set(false);
+        return;
+      }
       const url = this.gravatarUrl();
+      if (!url) {
+        // Email vide/invalide → pas de vérification, pas d'image
+        this.gravatarAvailable.set(false);
+        this.gravatarLoading.set(false);
+        return;
+      }
       this.checkGravatarAvailability(url);
     });
   }
@@ -107,17 +169,18 @@ export class ProfileComponent {
 
     this.gravatarLoading.set(true);
     const img = new Image();
+    const expectedMode = this.user().avatarType;
     img.onload = () => {
+      // Ne pas écraser si l'utilisateur a changé de préférence entre-temps
+      if (this.user().avatarType !== expectedMode) return;
       this.gravatarAvailable.set(true);
       this.gravatarLoading.set(false);
     };
     img.onerror = () => {
+      if (this.user().avatarType !== expectedMode) return;
       this.gravatarAvailable.set(false);
       this.gravatarLoading.set(false);
-      // Si Gravatar n'est pas disponible, forcer le type initials
-      if (this.user().avatarType === 'gravatar') {
-        this.user.update((u) => ({ ...u, avatarType: 'initials' }));
-      }
+      // Ne plus forcer le basculement en "initiales" ici
     };
     img.src = url;
   }

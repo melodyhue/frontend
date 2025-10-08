@@ -12,6 +12,7 @@ import {
 import { isPlatformBrowser } from '@angular/common';
 import { LocaleService } from '../../../../core/services/locale.service';
 import { ButtonComponent } from '../../../shared/button/button.component';
+import { SettingsService } from '../../../../core/services/settings.service';
 
 @Component({
   selector: 'app-general',
@@ -24,6 +25,7 @@ export class GeneralComponent {
   private readonly localeService = inject(LocaleService);
   private readonly platformId = inject(PLATFORM_ID);
   private readonly isBrowser = isPlatformBrowser(this.platformId);
+  private readonly settingsService = inject(SettingsService);
 
   readonly hexInputRef = viewChild<ElementRef<HTMLInputElement>>('hexInput');
   readonly isSpotifyConfigured = signal(false);
@@ -59,6 +61,39 @@ export class GeneralComponent {
         }
       });
     }
+
+    // Charger les settings depuis l'API
+    this.settingsService.getSettings().subscribe({
+      next: (s: any) => {
+        // Priorité: default_overlay_color (#hex). Compat: overlay_default_color (#hex) ou overlay_default_color_hex (sans #)
+        const raw =
+          typeof s?.default_overlay_color === 'string'
+            ? (s.default_overlay_color as string)
+            : typeof s?.overlay_default_color === 'string'
+            ? (s.overlay_default_color as string)
+            : typeof s?.overlay_default_color_hex === 'string'
+            ? (s.overlay_default_color_hex as string)
+            : '';
+        const normalized = this.normalizeHexColor(raw, this.initialDefaultColor);
+        this.defaultColor.set(normalized);
+        this.savedColor.set(normalized);
+      },
+      error: () => {
+        // fallback: garder la valeur par défaut
+      },
+    });
+  }
+
+  private normalizeHexColor(input: string, fallback: string): string {
+    if (!input) return fallback;
+    const v = input.trim();
+    const hex = v.startsWith('#') ? v.slice(1) : v;
+    return /^[0-9a-fA-F]{6}$/.test(hex) ? `#${hex.toLowerCase()}` : fallback;
+  }
+
+  private toRawHex(colorWithHash: string): string {
+    const v = (colorWithHash || '').trim();
+    return (v.startsWith('#') ? v.slice(1) : v).toLowerCase();
   }
 
   readonly content = computed(() => {
@@ -158,16 +193,27 @@ export class GeneralComponent {
   }
 
   saveDefaultColor(): void {
-    this.savedColor.set(this.defaultColor());
-    // TODO: Sauvegarder la couleur sur le serveur
-    console.log('Save color:', this.defaultColor());
+    // Normaliser la valeur (#rrggbb en minuscule)
+    const normalized = this.normalizeHexColor(this.defaultColor(), this.initialDefaultColor);
+    // Envoyer uniquement la clé attendue par le backend
+    this.settingsService.updateSettings({ default_overlay_color: normalized }).subscribe({
+      next: () => {
+        // Ne mettre à jour l'état "sauvé" qu'après succès API
+        this.savedColor.set(normalized);
+        // S'assurer que l'affichage reflète la normalisation
+        this.defaultColor.set(normalized);
+      },
+    });
   }
 
   resetDefaultColor(): void {
+    // Mettre à jour l'UI tout de suite, mais ne valider "sauvé" qu'après succès
     this.defaultColor.set(this.initialDefaultColor);
-    this.savedColor.set(this.initialDefaultColor);
-    // TODO: Réinitialiser la couleur sur le serveur
-    console.log('Reset color to default');
+    this.settingsService
+      .updateSettings({ default_overlay_color: this.initialDefaultColor })
+      .subscribe({
+        next: () => this.savedColor.set(this.initialDefaultColor),
+      });
   }
 
   deleteDefaultColor(): void {

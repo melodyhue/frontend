@@ -10,9 +10,9 @@ import {
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { isPlatformBrowser } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
-import { AUTH_TOKEN_STORAGE_KEY } from '../../../../core/constants/storage-keys';
 import { LocaleService } from '../../../../core/services/locale.service';
 import { ButtonComponent } from '../../../shared/button/button.component';
+import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
   selector: 'app-register',
@@ -27,6 +27,7 @@ export class RegisterComponent {
   private readonly platformId = inject(PLATFORM_ID);
   private readonly isBrowser = isPlatformBrowser(this.platformId);
   readonly localeService = inject(LocaleService);
+  private readonly authService = inject(AuthService);
 
   readonly submissionInProgress = signal(false);
   private readonly submitAttempted = signal(false);
@@ -93,6 +94,7 @@ export class RegisterComponent {
     password: ['', [Validators.required, Validators.minLength(8)]],
     confirmPassword: ['', [Validators.required]],
     acceptTerms: [false, [Validators.requiredTrue]],
+    rememberMe: [true],
   });
 
   readonly controls = this.form.controls;
@@ -145,23 +147,36 @@ export class RegisterComponent {
     }
 
     this.submissionInProgress.set(true);
-
-    queueMicrotask(() => {
-      if (this.isBrowser) {
-        window.localStorage.setItem(
-          AUTH_TOKEN_STORAGE_KEY,
-          JSON.stringify({
-            session: 'persistent',
-            createdAt: new Date().toISOString(),
-            profile: {
-              username: this.controls.username.value,
-            },
-          })
-        );
-      }
-
-      this.submissionInProgress.set(false);
-      this.router.navigateByUrl('/profile');
+    // Préférence de session: on aligne sur le comportement du login
+    const sessionPref = this.controls.rememberMe?.value ? 'persistent' : 'session';
+    this.authService.storeSessionPreference(sessionPref);
+    const payload = {
+      username: this.controls.username.value,
+      email: this.controls.email.value,
+      password: this.controls.password.value,
+    } as const;
+    this.authService.register(payload).subscribe({
+      next: (res) => {
+        const maybeAny = res as any;
+        // Si l'API retourne déjà des tokens (comme login), on les stocke
+        if (maybeAny?.access_token && maybeAny?.refresh_token) {
+          this.authService.storeLoginTokens({
+            access_token: maybeAny.access_token,
+            refresh_token: maybeAny.refresh_token,
+            token_type: maybeAny.token_type,
+            requires_2fa: maybeAny.requires_2fa,
+            ticket: maybeAny.ticket,
+            role: maybeAny.role,
+            user_id: maybeAny.user_id,
+          });
+        }
+        this.submissionInProgress.set(false);
+        this.router.navigateByUrl('/profile');
+      },
+      error: () => {
+        this.submissionInProgress.set(false);
+        this.form.markAllAsTouched();
+      },
     });
   }
 

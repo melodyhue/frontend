@@ -16,6 +16,13 @@
   <div class="profile__content">
     <!-- Avatar Section -->
     <div class="profile__card profile__card--avatar">
+      @if (settingsLoading()) {
+      <div class="profile__avatar-display">
+        <div class="profile__avatar-initials" style="opacity:0.5">
+          <i class="fa-solid fa-spinner fa-spin"></i>
+        </div>
+      </div>
+      } @else {
       <div class="profile__avatar-display">
         @if (user().avatarType === 'gravatar' && gravatarAvailable()) {
         <img [src]="gravatarUrl()" alt="Avatar" class="profile__avatar-img">
@@ -25,6 +32,7 @@
         </div>
         }
       </div>
+      }
       <h2 class="profile__username">{{ user().username }}</h2>
     </div>
 

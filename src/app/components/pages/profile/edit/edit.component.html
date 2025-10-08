@@ -46,7 +46,15 @@
     <div class="edit-profile__card">
       <h2 class="edit-profile__card-title">{{ labels().avatarSettings }}</h2>
 
+      @if (settingsLoading()) {
+      <div class="edit-profile__loading">
+        <i class="fa-solid fa-spinner fa-spin"></i>
+        <span>{{ labels().checking }}</span>
+      </div>
+      }
+
       <!-- Avatar Type Selection -->
+      @if (!settingsLoading()) {
       <div class="edit-profile__avatar-types">
         <!-- Gravatar Option -->
         <div class="edit-profile__avatar-option" (click)="setAvatarType('gravatar')">
@@ -100,7 +108,7 @@
       </div>
 
       <!-- Color Picker (only show for initials) -->
-      @if (form.get('avatarType')?.value === 'initials') {
+      @if (!settingsLoading() && form.get('avatarType')?.value === 'initials') {
       <div class="edit-profile__color-picker">
         <label class="edit-profile__color-label">
           {{ labels().chooseColor }}
@@ -117,6 +125,7 @@
           }
         </div>
       </div>
+      }
       }
     </div>
 

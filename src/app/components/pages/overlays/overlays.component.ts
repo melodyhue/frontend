@@ -2,8 +2,10 @@ import { Component, ChangeDetectionStrategy, computed, signal, inject } from '@a
 import { Router } from '@angular/router';
 import { LocaleService } from '../../../core/services/locale.service';
 import { ButtonComponent } from '../../shared/button/button.component';
+import { OverlaysService } from '../../../core/services/overlays.service';
+import { AuthService } from '../../../core/services/auth.service';
 
-interface Overlay {
+interface ViewOverlay {
   id: string;
   name: string;
   type: string;
@@ -21,31 +23,12 @@ interface Overlay {
 export class OverlaysComponent {
   private readonly localeService = inject(LocaleService);
   private readonly router = inject(Router);
+  private readonly overlaysService = inject(OverlaysService);
+  private readonly authService = inject(AuthService);
 
-  // Mock data - à remplacer par un service
-  private readonly overlaysData = signal<Overlay[]>([
-    {
-      id: '1',
-      name: 'Overlay principal',
-      type: 'Default',
-      createdAt: new Date('2025-01-15'),
-      lastModified: new Date('2025-09-20'),
-    },
-    {
-      id: '2',
-      name: 'Overlay vinyle',
-      type: 'Vinyle',
-      createdAt: new Date('2025-03-10'),
-      lastModified: new Date('2025-08-05'),
-    },
-    {
-      id: '3',
-      name: 'Overlay couleur',
-      type: 'Color',
-      createdAt: new Date('2025-05-20'),
-      lastModified: new Date('2025-09-15'),
-    },
-  ]);
+  private readonly overlaysData = signal<ViewOverlay[]>([]);
+  readonly loading = signal<boolean>(true);
+  readonly error = signal<string | null>(null);
 
   readonly sortColumn = signal<'name' | 'type' | 'lastModified'>('lastModified');
   readonly sortDirection = signal<'asc' | 'desc'>('desc');
@@ -152,8 +135,7 @@ export class OverlaysComponent {
   }
 
   viewOverlay(id: string): void {
-    // TODO: Remplacer 'USER_ID' par l'ID réel de l'utilisateur connecté
-    const userId = 'USER_ID';
+    const userId = this.authService.readAuthState()?.user_id ?? 'USER_ID';
     window.open(`/overlay/${userId}/${id}`, '_blank');
   }
 
@@ -167,5 +149,26 @@ export class OverlaysComponent {
 
   deleteOverlay(id: string): void {
     this.router.navigate(['/overlays/delete', id]);
+  }
+
+  constructor() {
+    // Charger depuis l'API
+    this.overlaysService.list().subscribe({
+      next: (items) => {
+        const mapped = items.map((o) => ({
+          id: o.id,
+          name: o.name,
+          type: 'Default',
+          createdAt: new Date(o.created_at),
+          lastModified: new Date(o.updated_at),
+        }));
+        this.overlaysData.set(mapped);
+        this.loading.set(false);
+      },
+      error: () => {
+        this.error.set('failed');
+        this.loading.set(false);
+      },
+    });
   }
 }

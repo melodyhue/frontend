@@ -129,14 +129,6 @@ export const routes: Routes = [
             path: 'api',
             component: ApiComponent,
           },
-          {
-            path: 'api/:userId/infos',
-            component: InfosComponent,
-          },
-          {
-            path: 'api/:userId/color',
-            component: ColorComponent,
-          },
         ],
       },
       {

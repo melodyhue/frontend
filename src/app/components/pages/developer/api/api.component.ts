@@ -8,6 +8,8 @@ import {
 } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { LocaleService } from '../../../../core/services/locale.service';
+import { PublicService } from '../../../../core/services/public.service';
+import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
   selector: 'app-api',
@@ -23,9 +25,11 @@ export class ApiComponent {
   private readonly localeService = inject(LocaleService);
   private readonly platformId = inject(PLATFORM_ID);
   private readonly isBrowser = isPlatformBrowser(this.platformId);
+  private readonly publicService = inject(PublicService);
+  private readonly authService = inject(AuthService);
 
-  // TODO: Remplacer par l'ID réel de l'utilisateur depuis un AuthService quand disponible
-  readonly userId = signal<string>('1');
+  // Essayer de prendre l'ID utilisateur depuis l'état d’auth, sinon laisser vide
+  readonly userId = signal<string>('');
 
   private readonly origin = signal<string>('#');
 
@@ -33,6 +37,10 @@ export class ApiComponent {
     if (this.isBrowser) {
       // Eviter les erreurs SSR
       this.origin.set(window.location.origin);
+      const state = this.authService.readAuthState();
+      if (state?.user_id) {
+        this.userId.set(state.user_id);
+      }
     }
   }
 

@@ -65,6 +65,21 @@
   gap: 1.25rem;
 }
 
+.auth__alert {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 0.9rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+}
+
+.auth__alert--error {
+  background: rgba(255, 77, 79, 0.12);
+  border: 1px solid rgba(255, 77, 79, 0.35);
+  color: #ffd8d8;
+}
+
 .form-field {
   display: grid;
   gap: 0.5rem;
