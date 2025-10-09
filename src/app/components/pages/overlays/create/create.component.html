@@ -1,35 +1,35 @@
 <div class="overlay-form">
-    <div class="overlay-form__header">
-        <h2 class="overlay-form__title">{{ content().header.title }}</h2>
-        <p class="overlay-form__desc">{{ content().header.desc }}</p>
-    </div>
+  <div class="overlay-form__header">
+    <h2 class="overlay-form__title">{{ content().header.title }}</h2>
+    <p class="overlay-form__desc">{{ content().header.desc }}</p>
+  </div>
 
-    <div class="overlay-form__card">
-        <form [formGroup]="form" (ngSubmit)="create()" class="overlay-form__grid">
-            <div class="overlay-form__field">
-                <label class="overlay-form__label">{{ content().fields.name }} <span
-                        class="overlay-form__required">*</span></label>
-                <input class="overlay-form__input" type="text" formControlName="name" required maxlength="120" />
-            </div>
+  <div class="overlay-form__card">
+    <form [formGroup]="form" (ngSubmit)="create()" class="overlay-form__grid">
+      <div class="overlay-form__field">
+        <label class="overlay-form__label">{{ content().fields.name }} <span
+            class="overlay-form__required">*</span></label>
+        <input class="overlay-form__input" type="text" formControlName="name" required maxlength="120" />
+      </div>
 
-            <div class="overlay-form__field">
-                <label class="overlay-form__label">{{ content().fields.template }} <span
-                        class="overlay-form__required">*</span></label>
-                <select class="overlay-form__input" formControlName="template">
-                    @for (t of availableTemplates; track t.id) {
-                    <option [value]="t.id">{{ getTemplateName(t.id) }}</option>
-                    }
-                </select>
-                <p class="overlay-form__hint">{{ content().fields.detectedType }}: <strong>{{ selectedTemplateType
-                        }}</strong></p>
-            </div>
+      <div class="overlay-form__field">
+        <label class="overlay-form__label">{{ content().fields.template }} <span
+            class="overlay-form__required">*</span></label>
+        <select class="overlay-form__input" formControlName="template">
+          @for (t of availableTemplates; track t.id) {
+          <option [value]="t.id">{{ getTemplateName(t.id) }}</option>
+          }
+        </select>
+        <p class="overlay-form__hint">{{ content().fields.detectedType }}: <strong>{{ selectedTemplateType
+            }}</strong></p>
+      </div>
 
-            <div class="overlay-form__actions">
-                <app-button type="submit" [disabled]="form.invalid || saving()" variant="primary">{{
-                    content().actions.create }}</app-button>
-                <app-button type="button" (clicked)="cancel()" [disabled]="saving()" variant="cancel">{{
-                    content().actions.cancel }}</app-button>
-            </div>
-        </form>
-    </div>
+      <div class="overlay-form__actions">
+        <app-button type="submit" [disabled]="form.invalid || saving()" variant="primary">{{
+          content().actions.create }}</app-button>
+        <app-button type="button" (clicked)="cancel()" [disabled]="saving()" variant="cancel">{{
+          content().actions.cancel }}</app-button>
+      </div>
+    </form>
+  </div>
 </div>

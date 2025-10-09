@@ -1,12 +1,8 @@
 <div class="now-playing-container" [class.show]="isVisible()">
   <div class="track-info">
     <div class="album-cover-container">
-      <img
-        class="album-cover"
-        [class.playing]="track()?.is_playing"
-        [src]="track()?.image_url || ''"
-        alt="Album Cover"
-      />
+      <img class="album-cover" [class.playing]="track()?.is_playing" [src]="track()?.image_url || ''"
+        alt="Album Cover" />
       <div class="vinyl-effect"></div>
     </div>
     <div class="track-details">
@@ -20,16 +16,12 @@
       </div>
       <div class="progress-container">
         <div class="progress-info">
-          <span class="progress-time"
-            >{{ currentMs() / 1000 / 60 | number : '1.0-0' }}:{{
-              (currentMs() / 1000) % 60 | number : '2.0-0'
-            }}</span
-          >
-          <span class="progress-time"
-            >{{ totalMs() / 1000 / 60 | number : '1.0-0' }}:{{
-              (totalMs() / 1000) % 60 | number : '2.0-0'
-            }}</span
-          >
+          <span class="progress-time">{{ currentMs() / 1000 / 60 | number : '1.0-0' }}:{{
+            (currentMs() / 1000) % 60 | number : '2.0-0'
+            }}</span>
+          <span class="progress-time">{{ totalMs() / 1000 / 60 | number : '1.0-0' }}:{{
+            (totalMs() / 1000) % 60 | number : '2.0-0'
+            }}</span>
         </div>
         <div class="progress-bar">
           <div class="progress-fill" [style.width.%]="progressPct()"></div>

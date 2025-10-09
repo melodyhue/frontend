@@ -8,9 +8,8 @@ describe('MinimalComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [MinimalComponent]
-    })
-    .compileComponents();
+      imports: [MinimalComponent],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(MinimalComponent);
     component = fixture.componentInstance;

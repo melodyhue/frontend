@@ -1,0 +1,143 @@
+:host {
+  display: block;
+  height: 100vh; /* fallback */
+  height: 100dvh; /* mobile dynamique */
+  height: 100svh; /* small viewport units */
+  overflow: hidden; /* pas de scroll vertical */
+  overscroll-behavior: none; /* évite le rebond/scroll chaining */
+  height: -webkit-fill-available; /* iOS fallback */
+  background: radial-gradient(1000px 500px at 50% -10%, rgba(30, 215, 96, 0.06), transparent 60%),
+    linear-gradient(180deg, #f7fafc 0%, #eef2f7 100%);
+  color: #0f172a;
+}
+
+.spotify-callback {
+  height: 100%;
+  display: grid;
+  align-items: start; /* aligne en haut */
+  justify-items: center; /* centre horizontalement */
+  padding: 24px;
+  padding-top: 25svh; /* place le bloc à ~25% de la hauteur */
+  box-sizing: border-box; /* inclure le padding sans dépasser la hauteur */
+}
+
+.spotify-callback__card {
+  width: min(560px, 92vw);
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 16px;
+  backdrop-filter: blur(10px) saturate(120%);
+  box-shadow: 0 10px 25px rgba(2, 6, 23, 0.12);
+  padding: 24px 22px;
+  display: grid;
+  grid-template-columns: 64px 1fr;
+  gap: 16px;
+  animation: cb-fade-in 240ms ease-out;
+}
+
+.spotify-callback__icon {
+  height: 64px;
+  width: 64px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: rgba(30, 215, 96, 0.12);
+  color: #1ed760;
+  font-size: 28px;
+}
+
+.spotify-callback__content {
+  align-self: center;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-start;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.title {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0 0 2px 0;
+  color: #0f172a;
+}
+
+.message {
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.hint {
+  margin: 0;
+  color: #64748b;
+  font-size: 14px;
+}
+
+/* Etats */
+.message .fa-spinner {
+  color: #65a30d;
+}
+.message .fa-circle-check {
+  color: #16a34a;
+}
+.message .fa-triangle-exclamation {
+  color: #dc2626;
+}
+
+.progress {
+  width: 100%;
+  height: 6px;
+  background: rgba(2, 6, 23, 0.08);
+  border-radius: 999px;
+  position: relative;
+  overflow: hidden;
+}
+.progress::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  width: 40%;
+  background: linear-gradient(
+    90deg,
+    rgba(30, 215, 96, 0),
+    rgba(30, 215, 96, 0.65),
+    rgba(30, 215, 96, 0)
+  );
+  animation: cb-indeterminate 1.15s linear infinite;
+}
+
+@keyframes cb-indeterminate {
+  0% {
+    transform: translateX(-60%);
+  }
+  100% {
+    transform: translateX(160%);
+  }
+}
+
+@keyframes cb-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 520px) {
+  .spotify-callback__card {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+  .spotify-callback__icon {
+    justify-self: center;
+  }
+  .spotify-callback__content {
+    align-items: center;
+  }
+}
