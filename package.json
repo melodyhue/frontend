@@ -33,6 +33,7 @@
     "@angular/router": "^20.3.0",
     "@angular/ssr": "^20.3.4",
     "@fortawesome/fontawesome-free": "^7.1.0",
+    "dotenv": "^16.4.5",
     "express": "^5.1.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0"

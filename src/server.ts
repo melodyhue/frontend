@@ -5,14 +5,20 @@ import {
   writeResponseToNodeResponse,
 } from '@angular/ssr/node';
 import express from 'express';
+import 'dotenv/config';
 import { join } from 'node:path';
 
 const browserDistFolder = join(import.meta.dirname, '../browser');
 
 const app = express();
 const angularApp = new AngularNodeAppEngine();
-// En dev, utilisez API_BASE_URL= http://localhost:8765 pour pointer vers l'API locale
-const API_BASE = process.env['API_BASE_URL'] || 'http://localhost:8765';
+// Base API: peut être surchargée via la variable d'environnement API_BASE_URL.
+// Par défaut: en prod on utilise l'API publique, en dev on pointe sur localhost.
+const API_BASE =
+  process.env['API_BASE_URL'] ??
+  (process.env['NODE_ENV'] === 'production'
+    ? 'https://api.melodyhue.com'
+    : 'http://localhost:8765');
 
 /**
  * Developer API: return raw JSON for infos/color
@@ -175,7 +181,7 @@ app.use((req, res, next) => {
  * The server listens on the port defined by the `PORT` environment variable, or defaults to 4000.
  */
 if (isMainModule(import.meta.url) || process.env['pm_id']) {
-  const port = process.env['PORT'] || 4000;
+  const port = process.env['PORT'] || 3000;
   app.listen(port, (error) => {
     if (error) {
       throw error;
