@@ -26,6 +26,25 @@ const UPSTREAM_HEADERS = {
   accept: 'application/json',
   'user-agent': 'melodyhue-frontend-ssr/1.0',
 } as const;
+// Mode de forward: 'fetch' (par défaut) ou 'redirect'.
+// Utilisez PROXY_FORWARD=redirect si votre hébergeur bloque les requêtes sortantes.
+const PROXY_FORWARD = (process.env['PROXY_FORWARD'] || 'fetch').toLowerCase();
+
+function forwardOrFetchJson(target: string, res: express.Response) {
+  if (PROXY_FORWARD === 'redirect') {
+    // Rediriger côté client vers l'API publique (retournera du JSON directement au client)
+    res.redirect(302, target);
+    return Promise.resolve();
+  }
+  return fetch(target, { headers: UPSTREAM_HEADERS }).then(async (upstream) => {
+    const bodyText = await upstream.text();
+    res.status(upstream.status);
+    const ct = upstream.headers.get('content-type') || 'application/json; charset=utf-8';
+    res.setHeader('content-type', ct);
+    res.setHeader('cache-control', 'no-store');
+    res.send(bodyText);
+  });
+}
 
 /**
  * Developer API: return raw JSON for infos/color
@@ -39,13 +58,7 @@ app.get('/developer/api/:userId/infos', async (req, res) => {
   }
   const target = `${API_BASE}/infos/${encodeURIComponent(userId)}`;
   try {
-    const upstream = await fetch(target, { headers: UPSTREAM_HEADERS });
-    const bodyText = await upstream.text();
-    res.status(upstream.status);
-    const ct = upstream.headers.get('content-type') || 'application/json; charset=utf-8';
-    res.setHeader('content-type', ct);
-    res.setHeader('cache-control', 'no-store');
-    res.send(bodyText);
+    await forwardOrFetchJson(target, res);
   } catch (err) {
     if (process.env['DEBUG_PROXY']) {
       console.error('[Proxy] GET /developer/api/:userId/infos ->', target, 'Error:', err);
@@ -64,13 +77,7 @@ app.get('/developer/api/:userId/color', async (req, res) => {
   }
   const target = `${API_BASE}/color/${encodeURIComponent(userId)}`;
   try {
-    const upstream = await fetch(target, { headers: UPSTREAM_HEADERS });
-    const bodyText = await upstream.text();
-    res.status(upstream.status);
-    const ct = upstream.headers.get('content-type') || 'application/json; charset=utf-8';
-    res.setHeader('content-type', ct);
-    res.setHeader('cache-control', 'no-store');
-    res.send(bodyText);
+    await forwardOrFetchJson(target, res);
   } catch (err) {
     if (process.env['DEBUG_PROXY']) {
       console.error('[Proxy] GET /developer/api/:userId/color ->', target, 'Error:', err);
@@ -93,13 +100,7 @@ app.get('/infos/:userId', async (req, res) => {
   }
   const target = `${API_BASE}/infos/${encodeURIComponent(userId)}`;
   try {
-    const upstream = await fetch(target, { headers: UPSTREAM_HEADERS });
-    const bodyText = await upstream.text();
-    res.status(upstream.status);
-    const ct = upstream.headers.get('content-type') || 'application/json; charset=utf-8';
-    res.setHeader('content-type', ct);
-    res.setHeader('cache-control', 'no-store');
-    res.send(bodyText);
+    await forwardOrFetchJson(target, res);
   } catch (err) {
     if (process.env['DEBUG_PROXY']) {
       console.error('[Proxy] GET /infos/:userId ->', target, 'Error:', err);
@@ -118,13 +119,7 @@ app.get('/color/:userId', async (req, res) => {
   }
   const target = `${API_BASE}/color/${encodeURIComponent(userId)}`;
   try {
-    const upstream = await fetch(target, { headers: UPSTREAM_HEADERS });
-    const bodyText = await upstream.text();
-    res.status(upstream.status);
-    const ct = upstream.headers.get('content-type') || 'application/json; charset=utf-8';
-    res.setHeader('content-type', ct);
-    res.setHeader('cache-control', 'no-store');
-    res.send(bodyText);
+    await forwardOrFetchJson(target, res);
   } catch (err) {
     if (process.env['DEBUG_PROXY']) {
       console.error('[Proxy] GET /color/:userId ->', target, 'Error:', err);
@@ -138,13 +133,7 @@ app.get('/color/:userId', async (req, res) => {
 app.get('/health', async (_req, res) => {
   const target = `${API_BASE}/health`;
   try {
-    const upstream = await fetch(target, { headers: UPSTREAM_HEADERS });
-    const bodyText = await upstream.text();
-    res.status(upstream.status);
-    const ct = upstream.headers.get('content-type') || 'application/json; charset=utf-8';
-    res.setHeader('content-type', ct);
-    res.setHeader('cache-control', 'no-store');
-    res.send(bodyText);
+    await forwardOrFetchJson(target, res);
   } catch (err) {
     if (process.env['DEBUG_PROXY']) {
       console.error('[Proxy] GET /health ->', target, 'Error:', err);
