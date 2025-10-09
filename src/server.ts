@@ -14,11 +14,18 @@ const app = express();
 const angularApp = new AngularNodeAppEngine();
 // Base API: peut être surchargée via la variable d'environnement API_BASE_URL.
 // Par défaut: en prod on utilise l'API publique, en dev on pointe sur localhost.
-const API_BASE =
-  process.env['API_BASE_URL'] ??
+const API_BASE_RAW =
+  process.env['API_BASE_URL'] ||
   (process.env['NODE_ENV'] === 'production'
     ? 'https://api.melodyhue.com'
     : 'http://localhost:8765');
+// Normaliser (supprimer slash fin) pour éviter les doubles // dans l’URL cible
+const API_BASE = API_BASE_RAW.replace(/\/+$/, '');
+// Headers communs pour les requêtes upstream
+const UPSTREAM_HEADERS = {
+  accept: 'application/json',
+  'user-agent': 'melodyhue-frontend-ssr/1.0',
+} as const;
 
 /**
  * Developer API: return raw JSON for infos/color
@@ -32,7 +39,7 @@ app.get('/developer/api/:userId/infos', async (req, res) => {
   }
   const target = `${API_BASE}/infos/${encodeURIComponent(userId)}`;
   try {
-    const upstream = await fetch(target, { headers: { accept: 'application/json' } });
+    const upstream = await fetch(target, { headers: UPSTREAM_HEADERS });
     const bodyText = await upstream.text();
     res.status(upstream.status);
     const ct = upstream.headers.get('content-type') || 'application/json; charset=utf-8';
@@ -40,6 +47,9 @@ app.get('/developer/api/:userId/infos', async (req, res) => {
     res.setHeader('cache-control', 'no-store');
     res.send(bodyText);
   } catch (err) {
+    if (process.env['DEBUG_PROXY']) {
+      console.error('[Proxy] GET /developer/api/:userId/infos ->', target, 'Error:', err);
+    }
     res
       .status(502)
       .json({ status: 'error', message: 'Upstream fetch failed', detail: (err as Error).message });
@@ -54,7 +64,7 @@ app.get('/developer/api/:userId/color', async (req, res) => {
   }
   const target = `${API_BASE}/color/${encodeURIComponent(userId)}`;
   try {
-    const upstream = await fetch(target, { headers: { accept: 'application/json' } });
+    const upstream = await fetch(target, { headers: UPSTREAM_HEADERS });
     const bodyText = await upstream.text();
     res.status(upstream.status);
     const ct = upstream.headers.get('content-type') || 'application/json; charset=utf-8';
@@ -62,6 +72,9 @@ app.get('/developer/api/:userId/color', async (req, res) => {
     res.setHeader('cache-control', 'no-store');
     res.send(bodyText);
   } catch (err) {
+    if (process.env['DEBUG_PROXY']) {
+      console.error('[Proxy] GET /developer/api/:userId/color ->', target, 'Error:', err);
+    }
     res
       .status(502)
       .json({ status: 'error', message: 'Upstream fetch failed', detail: (err as Error).message });
@@ -80,7 +93,7 @@ app.get('/infos/:userId', async (req, res) => {
   }
   const target = `${API_BASE}/infos/${encodeURIComponent(userId)}`;
   try {
-    const upstream = await fetch(target, { headers: { accept: 'application/json' } });
+    const upstream = await fetch(target, { headers: UPSTREAM_HEADERS });
     const bodyText = await upstream.text();
     res.status(upstream.status);
     const ct = upstream.headers.get('content-type') || 'application/json; charset=utf-8';
@@ -88,6 +101,9 @@ app.get('/infos/:userId', async (req, res) => {
     res.setHeader('cache-control', 'no-store');
     res.send(bodyText);
   } catch (err) {
+    if (process.env['DEBUG_PROXY']) {
+      console.error('[Proxy] GET /infos/:userId ->', target, 'Error:', err);
+    }
     res
       .status(502)
       .json({ status: 'error', message: 'Upstream fetch failed', detail: (err as Error).message });
@@ -102,7 +118,7 @@ app.get('/color/:userId', async (req, res) => {
   }
   const target = `${API_BASE}/color/${encodeURIComponent(userId)}`;
   try {
-    const upstream = await fetch(target, { headers: { accept: 'application/json' } });
+    const upstream = await fetch(target, { headers: UPSTREAM_HEADERS });
     const bodyText = await upstream.text();
     res.status(upstream.status);
     const ct = upstream.headers.get('content-type') || 'application/json; charset=utf-8';
@@ -110,6 +126,9 @@ app.get('/color/:userId', async (req, res) => {
     res.setHeader('cache-control', 'no-store');
     res.send(bodyText);
   } catch (err) {
+    if (process.env['DEBUG_PROXY']) {
+      console.error('[Proxy] GET /color/:userId ->', target, 'Error:', err);
+    }
     res
       .status(502)
       .json({ status: 'error', message: 'Upstream fetch failed', detail: (err as Error).message });
@@ -119,7 +138,7 @@ app.get('/color/:userId', async (req, res) => {
 app.get('/health', async (_req, res) => {
   const target = `${API_BASE}/health`;
   try {
-    const upstream = await fetch(target, { headers: { accept: 'application/json' } });
+    const upstream = await fetch(target, { headers: UPSTREAM_HEADERS });
     const bodyText = await upstream.text();
     res.status(upstream.status);
     const ct = upstream.headers.get('content-type') || 'application/json; charset=utf-8';
@@ -127,6 +146,9 @@ app.get('/health', async (_req, res) => {
     res.setHeader('cache-control', 'no-store');
     res.send(bodyText);
   } catch (err) {
+    if (process.env['DEBUG_PROXY']) {
+      console.error('[Proxy] GET /health ->', target, 'Error:', err);
+    }
     res
       .status(502)
       .json({ status: 'error', message: 'Upstream fetch failed', detail: (err as Error).message });
@@ -149,6 +171,9 @@ app.get('/users/:userId', async (req, res) => {
     res.setHeader('cache-control', 'no-store');
     res.send(bodyText);
   } catch (err) {
+    if (process.env['DEBUG_PROXY']) {
+      console.error('[Proxy] GET /users/:userId ->', target, 'Error:', err);
+    }
     res
       .status(502)
       .json({ status: 'error', message: 'Upstream fetch failed', detail: (err as Error).message });
@@ -187,7 +212,9 @@ if (isMainModule(import.meta.url) || process.env['pm_id']) {
       throw error;
     }
 
-    console.log(`Node Express server listening on http://localhost:${port}`);
+    const env = process.env['NODE_ENV'] || 'development';
+    console.log(`[SSR] listening on http://localhost:${port} (env=${env})`);
+    console.log(`[SSR] API_BASE = ${API_BASE}`);
   });
 }
 
