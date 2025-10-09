@@ -8,7 +8,6 @@ import {
 } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { LocaleService } from '../../../../core/services/locale.service';
-import { PublicService } from '../../../../core/services/public.service';
 import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
@@ -25,7 +24,6 @@ export class ApiComponent {
   private readonly localeService = inject(LocaleService);
   private readonly platformId = inject(PLATFORM_ID);
   private readonly isBrowser = isPlatformBrowser(this.platformId);
-  private readonly publicService = inject(PublicService);
   private readonly authService = inject(AuthService);
 
   // Essayer de prendre l'ID utilisateur depuis l'état d’auth, sinon laisser vide

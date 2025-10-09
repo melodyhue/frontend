@@ -57,8 +57,29 @@
           </div>
         </div>
 
+        <div class="general__inline-feedback">
+          @if (isSavingSpotify()) {
+          <span class="general__status-badge general__status-badge--info">
+            <i class="fa-solid fa-spinner fa-spin"></i>
+            {{ 'Enregistrement…' }}
+          </span>
+          }
+          @if (saveSpotifySuccess()) {
+          <span class="general__status-badge general__status-badge--success">
+            <i class="fa-solid fa-circle-check"></i>
+            {{ 'Enregistré' }}
+          </span>
+          }
+          @if (saveSpotifyError()) {
+          <span class="general__status-badge general__status-badge--error">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            {{ saveSpotifyError() }}
+          </span>
+          }
+        </div>
+
         <app-button variant="primary" (clicked)="saveSpotifyConfig()"
-          [disabled]="!spotifyClientId() || !spotifyClientSecret()">
+          [disabled]="!(spotifyClientId() || spotifyClientSecret()) || isSavingSpotify()">
           <i class="fa-solid fa-floppy-disk"></i>
           {{ content().spotify.save }}
         </app-button>

@@ -11,7 +11,8 @@ const browserDistFolder = join(import.meta.dirname, '../browser');
 
 const app = express();
 const angularApp = new AngularNodeAppEngine();
-const API_BASE = process.env['API_BASE_URL'] || 'https://api.melodyhue.com';
+// En dev, utilisez API_BASE_URL= http://localhost:8765 pour pointer vers l'API locale
+const API_BASE = process.env['API_BASE_URL'] || 'http://localhost:8765';
 
 /**
  * JSON endpoints (proxy) for developer overlays
@@ -24,6 +25,7 @@ app.get('/developer/api/:userId/infos', async (req, res) => {
     return;
   }
   const target = `${API_BASE}/infos/${encodeURIComponent(userId)}`;
+  console.info(`[SSR] Proxy GET -> ${target}`);
   try {
     const upstream = await fetch(target, { headers: { accept: 'application/json' } });
     const bodyText = await upstream.text();
@@ -47,6 +49,7 @@ app.get('/developer/api/:userId/color', async (req, res) => {
     return;
   }
   const target = `${API_BASE}/color/${encodeURIComponent(userId)}`;
+  console.info(`[SSR] Proxy GET -> ${target}`);
   try {
     const upstream = await fetch(target, { headers: { accept: 'application/json' } });
     const bodyText = await upstream.text();
@@ -54,6 +57,93 @@ app.get('/developer/api/:userId/color', async (req, res) => {
     const ct = upstream.headers.get('content-type') || 'application/json; charset=utf-8';
     res.setHeader('content-type', ct);
     // Prevent caching to ensure real-time data
+    res.setHeader('cache-control', 'no-store');
+    res.send(bodyText);
+  } catch (err) {
+    res
+      .status(502)
+      .json({ status: 'error', message: 'Upstream fetch failed', detail: (err as Error).message });
+  }
+});
+
+/**
+ * Direct proxy routes for public API when running with SSR dev server
+ * This allows calling relative paths from the browser without CORS issues.
+ */
+app.get('/infos/:userId', async (req, res) => {
+  const userId = req.params['userId'];
+  if (!userId) {
+    res.status(400).json({ status: 'error', message: 'Missing userId' });
+    return;
+  }
+  const target = `${API_BASE}/infos/${encodeURIComponent(userId)}`;
+  try {
+    const upstream = await fetch(target, { headers: { accept: 'application/json' } });
+    const bodyText = await upstream.text();
+    res.status(upstream.status);
+    const ct = upstream.headers.get('content-type') || 'application/json; charset=utf-8';
+    res.setHeader('content-type', ct);
+    res.setHeader('cache-control', 'no-store');
+    res.send(bodyText);
+  } catch (err) {
+    res
+      .status(502)
+      .json({ status: 'error', message: 'Upstream fetch failed', detail: (err as Error).message });
+  }
+});
+
+app.get('/color/:userId', async (req, res) => {
+  const userId = req.params['userId'];
+  if (!userId) {
+    res.status(400).json({ status: 'error', message: 'Missing userId' });
+    return;
+  }
+  const target = `${API_BASE}/color/${encodeURIComponent(userId)}`;
+  try {
+    const upstream = await fetch(target, { headers: { accept: 'application/json' } });
+    const bodyText = await upstream.text();
+    res.status(upstream.status);
+    const ct = upstream.headers.get('content-type') || 'application/json; charset=utf-8';
+    res.setHeader('content-type', ct);
+    res.setHeader('cache-control', 'no-store');
+    res.send(bodyText);
+  } catch (err) {
+    res
+      .status(502)
+      .json({ status: 'error', message: 'Upstream fetch failed', detail: (err as Error).message });
+  }
+});
+
+app.get('/health', async (_req, res) => {
+  const target = `${API_BASE}/health`;
+  try {
+    const upstream = await fetch(target, { headers: { accept: 'application/json' } });
+    const bodyText = await upstream.text();
+    res.status(upstream.status);
+    const ct = upstream.headers.get('content-type') || 'application/json; charset=utf-8';
+    res.setHeader('content-type', ct);
+    res.setHeader('cache-control', 'no-store');
+    res.send(bodyText);
+  } catch (err) {
+    res
+      .status(502)
+      .json({ status: 'error', message: 'Upstream fetch failed', detail: (err as Error).message });
+  }
+});
+
+app.get('/users/:userId', async (req, res) => {
+  const userId = req.params['userId'];
+  if (!userId) {
+    res.status(400).json({ status: 'error', message: 'Missing userId' });
+    return;
+  }
+  const target = `${API_BASE}/users/${encodeURIComponent(userId)}`;
+  try {
+    const upstream = await fetch(target, { headers: { accept: 'application/json' } });
+    const bodyText = await upstream.text();
+    res.status(upstream.status);
+    const ct = upstream.headers.get('content-type') || 'application/json; charset=utf-8';
+    res.setHeader('content-type', ct);
     res.setHeader('cache-control', 'no-store');
     res.send(bodyText);
   } catch (err) {

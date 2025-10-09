@@ -25,6 +25,7 @@ import { ApiComponent } from './components/pages/developer/api/api.component';
 import { InfosComponent } from './components/pages/developer/api/infos/infos.component';
 import { ColorComponent } from './components/pages/developer/api/color/color.component';
 import { OtpComponent } from './components/pages/auth/login/otp/otp.component';
+import { CallbackComponent as SpotifyCallbackComponent } from './components/pages/auth/spotify/callback/callback.component';
 
 export const routes: Routes = [
   {
@@ -40,6 +41,14 @@ export const routes: Routes = [
         component: AboutComponent,
       },
     ],
+  },
+  {
+    path: 'developer/api/:userId/infos',
+    component: InfosComponent,
+  },
+  {
+    path: 'developer/api/:userId/color',
+    component: ColorComponent,
   },
   {
     path: 'auth',
@@ -69,6 +78,15 @@ export const routes: Routes = [
       {
         path: 'forgot-password',
         component: ForgotPasswordComponent,
+      },
+      {
+        path: 'spotify',
+        children: [
+          {
+            path: 'callback',
+            component: SpotifyCallbackComponent,
+          },
+        ],
       },
     ],
   },
@@ -127,6 +145,7 @@ export const routes: Routes = [
         children: [
           {
             path: 'api',
+            pathMatch: 'full',
             component: ApiComponent,
           },
         ],

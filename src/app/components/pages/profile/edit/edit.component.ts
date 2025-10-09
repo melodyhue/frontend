@@ -45,13 +45,16 @@ export class EditComponent {
   readonly isSaving = signal<boolean>(false);
   readonly successMessage = signal<string>('');
 
+  // Available colors for initials (palette)
+  avatarColors = ['#c97b7b', '#e3a76f', '#f0d58c', '#7aa06f', '#6d8faf', '#9c83c5', '#e9a1b1'];
+
   // User data
   user = signal<UserProfile>({
     id: '',
     username: '',
     email: '',
     avatarType: 'gravatar',
-    avatarColor: '#0a3228',
+    avatarColor: this.avatarColors[0],
   });
   readonly loading = signal<boolean>(true);
   readonly error = signal<string | null>(null);
@@ -62,9 +65,6 @@ export class EditComponent {
   gravatarLoading = signal(false);
   gravatarAvailable = signal(false);
   currentEmail = signal('');
-
-  // Available colors for initials
-  avatarColors = ['#c97b7b', '#e3a76f', '#f0d58c', '#7aa06f', '#6d8faf', '#9c83c5', '#e9a1b1'];
 
   private normalizeHexColor(input: string | undefined | null, fallback: string): string {
     if (!input) return fallback;
@@ -77,7 +77,7 @@ export class EditComponent {
     username: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(50)]],
     email: ['', [Validators.required, Validators.email]],
     avatarType: ['gravatar' as AvatarType],
-    avatarColor: ['#0a3228'],
+    avatarColor: [this.avatarColors[0]],
   });
 
   readonly title = computed(() => {

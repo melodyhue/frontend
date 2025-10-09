@@ -14,6 +14,7 @@ import { md5 } from '../../../core/utils/md5.util';
 import { ButtonComponent } from '../../shared/button/button.component';
 import { UsersService } from '../../../core/services/users.service';
 import { SettingsService } from '../../../core/services/settings.service';
+import { SpotifyService } from '../../../core/services/spotify.service';
 
 type AvatarType = 'gravatar' | 'initials';
 
@@ -40,6 +41,7 @@ export class ProfileComponent {
   private readonly platformId = inject(PLATFORM_ID);
   private readonly isBrowser = isPlatformBrowser(this.platformId);
   private readonly usersService = inject(UsersService);
+  private readonly spotifyService = inject(SpotifyService);
   private normalizeHexColor(input: unknown, fallback = '#0a3228'): string {
     const v = typeof input === 'string' ? input.trim() : '';
     if (!v) return fallback;
@@ -107,7 +109,7 @@ export class ProfileComponent {
   });
 
   constructor() {
-    // Charger l'utilisateur depuis l'API
+    // Charger l'utilisateur depuis l'API puis, une fois authentifié, charger le statut Spotify
     this.usersService.me().subscribe({
       next: (u) => {
         const prev = this.user();
@@ -120,6 +122,26 @@ export class ProfileComponent {
           spotifyConnected: false,
         });
         this.loading.set(false);
+
+        // Appeler le statut Spotify après que l'auth soit confirmée (éventuel refresh déjà fait)
+        this.spotifyService.getCredentialsStatus().subscribe({
+          next: (s) => {
+            this.user.update((ux) => ({ ...ux, spotifyConnected: !!s.has_refresh_token }));
+          },
+          error: () => {
+            // Petit retry pour couvrir une course résiduelle
+            setTimeout(() => {
+              this.spotifyService.getCredentialsStatus().subscribe({
+                next: (s2) => {
+                  this.user.update((ux) => ({ ...ux, spotifyConnected: !!s2.has_refresh_token }));
+                },
+                error: () => {
+                  this.user.update((ux) => ({ ...ux, spotifyConnected: false }));
+                },
+              });
+            }, 400);
+          },
+        });
       },
       error: () => {
         this.error.set('failed');
@@ -141,6 +163,8 @@ export class ProfileComponent {
         this.settingsLoading.set(false);
       },
     });
+
+    // (appel déplacé après usersService.me())
 
     // Vérifier si Gravatar est disponible lorsque mode=gravatar
     effect(() => {

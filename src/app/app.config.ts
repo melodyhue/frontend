@@ -1,7 +1,9 @@
 import {
   ApplicationConfig,
+  APP_INITIALIZER,
   provideBrowserGlobalErrorListeners,
   provideZonelessChangeDetection,
+  inject,
 } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
@@ -11,6 +13,7 @@ import { provideClientHydration, withEventReplay } from '@angular/platform-brows
 import { apiPrefixInterceptor } from './core/interceptors/api-prefix.interceptor';
 import { authRefreshInterceptor } from './core/interceptors/auth-refresh.interceptor';
 import { API_BASE_URL } from './core/tokens/api-base-url.token';
+import { SessionRefreshService } from './core/services/session-refresh.service';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -19,6 +22,17 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     provideClientHydration(withEventReplay()),
     provideHttpClient(withInterceptors([apiPrefixInterceptor, authRefreshInterceptor])),
-    { provide: API_BASE_URL, useValue: 'http://localhost:8765' },
+    // { provide: API_BASE_URL, useValue: 'https://api.melodyhue.com' }, // Prod
+    { provide: API_BASE_URL, useValue: 'http://localhost:8765' }, // Pour dev local
+    {
+      provide: APP_INITIALIZER,
+      multi: true,
+      useFactory: () => {
+        const s = inject(SessionRefreshService);
+        return () => {
+          s.start();
+        };
+      },
+    },
   ],
 };

@@ -13,6 +13,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { LocaleService } from '../../../../core/services/locale.service';
 import { ButtonComponent } from '../../../shared/button/button.component';
 import { SettingsService } from '../../../../core/services/settings.service';
+import { SpotifyService } from '../../../../core/services/spotify.service';
 
 @Component({
   selector: 'app-general',
@@ -26,6 +27,7 @@ export class GeneralComponent {
   private readonly platformId = inject(PLATFORM_ID);
   private readonly isBrowser = isPlatformBrowser(this.platformId);
   private readonly settingsService = inject(SettingsService);
+  private readonly spotifyService = inject(SpotifyService);
 
   readonly hexInputRef = viewChild<ElementRef<HTMLInputElement>>('hexInput');
   readonly isSpotifyConfigured = signal(false);
@@ -36,6 +38,9 @@ export class GeneralComponent {
   readonly spotifyClientId = signal('');
   readonly spotifyClientSecret = signal('');
   readonly showClientSecret = signal(false);
+  readonly isSavingSpotify = signal(false);
+  readonly saveSpotifyError = signal<string | null>(null);
+  readonly saveSpotifySuccess = signal<boolean | null>(null);
   private readonly origin = signal<string>('#');
   readonly redirectUri = computed(() => {
     const base = this.origin();
@@ -61,6 +66,21 @@ export class GeneralComponent {
         }
       });
     }
+
+    // Charger l'état Spotify (présence des credentials)
+    this.spotifyService.getCredentialsStatus().subscribe({
+      next: (s) => {
+        // Configuré si au moins client_id + client_secret sont présents
+        this.isSpotifyConfigured.set(!!(s.has_client_id && s.has_client_secret));
+        // Connecté si un refresh_token est présent côté backend
+        this.isSpotifyConnected.set(!!s.has_refresh_token);
+      },
+      error: () => {
+        // En cas d'erreur d'auth (401/403), ne pas faire planter la page et considérer non configuré/non connecté
+        this.isSpotifyConfigured.set(false);
+        this.isSpotifyConnected.set(false);
+      },
+    });
 
     // Charger les settings depuis l'API
     this.settingsService.getSettings().subscribe({
@@ -157,22 +177,55 @@ export class GeneralComponent {
   }
 
   saveSpotifyConfig(): void {
-    // TODO: Valider et sauvegarder la config Spotify
-    console.log('Save Spotify config', {
-      clientId: this.spotifyClientId(),
-      clientSecret: this.spotifyClientSecret(),
+    this.saveSpotifyError.set(null);
+    this.saveSpotifySuccess.set(null);
+    const payload: { client_id?: string; client_secret?: string } = {};
+    const id = (this.spotifyClientId() || '').trim();
+    const secret = (this.spotifyClientSecret() || '').trim();
+    if (id) payload.client_id = id;
+    if (secret) payload.client_secret = secret;
+    if (!payload.client_id && !payload.client_secret) return;
+
+    this.isSavingSpotify.set(true);
+    this.spotifyService.updateCredentials(payload).subscribe({
+      next: () => {
+        // Marquer comme configuré si on a bien les deux ou si ils étaient déjà présents (un refresh status le confirmera)
+        this.spotifyService.getCredentialsStatus().subscribe({
+          next: (s) => {
+            this.isSpotifyConfigured.set(!!(s.has_client_id && s.has_client_secret));
+            this.saveSpotifySuccess.set(true);
+            this.isSavingSpotify.set(false);
+          },
+          error: () => {
+            // Même si la sauvegarde a réussi, si le status échoue on ne bloque pas l'UX
+            this.saveSpotifySuccess.set(true);
+            this.isSavingSpotify.set(false);
+          },
+        });
+        // Nettoyer le champ secret de l'UI par sécurité
+        this.spotifyClientSecret.set('');
+      },
+      error: (err) => {
+        const msg =
+          (err?.error && (err.error.message || err.error.error || err.error.detail)) ||
+          err?.message ||
+          'Impossible d’enregistrer la configuration Spotify.';
+        this.saveSpotifyError.set(String(msg));
+        this.isSavingSpotify.set(false);
+      },
     });
-    this.isSpotifyConfigured.set(true);
   }
 
   connectSpotify(): void {
-    // TODO: Rediriger vers Spotify OAuth
-    const clientId = this.spotifyClientId();
-    const redirectUri = encodeURIComponent(this.redirectUri());
-    const scopes = encodeURIComponent('user-read-currently-playing user-read-playback-state');
-    const spotifyAuthUrl = `https://accounts.spotify.com/authorize?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}&scope=${scopes}`;
-
-    window.location.href = spotifyAuthUrl;
+    // Récupérer l'URL d'auth côté backend (qui met à jour le redirect_uri si fourni)
+    const redirectUri = this.redirectUri();
+    this.spotifyService.getAuthUrl(redirectUri).subscribe({
+      next: (res: { url: string }) => {
+        if (res?.url) {
+          window.location.href = res.url;
+        }
+      },
+    });
   }
 
   disconnectSpotify(): void {
