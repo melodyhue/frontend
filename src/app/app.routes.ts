@@ -26,8 +26,18 @@ import { InfosComponent } from './components/pages/developer/api/infos/infos.com
 import { ColorComponent } from './components/pages/developer/api/color/color.component';
 import { OtpComponent } from './components/pages/auth/login/otp/otp.component';
 import { CallbackComponent as SpotifyCallbackComponent } from './components/pages/auth/spotify/callback/callback.component';
+import { AdminComponent } from './components/pages/admin/admin.component';
+import { UsersComponent } from './components/pages/admin/users/users.component';
+import { ModoComponent } from './components/pages/modo/modo.component';
+import { adminOnlyCanMatch, moderatorOrAdminCanMatch } from './core/guards/role.guard';
+import { authRequiredCanMatch, unauthOnlyCanMatch } from './core/guards/auth.guard';
 
 export const routes: Routes = [
+  {
+    path: 'login',
+    redirectTo: '/auth/login',
+    pathMatch: 'full',
+  },
   {
     path: '',
     component: MainLayoutComponent,
@@ -55,6 +65,7 @@ export const routes: Routes = [
     children: [
       {
         path: 'login',
+        canMatch: [unauthOnlyCanMatch],
         children: [
           {
             path: '',
@@ -63,12 +74,14 @@ export const routes: Routes = [
           },
           {
             path: 'otp',
+            canMatch: [unauthOnlyCanMatch],
             component: OtpComponent,
           },
         ],
       },
       {
         path: 'register',
+        canMatch: [unauthOnlyCanMatch],
         component: RegisterComponent,
       },
       {
@@ -95,11 +108,16 @@ export const routes: Routes = [
     component: ViewComponent,
   },
   {
+    path: 'overlay/:overlayId',
+    component: ViewComponent,
+  },
+  {
     path: '',
     component: PrivateLayoutComponent,
     children: [
       {
         path: 'profile',
+        canMatch: [authRequiredCanMatch],
         children: [
           {
             path: '',
@@ -117,6 +135,7 @@ export const routes: Routes = [
       },
       {
         path: 'overlays',
+        canMatch: [authRequiredCanMatch],
         children: [
           {
             path: '',
@@ -142,6 +161,7 @@ export const routes: Routes = [
       },
       {
         path: 'developer',
+        canMatch: [authRequiredCanMatch],
         children: [
           {
             path: 'api',
@@ -152,6 +172,7 @@ export const routes: Routes = [
       },
       {
         path: 'settings',
+        canMatch: [authRequiredCanMatch],
         children: [
           {
             path: 'general',
@@ -164,6 +185,26 @@ export const routes: Routes = [
           {
             path: 'language',
             component: LanguageComponent,
+          },
+        ],
+      },
+      {
+        path: 'admin',
+        canMatch: [authRequiredCanMatch, adminOnlyCanMatch],
+        children: [
+          {
+            path: '',
+            component: AdminComponent,
+          },
+        ],
+      },
+      {
+        path: 'modo',
+        canMatch: [authRequiredCanMatch, moderatorOrAdminCanMatch],
+        children: [
+          {
+            path: '',
+            component: ModoComponent,
           },
         ],
       },

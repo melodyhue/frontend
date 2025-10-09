@@ -1,1 +1,22 @@
-<p>delete works!</p>
+<div class="overlay-delete">
+    @if (confirming()) {
+    <div class="confirm-box">
+        <h2>Supprimer l'overlay ?</h2>
+        <p>Cette action est irréversible. Voulez-vous vraiment supprimer cet overlay ?</p>
+        <div class="actions">
+            <button class="btn btn-danger" (click)="confirmDelete()" [disabled]="working()">Supprimer</button>
+            <button class="btn btn-cancel" (click)="cancel()" [disabled]="working()">Annuler</button>
+        </div>
+    </div>
+    } @else {
+    @if (working()) {
+    <p>Suppression en cours…</p>
+    } @else if (error()) {
+    <p>Une erreur est survenue. Réessayez.</p>
+    <div class="actions">
+        <button class="btn btn-danger" (click)="confirmDelete()">Réessayer</button>
+        <button class="btn btn-cancel" (click)="cancel()">Annuler</button>
+    </div>
+    }
+    }
+</div>

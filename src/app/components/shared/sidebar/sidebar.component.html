@@ -12,7 +12,7 @@
   </div>
 
   <nav class="sidebar-nav">
-    @for (section of localizedSections(); track section.title) {
+    @for (section of localizedSections(); track section.key) {
     <div class="sidebar-section">
       @if (!isCollapsed()) {
       <h2 class="sidebar-section__title">{{ section.title }}</h2>

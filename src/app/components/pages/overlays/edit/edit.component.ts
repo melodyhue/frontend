@@ -19,18 +19,32 @@ export class EditComponent {
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
   readonly saving = signal(false);
+  readonly availableTemplates = [
+    { id: 'classic', name: 'Classic', type: 'widget' },
+    { id: 'color', name: 'Color', type: 'color' },
+  ] as const;
   readonly form = this.fb.group({
     name: ['', [Validators.required, Validators.maxLength(120)]],
-    color_hex: ['#25d865', [Validators.required, Validators.pattern(/^#?[0-9a-fA-F]{6}$/)]],
+    template: ['classic', [Validators.required]],
   });
+
+  get selectedTemplateType(): string {
+    const id = this.form.controls.template.value ?? '';
+    const t = this.availableTemplates.find((x) => x.id === id);
+    return t ? t.type : '-';
+  }
 
   constructor() {
     const id = this.route.snapshot.paramMap.get('id') ?? '';
     this.overlaysService.getById(id).subscribe({
       next: (o) => {
+        // Compat desc: migrer anciens ids ('now-playing' -> 'classic', 'color-fullscreen' -> 'color')
+        const tpl = (o.template || '').toLowerCase();
+        const migrated =
+          tpl === 'now-playing' ? 'classic' : tpl === 'color-fullscreen' ? 'color' : tpl;
         this.form.patchValue({
           name: o.name,
-          color_hex: o.color_hex,
+          template: migrated as any,
         });
         this.loading.set(false);
       },
@@ -47,9 +61,7 @@ export class EditComponent {
     const id = this.route.snapshot.paramMap.get('id') ?? '';
     const payload = {
       name: this.form.controls.name.value,
-      color_hex: this.form.controls.color_hex.value?.startsWith('#')
-        ? this.form.controls.color_hex.value
-        : `#${this.form.controls.color_hex.value}`,
+      template: this.mapTemplateForBackend(this.form.controls.template.value || ''),
     };
     this.overlaysService.update(id, payload).subscribe({
       next: () => {
@@ -60,5 +72,13 @@ export class EditComponent {
         this.saving.set(false);
       },
     });
+  }
+
+  private mapTemplateForBackend(tpl: string): string {
+    const v = (tpl || '').toLowerCase();
+    // Envoyer les nouveaux ids côté back
+    if (v === 'now-playing') return 'classic';
+    if (v === 'color-fullscreen') return 'color';
+    return v; // classic / color (nouveau format)
   }
 }

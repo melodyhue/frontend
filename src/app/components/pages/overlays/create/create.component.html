@@ -1,1 +1,19 @@
-<p>create works!</p>
+<form [formGroup]="form" (ngSubmit)="create()">
+    <label>
+        Nom
+        <input type="text" formControlName="name" required maxlength="120" />
+    </label>
+
+    <label>
+        Template
+        <select formControlName="template">
+            @for (t of availableTemplates; track t.id) {
+            <option [value]="t.id">{{ t.name }}</option>
+            }
+        </select>
+    </label>
+
+    <p>Type: {{ selectedTemplateType }}</p>
+
+    <button type="submit" [disabled]="form.invalid || saving()">Créer</button>
+</form>

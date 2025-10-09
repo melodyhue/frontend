@@ -1,10 +1,8 @@
 import { Component, ChangeDetectionStrategy, PLATFORM_ID, inject, signal } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
-import { HttpErrorResponse } from '@angular/common/http';
-import { API_BASE_URL } from '../../../../../core/tokens/api-base-url.token';
 import { JsonPipe } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
+import { PublicService } from '../../../../../core/services';
 
 @Component({
   selector: 'app-color',
@@ -15,9 +13,8 @@ import { HttpClient } from '@angular/common/http';
 })
 export class ColorComponent {
   private readonly route = inject(ActivatedRoute);
-  private readonly http = inject(HttpClient);
   private readonly platformId = inject(PLATFORM_ID);
-  private readonly apiBase = (inject(API_BASE_URL, { optional: true }) || '').replace(/\/$/, '');
+  private readonly publicService = inject(PublicService);
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
   readonly data = signal<unknown>(null);
@@ -26,30 +23,24 @@ export class ColorComponent {
     if (!isPlatformBrowser(this.platformId)) {
       return;
     }
-    this.route.paramMap.subscribe({
-      next: (pm) => {
-        const userId = pm.get('userId') || '';
-        if (!userId) {
-          this.error.set('missing-user-id');
-          this.loading.set(false);
-          return;
-        }
-        this.fetchColor(userId);
-      },
-    });
+    const pm = this.route.snapshot.paramMap;
+    const userId = pm.get('userId') || '';
+    if (!userId) {
+      this.error.set('missing-user-id');
+      this.loading.set(false);
+      return;
+    }
+    this.fetchColor(userId);
   }
 
   private fetchColor(userId: string): void {
     this.loading.set(true);
-    const url = `${this.apiBase}/color/${encodeURIComponent(userId)}`;
-    console.info('[ColorComponent] GET', url);
-    this.http.get<unknown>(url, { headers: { accept: 'application/json' } }).subscribe({
+    this.publicService.color(userId).subscribe({
       next: (d) => {
-        this.data.set(d);
+        this.data.set(d as unknown);
         this.loading.set(false);
       },
-      error: (err: HttpErrorResponse) => {
-        console.error('[ColorComponent] color fetch failed', err);
+      error: () => {
         this.error.set('failed');
         this.loading.set(false);
       },

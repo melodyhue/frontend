@@ -5,6 +5,7 @@ export interface UserOut {
   readonly created_at: string; // date-time
   readonly last_login_at: string | null;
   readonly avatar_url?: string | null;
+  readonly role?: string; // optional backend-provided role: 'admin' | 'moderator' | 'user'
 }
 
 export interface UpdateUsernameIn {

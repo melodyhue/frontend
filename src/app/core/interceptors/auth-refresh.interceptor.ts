@@ -1,4 +1,4 @@
-import { inject } from '@angular/core';
+import { PLATFORM_ID, inject } from '@angular/core';
 import {
   HttpErrorResponse,
   HttpEvent,
@@ -17,6 +17,8 @@ import {
   throwError,
 } from 'rxjs';
 import { AuthService } from '../services/auth.service';
+import { Router } from '@angular/router';
+import { isPlatformBrowser } from '@angular/common';
 
 let refreshing = false;
 const refreshed$ = new Subject<boolean>();
@@ -26,6 +28,9 @@ export const authRefreshInterceptor: HttpInterceptorFn = (
   next: HttpHandlerFn
 ): Observable<HttpEvent<unknown>> => {
   const auth = inject(AuthService);
+  const router = inject(Router);
+  const platformId = inject(PLATFORM_ID);
+  const isBrowser = isPlatformBrowser(platformId);
   // Ne pas intercepter la route de refresh elle-même pour éviter les boucles
   const urlPath = (() => {
     try {
@@ -62,15 +67,10 @@ export const authRefreshInterceptor: HttpInterceptorFn = (
         return throwError(() => err);
       }
 
-      const state = auth.readAuthState();
-      const refreshToken = state?.refresh_token;
-      if (!refreshToken) {
-        return throwError(() => err);
-      }
-
       if (!refreshing) {
         refreshing = true;
-        return auth.refresh({ refresh_token: refreshToken }).pipe(
+        // Utiliser le refresh via cookie HttpOnly si le backend l'autorise
+        return auth.refreshWithCookie().pipe(
           switchMap((tokens) => {
             auth.storeTokenPair(tokens);
             refreshed$.next(true);
@@ -85,6 +85,12 @@ export const authRefreshInterceptor: HttpInterceptorFn = (
           catchError((refreshErr) => {
             refreshed$.next(false);
             auth.clearAuth();
+            // Redirection vers /login si le refresh échoue et que l'on est côté navigateur
+            if (isBrowser) {
+              try {
+                router.navigateByUrl('/login');
+              } catch {}
+            }
             return throwError(() => refreshErr);
           }),
           finalize(() => {
@@ -95,19 +101,22 @@ export const authRefreshInterceptor: HttpInterceptorFn = (
 
       // une autre requête attend la fin du refresh
       return refreshed$.pipe(
-        filter(Boolean),
         first(),
-        switchMap(() => {
-          // Utiliser le token fraîchement stocké
-          const state = auth.readAuthState();
-          const access = state?.access_token;
-          if (access) {
-            const tokenType = (state?.token_type || 'bearer').trim();
-            const header = `${tokenType.charAt(0).toUpperCase()}${tokenType.slice(1)} ${access}`;
-            const retried = req.clone({ setHeaders: { Authorization: header } });
-            return next(retried);
+        switchMap((ok) => {
+          if (ok) {
+            // Utiliser le token fraîchement stocké
+            const state = auth.readAuthState();
+            const access = state?.access_token;
+            if (access) {
+              const tokenType = (state?.token_type || 'bearer').trim();
+              const header = `${tokenType.charAt(0).toUpperCase()}${tokenType.slice(1)} ${access}`;
+              const retried = req.clone({ setHeaders: { Authorization: header } });
+              return next(retried);
+            }
+            return next(req);
           }
-          return next(req);
+          // Refresh a échoué: propager l'erreur et (si possible) on est déjà redirigé plus haut
+          return throwError(() => error);
         })
       );
     })

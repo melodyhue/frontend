@@ -18,6 +18,11 @@ export class OverlaysService {
     return this.http.get<OverlayOut>(`overlays/${overlay_id}`);
   }
 
+  // Endpoint public sans auth: GET /overlay/{overlay_id}
+  getPublicById(overlay_id: string) {
+    return this.http.get<OverlayOut>(`overlay/${overlay_id}`);
+  }
+
   update(overlay_id: string, payload: OverlayUpdateIn) {
     return this.http.patch<OverlayOut>(`overlays/${overlay_id}`, payload);
   }

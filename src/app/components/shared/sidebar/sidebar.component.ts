@@ -10,8 +10,11 @@ import {
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { NgOptimizedImage, isPlatformBrowser } from '@angular/common';
 import { LocaleService, type SupportedLocale } from '../../../core/services/locale.service';
+import { AuthService } from '../../../core/services/auth.service';
+import { UsersService } from '../../../core/services/users.service';
 
 interface SidebarSection {
+  readonly key: string; // stable key for tracking
   readonly title: Record<SupportedLocale, string>;
   readonly items: readonly SidebarItem[];
 }
@@ -41,8 +44,11 @@ export class SidebarComponent {
   private readonly platformId = inject(PLATFORM_ID);
   private readonly isBrowser = isPlatformBrowser(this.platformId);
   readonly localeService = inject(LocaleService);
+  private readonly authService = inject(AuthService);
+  private readonly usersService = inject(UsersService);
 
   readonly isReady = signal(false);
+  readonly role = signal<string | null>(null);
 
   private loadCollapsedState(): boolean {
     if (!this.isBrowser) {
@@ -75,6 +81,28 @@ export class SidebarComponent {
 
   constructor() {
     if (this.isBrowser) {
+      // Init role from auth state
+      this.role.set(this.getRoleFromAuth());
+      // Au chargement, on vérifie le rôle côté backend et on aligne si nécessaire
+      this.usersService.me().subscribe({
+        next: (u) => {
+          const backendRole = (u as any)?.role || null;
+          if (backendRole && backendRole !== this.role()) {
+            this.role.set(backendRole);
+            // Persister le rôle mis à jour dans l'état d'auth pour cohérence globale
+            this.authService.updateAuthState({ role: backendRole });
+          }
+        },
+        error: () => {
+          // en cas d'échec, on garde le rôle local
+        },
+      });
+      // Sync on storage changes (when login/logout occurs in another tab or within app)
+      window.addEventListener('storage', (e) => {
+        if (e.key === 'melodyhue:auth:token') {
+          this.role.set(this.getRoleFromAuth());
+        }
+      });
       if (typeof queueMicrotask === 'function') {
         queueMicrotask(() => this.isReady.set(true));
       } else {
@@ -83,8 +111,19 @@ export class SidebarComponent {
     }
   }
 
+  private getRoleFromAuth(): string | null {
+    try {
+      const st = this.authService.readAuthState();
+      const role = (st?.role || '').toString().trim().toLowerCase();
+      return role || null;
+    } catch {
+      return null;
+    }
+  }
+
   readonly sections: readonly SidebarSection[] = [
     {
+      key: 'profile',
       title: { fr: 'Profil', en: 'Profile' },
       items: [
         {
@@ -102,6 +141,7 @@ export class SidebarComponent {
       ],
     },
     {
+      key: 'overlays',
       title: { fr: 'Overlays', en: 'Overlays' },
       items: [
         {
@@ -113,6 +153,7 @@ export class SidebarComponent {
       ],
     },
     {
+      key: 'developer',
       title: { fr: 'Développeur', en: 'Developer' },
       items: [
         {
@@ -124,6 +165,7 @@ export class SidebarComponent {
       ],
     },
     {
+      key: 'settings',
       title: { fr: 'Paramètres', en: 'Settings' },
       items: [
         {
@@ -131,11 +173,11 @@ export class SidebarComponent {
           label: { fr: 'Général', en: 'General' },
           icon: 'fa-solid fa-gear',
         },
-        {
-          path: '/settings/appearance',
-          label: { fr: 'Apparence', en: 'Appearance' },
-          icon: 'fa-solid fa-palette',
-        },
+        // {
+        //   path: '/settings/appearance',
+        //   label: { fr: 'Apparence', en: 'Appearance' },
+        //   icon: 'fa-solid fa-palette',
+        // },
         {
           path: '/settings/language',
           label: { fr: 'Langue', en: 'Language' },
@@ -144,21 +186,31 @@ export class SidebarComponent {
       ],
     },
     {
+      key: 'admin',
       title: { fr: 'Administration', en: 'Administration' },
       items: [
         {
           path: '/admin',
           label: { fr: 'Tableau de bord', en: 'Dashboard' },
           icon: 'fa-solid fa-tachometer-alt',
-        },
-        {
-          path: '/admin/users',
-          label: { fr: 'Utilisateurs', en: 'Users' },
-          icon: 'fa-solid fa-users',
+          exact: true,
         },
       ],
     },
     {
+      key: 'moderation',
+      title: { fr: 'Modération', en: 'Moderation' },
+      items: [
+        {
+          path: '/modo',
+          label: { fr: 'Utilisateurs', en: 'Users' },
+          icon: 'fa-solid fa-users',
+          exact: true,
+        },
+      ],
+    },
+    {
+      key: 'actions',
       title: { fr: 'Actions', en: 'Actions' },
       items: [
         {
@@ -172,13 +224,30 @@ export class SidebarComponent {
 
   readonly localizedSections = computed(() => {
     const locale = this.localeService.locale();
-    return this.sections.map((section) => ({
-      title: section.title[locale],
-      items: section.items.map((item) => ({
-        ...item,
-        label: item.label[locale],
-      })),
-    }));
+    const role = (this.role() || '').trim().toLowerCase();
+    const isAdmin = role === 'admin';
+    const isModerator = role === 'moderator';
+    // Filtrer items en fonction du rôle
+    return this.sections
+      .map((section) => {
+        const items = section.items
+          .filter((item) => {
+            const p = item.path || '';
+            if (p.startsWith('/admin')) return isAdmin;
+            if (p.startsWith('/modo')) return isAdmin || isModerator;
+            return true;
+          })
+          .map((item) => ({
+            ...item,
+            label: item.label[locale],
+          }));
+        return {
+          key: section.key,
+          title: section.title[locale],
+          items,
+        };
+      })
+      .filter((s) => s.items.length > 0);
   });
 
   readonly collapseAriaLabel = computed(() =>

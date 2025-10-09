@@ -25,7 +25,8 @@ export const apiPrefixInterceptor: HttpInterceptorFn = (
         p.startsWith('infos') ||
         p.startsWith('color') ||
         p.startsWith('health') ||
-        p.startsWith('auth/')
+        p.startsWith('auth/') ||
+        p.startsWith('overlay/')
       )
         return true;
       // Cas 2: appel via proxy local /developer/api/:userId/(infos|color)
@@ -39,14 +40,10 @@ export const apiPrefixInterceptor: HttpInterceptorFn = (
     }
   })();
 
-  // Préfixer l'URL si nécessaire, sauf pour les proxys publics locaux
+  // Préfixer l'URL si nécessaire. On évite seulement pour les proxys locaux (developer/api/*).
   if (baseUrl && !ABSOLUTE_URL.test(req.url)) {
     const path = req.url.startsWith('/') ? req.url.slice(1) : req.url;
-    const avoidPrefix =
-      path.startsWith('developer/api/') ||
-      path.startsWith('infos') ||
-      path.startsWith('color') ||
-      path.startsWith('health');
+    const avoidPrefix = path.startsWith('developer/api/');
     if (!avoidPrefix) {
       const normalizedBase = baseUrl.replace(/\/$/, '');
       const normalizedPath = path;
@@ -54,10 +51,12 @@ export const apiPrefixInterceptor: HttpInterceptorFn = (
     }
   }
 
-  // Ajouter Authorization si un token est stocké
+  // Ajouter Authorization si un token est stocké (sessionStorage prioritaire, sinon localStorage)
   if (!isPublicEndpoint) {
     try {
-      const raw = window?.localStorage?.getItem?.(AUTH_TOKEN_STORAGE_KEY);
+      const sraw = window?.sessionStorage?.getItem?.(AUTH_TOKEN_STORAGE_KEY);
+      const lraw = window?.localStorage?.getItem?.(AUTH_TOKEN_STORAGE_KEY);
+      const raw = sraw || lraw;
       if (raw) {
         const parsed = JSON.parse(raw) as { access_token?: string; token_type?: string } | null;
         const access = parsed?.access_token;

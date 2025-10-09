@@ -29,6 +29,10 @@
             {{ tableHeaders().name }}
             <i class="fa-solid {{ getSortIcon('name') }}"></i>
           </th>
+          <th class="overlays__sortable" (click)="sortBy('template')">
+            {{ tableHeaders().template }}
+            <i class="fa-solid {{ getSortIcon('template') }}"></i>
+          </th>
           <th class="overlays__sortable" (click)="sortBy('type')">
             {{ tableHeaders().type }}
             <i class="fa-solid {{ getSortIcon('type') }}"></i>
@@ -47,6 +51,7 @@
             <i class="fa-solid fa-layer-group"></i>
             <span>{{ overlay.name }}</span>
           </td>
+          <td>{{ overlay.template }}</td>
           <td>
             <span class="overlays__type-badge">{{ overlay.type }}</span>
           </td>

@@ -32,7 +32,9 @@ export interface RefreshIn {
 }
 
 // État local stocké
-export interface AuthState extends TokenPair {
+export interface AuthState {
+  readonly access_token?: string;
+  readonly token_type?: string; // bearer
   readonly createdAt: string;
   readonly session: 'persistent' | 'session';
   readonly role?: string;

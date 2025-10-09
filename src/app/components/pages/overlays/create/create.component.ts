@@ -16,28 +16,44 @@ export class CreateComponent {
   private readonly overlaysService = inject(OverlaysService);
 
   readonly saving = signal(false);
+  readonly availableTemplates = [
+    { id: 'classic', name: 'Classic', type: 'widget' },
+    { id: 'color', name: 'Color', type: 'color' },
+  ] as const;
   readonly form = this.fb.nonNullable.group({
     name: ['', [Validators.required, Validators.maxLength(120)]],
-    color_hex: ['#25d865', [Validators.required, Validators.pattern(/^#?[0-9a-fA-F]{6}$/)]],
+    template: ['classic', [Validators.required]],
   });
+
+  get selectedTemplateType(): string {
+    const id = this.form.controls.template.value;
+    const t = this.availableTemplates.find((x) => x.id === id);
+    return t ? t.type : '-';
+  }
 
   create(): void {
     if (this.form.invalid || this.saving()) return;
     this.saving.set(true);
     const payload = {
       name: this.form.controls.name.value,
-      color_hex: this.form.controls.color_hex.value.startsWith('#')
-        ? this.form.controls.color_hex.value
-        : `#${this.form.controls.color_hex.value}`,
+      template: this.mapTemplateForBackend(this.form.controls.template.value),
     };
     this.overlaysService.create(payload).subscribe({
-      next: (overlay) => {
+      next: () => {
         this.saving.set(false);
-        this.router.navigate(['/overlays/edit', overlay.id]);
+        this.router.navigate(['/overlays']);
       },
       error: () => {
         this.saving.set(false);
       },
     });
+  }
+
+  private mapTemplateForBackend(tpl: string): string {
+    const v = (tpl || '').toLowerCase();
+    // Envoyer les nouveaux ids côté back
+    if (v === 'now-playing') return 'classic';
+    if (v === 'color-fullscreen') return 'color';
+    return v; // classic / color (nouveau format)
   }
 }

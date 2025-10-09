@@ -4,11 +4,13 @@ import { LocaleService } from '../../../core/services/locale.service';
 import { ButtonComponent } from '../../shared/button/button.component';
 import { OverlaysService } from '../../../core/services/overlays.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { UsersService } from '../../../core/services/users.service';
 
 interface ViewOverlay {
   id: string;
   name: string;
-  type: string;
+  type: string; // widget | color (affichage)
+  template: string; // Classic | Color (affichage)
   createdAt: Date;
   lastModified: Date;
 }
@@ -25,12 +27,14 @@ export class OverlaysComponent {
   private readonly router = inject(Router);
   private readonly overlaysService = inject(OverlaysService);
   private readonly authService = inject(AuthService);
+  private readonly usersService = inject(UsersService);
 
   private readonly overlaysData = signal<ViewOverlay[]>([]);
   readonly loading = signal<boolean>(true);
   readonly error = signal<string | null>(null);
+  private readonly currentUserId = signal<string | null>(null);
 
-  readonly sortColumn = signal<'name' | 'type' | 'lastModified'>('lastModified');
+  readonly sortColumn = signal<'name' | 'type' | 'template' | 'lastModified'>('lastModified');
   readonly sortDirection = signal<'asc' | 'desc'>('desc');
 
   readonly overlays = computed(() => {
@@ -41,7 +45,7 @@ export class OverlaysComponent {
     data.sort((a, b) => {
       let comparison = 0;
 
-      if (column === 'name' || column === 'type') {
+      if (column === 'name' || column === 'template' || column === 'type') {
         comparison = a[column].localeCompare(b[column]);
       } else if (column === 'lastModified') {
         comparison = a.lastModified.getTime() - b.lastModified.getTime();
@@ -86,7 +90,8 @@ export class OverlaysComponent {
     const locale = this.localeService.locale();
     return {
       name: locale === 'fr' ? 'Nom' : 'Name',
-      type: locale === 'fr' ? 'Type' : 'Type',
+      type: 'Type',
+      template: locale === 'fr' ? 'Template' : 'Template',
       created: locale === 'fr' ? 'Créé le' : 'Created',
       modified: locale === 'fr' ? 'Modifié le' : 'Modified',
       actions: locale === 'fr' ? 'Actions' : 'Actions',
@@ -112,7 +117,7 @@ export class OverlaysComponent {
     }).format(date);
   }
 
-  sortBy(column: 'name' | 'type' | 'lastModified'): void {
+  sortBy(column: 'name' | 'type' | 'template' | 'lastModified'): void {
     if (this.sortColumn() === column) {
       // Toggle direction if same column
       this.sortDirection.set(this.sortDirection() === 'asc' ? 'desc' : 'asc');
@@ -123,7 +128,7 @@ export class OverlaysComponent {
     }
   }
 
-  getSortIcon(column: 'name' | 'type' | 'lastModified'): string {
+  getSortIcon(column: 'name' | 'type' | 'template' | 'lastModified'): string {
     if (this.sortColumn() !== column) {
       return 'fa-sort';
     }
@@ -135,8 +140,12 @@ export class OverlaysComponent {
   }
 
   viewOverlay(id: string): void {
-    const userId = this.authService.readAuthState()?.user_id ?? 'USER_ID';
-    window.open(`/overlay/${userId}/${id}`, '_blank');
+    const uid = this.currentUserId();
+    if (uid) {
+      window.open(`/overlay/${uid}/${id}`, '_blank');
+    } else {
+      window.open(`/overlay/${id}`, '_blank');
+    }
   }
 
   editOverlay(id: string): void {
@@ -152,16 +161,37 @@ export class OverlaysComponent {
   }
 
   constructor() {
+    // Récupérer l'ID utilisateur pour construire les URLs publiques
+    this.usersService.me().subscribe({
+      next: (u) => this.currentUserId.set(u.id),
+      error: () => this.currentUserId.set(null),
+    });
     // Charger depuis l'API
     this.overlaysService.list().subscribe({
       next: (items) => {
-        const mapped = items.map((o) => ({
-          id: o.id,
-          name: o.name,
-          type: 'Default',
-          createdAt: new Date(o.created_at),
-          lastModified: new Date(o.updated_at),
-        }));
+        const mapped = items.map((o) => {
+          const key = (o.template || '').toLowerCase();
+          const template =
+            key === 'classic' || key === 'now-playing'
+              ? 'Classic'
+              : key === 'color' || key === 'color-fullscreen'
+              ? 'Color'
+              : o.template;
+          const type =
+            key === 'classic' || key === 'now-playing'
+              ? 'widget'
+              : key === 'color' || key === 'color-fullscreen'
+              ? 'color'
+              : '-';
+          return {
+            id: o.id,
+            name: o.name,
+            type,
+            template,
+            createdAt: new Date(o.created_at),
+            lastModified: new Date(o.updated_at),
+          } as ViewOverlay;
+        });
         this.overlaysData.set(mapped);
         this.loading.set(false);
       },

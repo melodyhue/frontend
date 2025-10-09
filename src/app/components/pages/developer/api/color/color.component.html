@@ -1,5 +1,5 @@
 @if (data()) {
-<pre class="api-json">{{ data() | json }}</pre>
+{{ data() | json }}
 } @else if (error()) {
-<pre class="api-json">{{ { status: 'error' } | json }}</pre>
+{{ ({ status: 'error' }) | json }}
 }

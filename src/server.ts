@@ -15,8 +15,8 @@ const angularApp = new AngularNodeAppEngine();
 const API_BASE = process.env['API_BASE_URL'] || 'http://localhost:8765';
 
 /**
- * JSON endpoints (proxy) for developer overlays
- * These routes return raw JSON exactly as provided by the upstream API.
+ * Developer API: return raw JSON for infos/color
+ * These endpoints bypass Angular rendering to output JSON directly.
  */
 app.get('/developer/api/:userId/infos', async (req, res) => {
   const userId = req.params['userId'];
@@ -25,14 +25,12 @@ app.get('/developer/api/:userId/infos', async (req, res) => {
     return;
   }
   const target = `${API_BASE}/infos/${encodeURIComponent(userId)}`;
-  console.info(`[SSR] Proxy GET -> ${target}`);
   try {
     const upstream = await fetch(target, { headers: { accept: 'application/json' } });
     const bodyText = await upstream.text();
     res.status(upstream.status);
     const ct = upstream.headers.get('content-type') || 'application/json; charset=utf-8';
     res.setHeader('content-type', ct);
-    // Prevent caching to ensure real-time data
     res.setHeader('cache-control', 'no-store');
     res.send(bodyText);
   } catch (err) {
@@ -49,14 +47,12 @@ app.get('/developer/api/:userId/color', async (req, res) => {
     return;
   }
   const target = `${API_BASE}/color/${encodeURIComponent(userId)}`;
-  console.info(`[SSR] Proxy GET -> ${target}`);
   try {
     const upstream = await fetch(target, { headers: { accept: 'application/json' } });
     const bodyText = await upstream.text();
     res.status(upstream.status);
     const ct = upstream.headers.get('content-type') || 'application/json; charset=utf-8';
     res.setHeader('content-type', ct);
-    // Prevent caching to ensure real-time data
     res.setHeader('cache-control', 'no-store');
     res.send(bodyText);
   } catch (err) {

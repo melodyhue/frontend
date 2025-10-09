@@ -1,1 +1,18 @@
-<p>copy works!</p>
+@if (loading()) {
+<p>Chargement…</p>
+} @else if (error()) {
+<p>Une erreur est survenue.</p>
+<button (click)="cancel()">Retour</button>
+} @else {
+<form [formGroup]="form" (ngSubmit)="submit()">
+    <label>
+        Nom de la copie
+        <input type="text" formControlName="name" required maxlength="120" />
+    </label>
+
+    <div class="actions">
+        <button type="submit" [disabled]="form.invalid || working()">Créer</button>
+        <button type="button" (click)="cancel()" [disabled]="working()">Annuler</button>
+    </div>
+</form>
+}

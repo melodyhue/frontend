@@ -1,0 +1,97 @@
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&display=swap');
+
+/* Reset local au composant pour correspondre au fichier HTML d'origine */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+/* Applique le style du body sur l'hôte du composant */
+:host {
+	font-family: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+	background: transparent;
+	overflow: hidden;
+	height: 100vh;
+	width: 100vw;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.now-playing-container {
+	position: relative;
+	width: 800px;
+	height: 120px;
+	max-width: 95vw;
+	background: linear-gradient(135deg, rgba(15, 15, 15, 0.95) 0%, rgba(25, 25, 25, 0.95) 100%);
+	backdrop-filter: blur(24px) saturate(180%);
+	border-radius: 20px;
+	padding: 20px 24px;
+	color: #fff;
+	transform: scale(0.9) translateY(20px);
+	opacity: 0;
+	transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+	display: flex;
+	align-items: center;
+	gap: 20px;
+}
+
+.now-playing-container.show { transform: scale(1) translateY(0); opacity: 1; }
+
+.track-info { display: flex; align-items: flex-end; gap: 20px; flex: 1; min-width: 0; }
+
+.album-cover-container { position: relative; flex-shrink: 0; }
+.album-cover { width: 80px; height: 80px; border-radius: 12px; object-fit: cover; transition: all 0.3s ease; flex-shrink: 0; }
+.album-cover.playing { animation: albumPulse 3s ease-in-out infinite; }
+@keyframes albumPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.02); } }
+
+.vinyl-effect { display: none; }
+
+.track-details { flex: 1; min-width: 0; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; height: 80px; position: relative; }
+.track-text-info { display: flex; flex-direction: column; gap: 1px; flex-shrink: 1; overflow: hidden; align-self: flex-start; }
+
+.scrolling-text { overflow: hidden; white-space: nowrap; position: relative; }
+.scrolling-text .text-content { display: inline-block; animation: scrollText 20s ease-in-out infinite; padding-right: 100px; }
+.scrolling-text.no-scroll .text-content { animation: none; padding-right: 0; }
+
+@media (max-width: 900px) { .scrolling-text .text-content { padding-right: 80px; animation-duration: 18s; } }
+@media (max-width: 600px) { .scrolling-text .text-content { padding-right: 60px; animation-duration: 16s; } }
+@media (max-width: 400px) { .scrolling-text .text-content { padding-right: 40px; animation-duration: 14s; } }
+
+@keyframes scrollText { 0%, 30% { transform: translateX(0); } 60%, 90% { transform: translateX(calc(-100% + 100vw - 150px)); } 100% { transform: translateX(0); } }
+@media (max-width: 900px) { @keyframes scrollText { 0%, 30% { transform: translateX(0); } 60%, 90% { transform: translateX(calc(-100% + 95vw - 120px)); } 100% { transform: translateX(0); } } }
+@media (max-width: 600px) { @keyframes scrollText { 0%, 30% { transform: translateX(0); } 60%, 90% { transform: translateX(calc(-100% + 90vw - 100px)); } 100% { transform: translateX(0); } } }
+@media (max-width: 400px) { @keyframes scrollText { 0%, 30% { transform: translateX(0); } 60%, 90% { transform: translateX(calc(-100% + 85vw - 80px)); } 100% { transform: translateX(0); } } }
+
+.track-title { font-size: 20px; font-weight: 600; margin-bottom: 2px; color: #fff; line-height: 1.1; }
+.track-artist { font-size: 15px; font-weight: 400; color: rgba(255, 255, 255, 0.8); margin-bottom: 1px; line-height: 1.1; }
+.track-album { font-size: 11px; font-weight: 300; color: rgba(255, 255, 255, 0.5); line-height: 1.1; }
+
+.progress-container { display: flex; flex-direction: column; gap: 3px; width: 100%; flex-shrink: 0; }
+.progress-info { display: flex; justify-content: space-between; align-items: center; }
+.progress-time { font-size: 10px; font-weight: 600; color: rgba(255, 255, 255, 0.8); font-variant-numeric: tabular-nums; line-height: 1; }
+.progress-bar { width: 100%; height: 4px; background: rgba(255, 255, 255, 0.2); border-radius: 2px; overflow: hidden; position: relative; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent-color, #00ff88), var(--accent-color-light, #66ffb3)); border-radius: 2px; transition: width .8s ease-out; position: relative; }
+.progress-fill::after { content: ''; position: absolute; top: 0; right: -1px; width: 3px; height: 100%; background: rgba(255, 255, 255, 0.9); border-radius: 1px; }
+.wave-visualizer { position: absolute; bottom:-1px; left:0; right:0; height:1px; background: linear-gradient(90deg, transparent, var(--accent-color, #00ff88), transparent); opacity:.6; animation: waveMove 3s ease-in-out infinite; }
+@keyframes waveMove { 0%, 100% { transform: scaleX(1); opacity: .6; } 50% { transform: scaleX(1.1); opacity: .8; } }
+
+.error-message { text-align:center; color:#ff6b6b; font-size:14px; font-weight:500; padding:32px; background: rgba(255,107,107,.1); border-radius:16px; border:1px solid rgba(255,107,107,.2); }
+
+@media (max-width: 900px) {
+	.now-playing-container { width: 95vw; padding: 16px 20px; height: auto; }
+	.track-info { width: 100%; gap: 16px; }
+	.progress-container { width: 100%; }
+}
+
+@media (max-width: 600px) {
+	.album-cover { width: 60px; height: 60px; }
+	.track-details { height: 60px; }
+	.track-title { font-size: 16px; }
+	.track-artist { font-size: 12px; }
+	.track-album { font-size: 10px; }
+}
+
+@media (max-width: 150px) {
+	.now-playing-container { width: 100px; height: 100px; padding: 10px; border-radius: 12px; display:flex; justify-content:center; align-items:center; }
+	.track-info { flex-direction: column; align-items:center; justify-content:center; gap:0; width:100%; height:100%; }
+	.track-details { display:none; }
+	.album-cover { width:80px; height:80px; border-radius:8px; }
+}

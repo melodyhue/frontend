@@ -29,15 +29,35 @@ export class AuthService {
   private readonly isBrowser = isPlatformBrowser(this.platformId);
 
   loginStep1(payload: LoginIn) {
-    return this.http.post<LoginStep1Out | LoginTokensOut>('auth/login', payload);
+    // withCredentials: true pour accepter les Set-Cookie cross-site (refresh cookie)
+    return this.http.post<LoginStep1Out | LoginTokensOut>('auth/login', payload, {
+      withCredentials: true,
+    });
   }
 
   loginStep2Totp(payload: Login2FAIn) {
-    return this.http.post<TokenPair>('auth/login/2fa', payload);
+    return this.http.post<TokenPair>('auth/login/2fa', payload, {
+      withCredentials: true,
+    });
   }
 
+  // Ancienne méthode (payload) conservée pour compat si le backend l'exige encore,
+  // mais préférer refreshWithCookie qui s'appuie sur un cookie HttpOnly
   refresh(payload: RefreshIn) {
-    return this.http.post<TokenPair>('auth/refresh', payload);
+    return this.http.post<TokenPair>('auth/refresh', payload, {
+      withCredentials: true,
+    });
+  }
+
+  // Nouvelle méthode recommandée: le serveur lit le refresh token depuis un cookie HttpOnly
+  refreshWithCookie() {
+    return this.http.post<TokenPair>(
+      'auth/refresh',
+      {},
+      {
+        withCredentials: true,
+      }
+    );
   }
 
   me() {
@@ -45,7 +65,9 @@ export class AuthService {
   }
 
   register(payload: RegisterIn) {
-    return this.http.post<LoginTokensOut | UserOut>('auth/register', payload);
+    return this.http.post<LoginTokensOut | UserOut>('auth/register', payload, {
+      withCredentials: true,
+    });
   }
 
   forgotPassword(payload: ForgotPwdIn) {
@@ -103,50 +125,80 @@ export class AuthService {
     }
   }
 
-  storeTokenPair(tokens: TokenPair) {
-    if (!this.isBrowser) return;
-    const session = this.readSessionPreference() ?? 'session';
-    const state: AuthState = {
-      ...tokens,
-      session,
-      createdAt: new Date().toISOString(),
-    };
+  private getStorageFor(session: 'persistent' | 'session'): Storage | null {
+    if (!this.isBrowser) return null;
     try {
-      localStorage.setItem(AUTH_TOKEN_STORAGE_KEY, JSON.stringify(state));
+      return session === 'session' ? window.sessionStorage : window.localStorage;
+    } catch {
+      return null;
+    }
+  }
+
+  private readFromStorages(): AuthState | null {
+    if (!this.isBrowser) return null;
+    try {
+      // Priorité à sessionStorage
+      const sraw = window.sessionStorage.getItem(AUTH_TOKEN_STORAGE_KEY);
+      if (sraw) return JSON.parse(sraw) as AuthState;
+    } catch {}
+    try {
+      const lraw = window.localStorage.getItem(AUTH_TOKEN_STORAGE_KEY);
+      if (lraw) return JSON.parse(lraw) as AuthState;
+    } catch {}
+    return null;
+  }
+
+  private writeState(state: AuthState) {
+    if (!this.isBrowser) return;
+    const session = state.session ?? this.readSessionPreference() ?? 'session';
+    const store = this.getStorageFor(session);
+    if (!store) return;
+    try {
+      store.setItem(AUTH_TOKEN_STORAGE_KEY, JSON.stringify(state));
     } catch {}
   }
 
+  storeTokenPair(tokens: TokenPair) {
+    if (!this.isBrowser) return;
+    const session = this.readSessionPreference() ?? 'session';
+    // Ne pas persister le refresh_token côté client
+    const { access_token, token_type } = tokens;
+    const state: AuthState = {
+      access_token,
+      token_type,
+      session,
+      createdAt: new Date().toISOString(),
+    } as AuthState;
+    this.writeState(state);
+  }
+
   storeLoginTokens(tokens: LoginTokensOut) {
-    // Stocke les tokens + user_id/role si fournis
+    // Stocke access token + user_id/role si fournis; refresh cookie géré par le serveur
     this.storeTokenPair(tokens);
     this.updateAuthState({ user_id: tokens.user_id, role: tokens.role });
   }
 
   updateAuthState(patch: Partial<AuthState>) {
     if (!this.isBrowser) return;
-    try {
-      const existingRaw = localStorage.getItem(AUTH_TOKEN_STORAGE_KEY);
-      const existing: AuthState | null = existingRaw ? JSON.parse(existingRaw) : null;
-      const merged = { ...(existing ?? {}), ...patch } as AuthState;
-      localStorage.setItem(AUTH_TOKEN_STORAGE_KEY, JSON.stringify(merged));
-    } catch {}
+    const existing = this.readFromStorages();
+    const merged = { ...(existing ?? {}), ...patch } as AuthState;
+    this.writeState(merged);
   }
 
   readAuthState(): AuthState | null {
-    if (!this.isBrowser) return null;
-    try {
-      const raw = localStorage.getItem(AUTH_TOKEN_STORAGE_KEY);
-      return raw ? (JSON.parse(raw) as AuthState) : null;
-    } catch {
-      return null;
-    }
+    return this.readFromStorages();
   }
 
   clearAuth() {
     if (!this.isBrowser) return;
     try {
-      localStorage.removeItem(AUTH_TOKEN_STORAGE_KEY);
-      localStorage.removeItem(AUTH_TICKET_STORAGE_KEY);
+      window.sessionStorage.removeItem(AUTH_TOKEN_STORAGE_KEY);
+    } catch {}
+    try {
+      window.localStorage.removeItem(AUTH_TOKEN_STORAGE_KEY);
+    } catch {}
+    try {
+      window.localStorage.removeItem(AUTH_TICKET_STORAGE_KEY);
     } catch {}
   }
 }
