@@ -22,8 +22,7 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     provideClientHydration(withEventReplay()),
     provideHttpClient(withInterceptors([apiPrefixInterceptor, authRefreshInterceptor])),
-    // { provide: API_BASE_URL, useValue: 'https://api.melodyhue.com' },
-    { provide: API_BASE_URL, useValue: 'http://localhost:8765' },
+    { provide: API_BASE_URL, useValue: 'https://api.melodyhue.com' },
     provideAppInitializer(() => {
       const s = inject(SessionRefreshService);
       s.start();
