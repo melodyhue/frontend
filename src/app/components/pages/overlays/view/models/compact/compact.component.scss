@@ -1,0 +1,202 @@
+* {
+  box-sizing: border-box;
+}
+:host {
+  display: block;
+  height: 100vh;
+  width: 100vw;
+  background: transparent;
+  overflow: hidden;
+}
+
+.compact {
+  height: 100vh;
+  width: 100vw;
+  display: grid;
+  place-items: center;
+  opacity: 1;
+  transition: opacity 0.35s ease;
+}
+
+.card {
+  display: grid;
+  grid-template-columns: auto auto; /* ne pas étirer le panneau, taille fixe */
+  align-items: center;
+  gap: var(--gap); /* réduire l'écart pour raccourcir l'ensemble */
+  position: relative;
+  --overlap: 16px; /* chevauchement du panneau sous l'image */
+  --gap: 8px; /* source de vérité pour gap */
+  --cover-w: 80px; /* fallback, remplacé dynamiquement */
+  --epsilon: 4px; /* marge de sécurité anti-sous-pixel pour éviter de ressortir de l'autre côté */
+  overflow: hidden; /* masque le panneau quand il rentre totalement */
+}
+
+.cover {
+  width: 80px; /* réduire légèrement la cover pour raccourcir l'ensemble */
+  height: 80px;
+  object-fit: cover;
+  border-radius: 12px;
+  box-shadow: none; /* supprimer l'ombre pour éviter qu'elle dépasse sur le panneau */
+  position: relative;
+  z-index: 2; /* l'image passe au-dessus du panneau dans la zone de chevauchement */
+}
+
+.panel {
+  position: relative;
+  height: 72px;
+  --panel-w: 300px; /* largeur fixe du bloc texte (desktop), overridée en mobile */
+  width: var(--panel-w);
+  display: flex;
+  align-items: center;
+  overflow: visible; /* aucun fond ici: fond déplacé dans .panel__inner */
+  /* chevauchement avec l'image géré par transform pour éviter les fuites à gauche */
+  transform: translateX(calc(-1 * var(--overlap)));
+  z-index: 1;
+  contain: paint; /* évite les artefacts de bords lors du déplacement */
+  will-change: transform;
+  backface-visibility: hidden;
+  /* pas de fade: seulement un slide */
+  transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Wrapper interne pour animer la réduction indépendamment du slide */
+.panel__inner {
+  width: 0; /* réduit par défaut pour éviter le flash */
+  height: 100%;
+  display: flex;
+  align-items: center;
+  background: rgba(10, 10, 10, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 0 12px 12px 0; /* coins gauches carrés, droits arrondis */
+  padding: 8px 12px; /* padding plus compact */
+  overflow: hidden;
+  /* Réduction "réelle" par largeur: garde les coins et la bordure, ne déforme pas le contenu */
+  will-change: width;
+  transition: width 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.compact.show .panel {
+  /* visible avec chevauchement */
+  transform: translateX(calc(-1 * var(--overlap)));
+  transition-delay: 0s; /* on glisse tout de suite pour éviter le flash à droite */
+}
+.compact.show .panel__inner {
+  width: var(--panel-w);
+  transition: width 0.35s ease 0.2s; /* légère attente pour rester sous la cover au début */
+}
+
+/* Pause: faire rentrer le panel dans l'image, puis 1.5s plus tard éteindre la carte (image + panel) */
+.compact:not(.show) .panel {
+  /* Étape 1 (pause): rentrer à moitié sous la cover */
+  transform: translateX(calc(-50% - var(--gap) - var(--epsilon)));
+  transition: transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: 0s;
+}
+.compact:not(.show) .panel__inner {
+  /* Étape 2 (pause): rétrécir la largeur vers 0 sans déformer le contenu */
+  width: 0;
+  transition: width 0.65s cubic-bezier(0.16, 1, 0.3, 1) 0s;
+}
+.compact:not(.show) .card {
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  transition-delay: 1.5s;
+}
+.compact.show .card {
+  opacity: 1;
+  transition: opacity 0.35s ease;
+  transition-delay: 0s;
+}
+
+.texts {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+.title {
+  color: #fff;
+  font-weight: 700;
+  font-size: 18px;
+  line-height: 1.15;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.artist {
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: 500;
+  font-size: 13px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.line {
+  color: #fff;
+  font-weight: 700;
+  font-size: 18px;
+  line-height: 1.15;
+  min-width: 0;
+  overflow: hidden;
+}
+.line.small {
+  color: rgba(255, 255, 255, 0.84);
+  font-weight: 500;
+  font-size: 13px;
+}
+.marquee {
+  position: relative;
+  overflow: hidden;
+}
+.marquee__inner {
+  display: inline-flex;
+  white-space: nowrap;
+  will-change: transform;
+  animation: cpt-marquee 16s linear infinite;
+  animation-play-state: paused; /* par défaut, ne défile pas */
+}
+.run-marquee .marquee__inner {
+  animation-play-state: running; /* activé par TS une fois le panneau stable */
+}
+.text {
+  display: inline-block;
+  white-space: nowrap;
+  padding-right: 40px;
+}
+.text.clone {
+  display: none; /* par défaut, jamais visible */
+}
+.no-scroll .marquee__inner {
+  animation: none;
+  transform: translateX(0);
+}
+.no-scroll .clone {
+  display: none;
+}
+/* On n'affiche les clones que si le marquee est lancé ET nécessaire */
+.run-marquee .marquee:not(.no-scroll) .clone {
+  display: inline-block;
+}
+@keyframes cpt-marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+@media (max-width: 720px) {
+  .cover {
+    width: 88px;
+    height: 88px;
+  }
+  .panel {
+    height: 64px;
+    --panel-w: 260px; /* taille FIXE en mobile */
+  }
+  .line {
+    font-size: 16px;
+  }
+  .line.small {
+    font-size: 12px;
+  }
+}

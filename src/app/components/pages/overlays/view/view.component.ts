@@ -8,12 +8,15 @@ import {
 } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { OverlaysService } from '../../../../core/services';
-import { ColorComponent } from './templates/color/color.component';
-import { ClassicComponent } from './templates/classic/classic.component';
+import { ColorComponent } from './models/color/color.component';
+import { DefaultComponent } from './models/default/default.component';
+import { MinimalComponent } from './models/minimal/minimal.component';
+import { CompactComponent } from './models/compact/compact.component';
+import { FocusComponent } from './models/focus/focus.component';
 
 @Component({
   selector: 'app-view',
-  imports: [ColorComponent, ClassicComponent],
+  imports: [ColorComponent, DefaultComponent, MinimalComponent, CompactComponent, FocusComponent],
   templateUrl: './view.component.html',
   styleUrl: './view.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -30,7 +33,7 @@ export class ViewComponent implements OnDestroy {
   readonly overlayId = signal<string>('');
   // "mode" d'affichage de l'overlay (dérivé du template backend). On garde le query param pour override.
   readonly mode = signal<'color' | 'infos'>('color');
-  readonly template = signal<string>('classic');
+  readonly template = signal<string>('default');
 
   // Data
   readonly defaultColor = signal<string>('#25d865');
@@ -71,12 +74,28 @@ export class ViewComponent implements OnDestroy {
       this.overlaysService.getPublicById(overlayId).subscribe({
         next: (o) => {
           // Map backend fields
-          this.template.set(o.template as string);
+          const rawTpl = (o.template || '').toLowerCase();
+          const migratedTpl =
+            rawTpl === 'now-playing' || rawTpl === 'classic'
+              ? 'default'
+              : rawTpl === 'color-fullscreen'
+              ? 'color'
+              : rawTpl;
+          this.template.set(migratedTpl);
           // Déduire le mode de rendu depuis le template, sauf override via query param
           if (!styleOverride) {
-            const t = (o.template || '').toLowerCase();
-            // supporte anciens ids: 'classic'/'now-playing' => infos, sinon color
-            const inferred = t === 'classic' || t === 'now-playing' ? 'infos' : 'color';
+            const t = migratedTpl;
+            // supporte anciens ids: 'default'/'classic'/'now-playing' => infos, sinon color
+            const inferred = [
+              'default',
+              'classic',
+              'now-playing',
+              'minimal',
+              'compact',
+              'focus',
+            ].includes(t)
+              ? 'infos'
+              : 'color';
             this.mode.set(inferred);
           }
           // Défaut couleur si aucune donnée publique dispo

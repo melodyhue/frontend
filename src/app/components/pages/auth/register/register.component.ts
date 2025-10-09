@@ -9,6 +9,7 @@ import {
 } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { isPlatformBrowser } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import { Router, RouterLink } from '@angular/router';
 import { LocaleService } from '../../../../core/services/locale.service';
 import { ButtonComponent } from '../../../shared/button/button.component';
@@ -31,6 +32,7 @@ export class RegisterComponent {
 
   readonly submissionInProgress = signal(false);
   private readonly submitAttempted = signal(false);
+  readonly formError = signal<string | null>(null);
 
   readonly title = computed(() =>
     this.localeService.locale() === 'fr' ? 'Création de compte' : 'Create account'
@@ -136,6 +138,7 @@ export class RegisterComponent {
 
   onSubmit(): void {
     this.submitAttempted.set(true);
+    this.formError.set(null);
 
     if (this.form.invalid || this.passwordMismatch()) {
       this.form.markAllAsTouched();
@@ -173,11 +176,85 @@ export class RegisterComponent {
         this.submissionInProgress.set(false);
         this.router.navigateByUrl('/profile');
       },
-      error: () => {
+      error: (err) => {
         this.submissionInProgress.set(false);
         this.form.markAllAsTouched();
+        this.handleRegisterError(err);
       },
     });
+  }
+
+  private handleRegisterError(err: unknown): void {
+    const isFr = this.localeService.locale() === 'fr';
+
+    const setTaken = (controlName: 'email') => {
+      const control = this.controls[controlName];
+      const current = control.errors ?? {};
+      control.setErrors({ ...current, taken: true });
+      control.markAsTouched();
+    };
+
+    const generic = isFr
+      ? 'Une erreur est survenue lors de la création du compte. Réessayez plus tard.'
+      : 'An error occurred while creating the account. Please try again later.';
+
+    if (err instanceof HttpErrorResponse) {
+      const status = err.status;
+      const body: any = err.error;
+      const msg = (typeof body === 'string' ? body : body?.message || body?.error || '') as string;
+      const detail = typeof body === 'object' ? (body?.detail as string | undefined) : undefined;
+
+      // Détection explicite via body.detail (format: { detail: "Email déjà pris" })
+      const detailEmailTaken =
+        typeof detail === 'string' &&
+        (/^email déjà pris$/i.test(detail.trim()) ||
+          (/email/i.test(detail) && /(déjà|pris|taken|exists)/i.test(detail)));
+
+      // Garde-fous additionnels (anciens formats)
+      const hasEmailConflict =
+        detailEmailTaken ||
+        (body?.errors?.email && String(body.errors.email).length > 0) ||
+        (/email/i.test(msg) && /(exist|déjà|taken|used|duplicate|conflict)/i.test(msg)) ||
+        /EMAIL.*(TAKEN|EXISTS)/i.test(String(body?.code || body?.errorCode || msg));
+
+      // Statuts communs pour conflits: 400 (validation), 409 (conflit), 422 (validation)
+      if (status === 400 || status === 409 || status === 422) {
+        let matched = false;
+        if (hasEmailConflict) {
+          setTaken('email');
+          matched = true;
+          // Affiche aussi un message global visible
+          this.formError.set(isFr ? 'Cet e-mail est déjà utilisé' : 'This email is already in use');
+        }
+        if (!matched) {
+          // Essayer de mapper des erreurs détaillées
+          if (body?.errors) {
+            const errs = body.errors as Record<string, string | string[]>;
+            for (const key of Object.keys(errs)) {
+              if (key in this.controls) {
+                const c = this.controls[key as keyof typeof this.controls];
+                const cur = c.errors ?? {};
+                c.setErrors({ ...cur, server: true });
+                c.markAsTouched();
+                // On met un message générique au formulaire
+                this.formError.set(generic);
+              }
+            }
+            return;
+          }
+          // Sinon, message générique
+          this.formError.set(generic);
+        }
+        return;
+      }
+
+      // Autres statuts -> message générique
+      this.formError.set(generic);
+      return;
+    }
+
+    // Erreur inconnue
+    this.formError.set(generic);
   }
 
   getUsernameError(): string {
@@ -210,6 +287,10 @@ export class RegisterComponent {
     }
 
     const isFr = this.localeService.locale() === 'fr';
+
+    if (control.errors['taken'] || control.errors['conflict']) {
+      return isFr ? 'Cet e-mail est déjà utilisé' : 'This email is already in use';
+    }
 
     if (control.errors['required']) {
       return isFr ? 'Adresse e-mail obligatoire' : 'Email address is required';

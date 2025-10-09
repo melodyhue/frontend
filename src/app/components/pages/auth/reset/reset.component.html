@@ -1,0 +1,50 @@
+<section class="auth">
+    <div class="auth__card">
+        <header class="auth__header">
+            <h1>{{ title() }}</h1>
+            <p class="auth__subtitle">{{ description() }}</p>
+        </header>
+
+        @if (!token()) {
+        <div class="form-alert" role="alert">{{ tokenMissingText() }}</div>
+        <a routerLink="/auth/login" class="auth__link">{{ backToLogin() }}</a>
+        } @else {
+        <form class="auth__form" [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+            @if (formError()) {
+            <div class="form-alert" role="alert">{{ formError() }}</div>
+            }
+
+            <div class="form-field">
+                <label for="new_password">{{ newPasswordLabel() }}</label>
+                <input id="new_password" type="password" formControlName="new_password" autocomplete="new-password"
+                    [class.form-field__input--invalid]="canShowNewPasswordError()"
+                    [attr.aria-invalid]="canShowNewPasswordError()"
+                    [attr.aria-describedby]="canShowNewPasswordError() ? 'new-password-error' : null" />
+                @if (canShowNewPasswordError()) {
+                <p id="new-password-error" class="form-field__error">{{ getNewPasswordError() }}</p>
+                }
+            </div>
+
+            <div class="form-field">
+                <label for="confirmPassword">{{ confirmPasswordLabel() }}</label>
+                <input id="confirmPassword" type="password" formControlName="confirmPassword"
+                    autocomplete="new-password" [class.form-field__input--invalid]="canShowConfirmPasswordError()"
+                    [attr.aria-invalid]="canShowConfirmPasswordError()"
+                    [attr.aria-describedby]="canShowConfirmPasswordError() ? 'confirmPassword-error' : null" />
+                @if (canShowConfirmPasswordError()) {
+                <p id="confirmPassword-error" class="form-field__error">{{ getConfirmPasswordError() }}</p>
+                }
+            </div>
+
+            <app-button type="submit" [fullWidth]="true" variant="accent" [disabled]="submissionInProgress()"
+                [attr.aria-busy]="submissionInProgress()">
+                @if (submissionInProgress()) {
+                <span>{{ submittingLabel() }}</span>
+                } @else {
+                <span>{{ submitButtonLabel() }}</span>
+                }
+            </app-button>
+        </form>
+        }
+    </div>
+</section>

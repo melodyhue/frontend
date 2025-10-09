@@ -68,9 +68,14 @@ export class CopyComponent {
     const src = this.source();
     if (!src) return;
     this.working.set(true);
-    // Compat desc: migrer anciens ids ('now-playing' -> 'classic', 'color-fullscreen' -> 'color')
+    // Compat desc: migrer anciens ids ('now-playing' -> 'default', 'classic' -> 'default', 'color-fullscreen' -> 'color')
     const tpl = (src.template || '').toLowerCase();
-    const migrated = tpl === 'now-playing' ? 'classic' : tpl === 'color-fullscreen' ? 'color' : tpl;
+    const migrated =
+      tpl === 'now-playing' || tpl === 'classic'
+        ? 'default'
+        : tpl === 'color-fullscreen'
+        ? 'color'
+        : tpl;
     const payload = {
       name: this.form.controls.name.value || undefined,
       template: migrated,

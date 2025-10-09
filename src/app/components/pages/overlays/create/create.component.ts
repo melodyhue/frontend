@@ -20,12 +20,15 @@ export class CreateComponent {
 
   readonly saving = signal(false);
   readonly availableTemplates = [
-    { id: 'classic', name: 'Classic', type: 'widget' },
+    { id: 'default', name: 'Default', type: 'widget' },
+    { id: 'minimal', name: 'Minimal', type: 'widget' },
+    { id: 'compact', name: 'Compact', type: 'widget' },
+    { id: 'focus', name: 'Focus', type: 'widget' },
     { id: 'color', name: 'Color', type: 'color' },
   ] as const;
   readonly form = this.fb.nonNullable.group({
     name: ['', [Validators.required, Validators.maxLength(120)]],
-    template: ['classic', [Validators.required]],
+    template: ['default', [Validators.required]],
   });
 
   get selectedTemplateType(): string {
@@ -55,9 +58,9 @@ export class CreateComponent {
   private mapTemplateForBackend(tpl: string): string {
     const v = (tpl || '').toLowerCase();
     // Envoyer les nouveaux ids côté back
-    if (v === 'now-playing') return 'classic';
+    if (v === 'now-playing' || v === 'classic') return 'default';
     if (v === 'color-fullscreen') return 'color';
-    return v; // classic / color (nouveau format)
+    return v; // default / color (nouveau format)
   }
 
   cancel(): void {
@@ -89,7 +92,10 @@ export class CreateComponent {
 
   getTemplateName(id: string): string {
     const l = this.localeService.locale();
-    if (id === 'classic') return l === 'fr' ? 'Classique' : 'Classic';
+    if (id === 'default') return l === 'fr' ? 'Défaut' : 'Default';
+    if (id === 'minimal') return 'Minimal';
+    if (id === 'compact') return 'Compact';
+    if (id === 'focus') return 'Focus';
     if (id === 'color') return l === 'fr' ? 'Couleur' : 'Color';
     return id;
   }
