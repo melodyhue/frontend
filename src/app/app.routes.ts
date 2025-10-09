@@ -1,34 +1,4 @@
 import { Routes } from '@angular/router';
-import { HomeComponent } from './components/pages/home/home.component';
-import { AboutComponent } from './components/pages/about/about.component';
-import { MainLayoutComponent } from './components/layouts/main-layout/main-layout.component';
-import { PrivateLayoutComponent } from './components/layouts/private-layout/private-layout.component';
-import { LoginComponent } from './components/pages/auth/login/login.component';
-import { RegisterComponent } from './components/pages/auth/register/register.component';
-import { ProfileComponent } from './components/pages/profile/profile.component';
-import { EditComponent } from './components/pages/profile/edit/edit.component';
-import { SecurityComponent } from './components/pages/profile/security/security.component';
-import { GeneralComponent } from './components/pages/settings/general/general.component';
-import { AppearanceComponent } from './components/pages/settings/appearance/appearance.component';
-import { LanguageComponent } from './components/pages/settings/language/language.component';
-import { LogoutComponent } from './components/pages/auth/logout/logout.component';
-import { ForgotPasswordComponent } from './components/pages/auth/forgot-password/forgot-password.component';
-import { TermsComponent } from './components/pages/legal/terms/terms.component';
-import { PrivacyComponent } from './components/pages/legal/privacy/privacy.component';
-import { OverlaysComponent } from './components/pages/overlays/overlays.component';
-import { EditComponent as OverlayEditComponent } from './components/pages/overlays/edit/edit.component';
-import { CreateComponent } from './components/pages/overlays/create/create.component';
-import { CopyComponent } from './components/pages/overlays/copy/copy.component';
-import { DeleteComponent } from './components/pages/overlays/delete/delete.component';
-import { ViewComponent } from './components/pages/overlays/view/view.component';
-import { ApiComponent } from './components/pages/developer/api/api.component';
-import { InfosComponent } from './components/pages/developer/api/infos/infos.component';
-import { ColorComponent } from './components/pages/developer/api/color/color.component';
-import { OtpComponent } from './components/pages/auth/login/otp/otp.component';
-import { CallbackComponent as SpotifyCallbackComponent } from './components/pages/auth/spotify/callback/callback.component';
-import { AdminComponent } from './components/pages/admin/admin.component';
-import { UsersComponent } from './components/pages/admin/users/users.component';
-import { ModoComponent } from './components/pages/modo/modo.component';
 import { adminOnlyCanMatch, moderatorOrAdminCanMatch } from './core/guards/role.guard';
 import { authRequiredCanMatch, unauthOnlyCanMatch } from './core/guards/auth.guard';
 
@@ -40,25 +10,36 @@ export const routes: Routes = [
   },
   {
     path: '',
-    component: MainLayoutComponent,
+    loadComponent: () =>
+      import('./components/layouts/main-layout/main-layout.component').then(
+        (m) => m.MainLayoutComponent
+      ),
     children: [
       {
         path: '',
-        component: HomeComponent,
+        loadComponent: () =>
+          import('./components/pages/home/home.component').then((m) => m.HomeComponent),
       },
       {
         path: 'about',
-        component: AboutComponent,
+        loadComponent: () =>
+          import('./components/pages/about/about.component').then((m) => m.AboutComponent),
       },
     ],
   },
   {
     path: 'developer/api/:userId/infos',
-    component: InfosComponent,
+    loadComponent: () =>
+      import('./components/pages/developer/api/infos/infos.component').then(
+        (m) => m.InfosComponent
+      ),
   },
   {
     path: 'developer/api/:userId/color',
-    component: ColorComponent,
+    loadComponent: () =>
+      import('./components/pages/developer/api/color/color.component').then(
+        (m) => m.ColorComponent
+      ),
   },
   {
     path: 'auth',
@@ -70,34 +51,46 @@ export const routes: Routes = [
           {
             path: '',
             pathMatch: 'full',
-            component: LoginComponent,
+            loadComponent: () =>
+              import('./components/pages/auth/login/login.component').then((m) => m.LoginComponent),
           },
           {
             path: 'otp',
             canMatch: [unauthOnlyCanMatch],
-            component: OtpComponent,
+            loadComponent: () =>
+              import('./components/pages/auth/login/otp/otp.component').then((m) => m.OtpComponent),
           },
         ],
       },
       {
         path: 'register',
         canMatch: [unauthOnlyCanMatch],
-        component: RegisterComponent,
+        loadComponent: () =>
+          import('./components/pages/auth/register/register.component').then(
+            (m) => m.RegisterComponent
+          ),
       },
       {
         path: 'logout',
-        component: LogoutComponent,
+        loadComponent: () =>
+          import('./components/pages/auth/logout/logout.component').then((m) => m.LogoutComponent),
       },
       {
         path: 'forgot-password',
-        component: ForgotPasswordComponent,
+        loadComponent: () =>
+          import('./components/pages/auth/forgot-password/forgot-password.component').then(
+            (m) => m.ForgotPasswordComponent
+          ),
       },
       {
         path: 'spotify',
         children: [
           {
             path: 'callback',
-            component: SpotifyCallbackComponent,
+            loadComponent: () =>
+              import('./components/pages/auth/spotify/callback/callback.component').then(
+                (m) => m.CallbackComponent
+              ),
           },
         ],
       },
@@ -105,106 +98,142 @@ export const routes: Routes = [
   },
   {
     path: 'overlay/:userId/:overlayId',
-    component: ViewComponent,
+    loadComponent: () =>
+      import('./components/pages/overlays/view/view.component').then((m) => m.ViewComponent),
   },
   {
     path: 'overlay/:overlayId',
-    component: ViewComponent,
+    loadComponent: () =>
+      import('./components/pages/overlays/view/view.component').then((m) => m.ViewComponent),
   },
   {
     path: '',
-    component: PrivateLayoutComponent,
+    canMatch: [authRequiredCanMatch],
+    loadComponent: () =>
+      import('./components/layouts/private-layout/private-layout.component').then(
+        (m) => m.PrivateLayoutComponent
+      ),
     children: [
       {
         path: 'profile',
-        canMatch: [authRequiredCanMatch],
         children: [
           {
             path: '',
-            component: ProfileComponent,
+            loadComponent: () =>
+              import('./components/pages/profile/profile.component').then(
+                (m) => m.ProfileComponent
+              ),
           },
           {
             path: 'edit',
-            component: EditComponent,
+            loadComponent: () =>
+              import('./components/pages/profile/edit/edit.component').then((m) => m.EditComponent),
           },
           {
             path: 'security',
-            component: SecurityComponent,
+            loadComponent: () =>
+              import('./components/pages/profile/security/security.component').then(
+                (m) => m.SecurityComponent
+              ),
           },
         ],
       },
       {
         path: 'overlays',
-        canMatch: [authRequiredCanMatch],
         children: [
           {
             path: '',
-            component: OverlaysComponent,
+            loadComponent: () =>
+              import('./components/pages/overlays/overlays.component').then(
+                (m) => m.OverlaysComponent
+              ),
           },
           {
             path: 'create',
-            component: CreateComponent,
+            loadComponent: () =>
+              import('./components/pages/overlays/create/create.component').then(
+                (m) => m.CreateComponent
+              ),
           },
           {
             path: 'edit/:id',
-            component: OverlayEditComponent,
+            loadComponent: () =>
+              import('./components/pages/overlays/edit/edit.component').then(
+                (m) => m.EditComponent
+              ),
           },
           {
             path: 'copy/:id',
-            component: CopyComponent,
+            loadComponent: () =>
+              import('./components/pages/overlays/copy/copy.component').then(
+                (m) => m.CopyComponent
+              ),
           },
           {
             path: 'delete/:id',
-            component: DeleteComponent,
+            loadComponent: () =>
+              import('./components/pages/overlays/delete/delete.component').then(
+                (m) => m.DeleteComponent
+              ),
           },
         ],
       },
       {
         path: 'developer',
-        canMatch: [authRequiredCanMatch],
         children: [
           {
             path: 'api',
             pathMatch: 'full',
-            component: ApiComponent,
+            loadComponent: () =>
+              import('./components/pages/developer/api/api.component').then((m) => m.ApiComponent),
           },
         ],
       },
       {
         path: 'settings',
-        canMatch: [authRequiredCanMatch],
         children: [
           {
             path: 'general',
-            component: GeneralComponent,
+            loadComponent: () =>
+              import('./components/pages/settings/general/general.component').then(
+                (m) => m.GeneralComponent
+              ),
           },
           {
             path: 'appearance',
-            component: AppearanceComponent,
+            loadComponent: () =>
+              import('./components/pages/settings/appearance/appearance.component').then(
+                (m) => m.AppearanceComponent
+              ),
           },
           {
             path: 'language',
-            component: LanguageComponent,
+            loadComponent: () =>
+              import('./components/pages/settings/language/language.component').then(
+                (m) => m.LanguageComponent
+              ),
           },
         ],
       },
       {
         path: 'admin',
-        canMatch: [authRequiredCanMatch, adminOnlyCanMatch],
+        canMatch: [adminOnlyCanMatch],
         children: [
           {
             path: '',
-            component: AdminComponent,
+            loadComponent: () =>
+              import('./components/pages/admin/admin.component').then((m) => m.AdminComponent),
           },
         ],
       },
       {
         path: 'modo',
-        canMatch: [authRequiredCanMatch, moderatorOrAdminCanMatch],
+        canMatch: [moderatorOrAdminCanMatch],
         children: [
           {
             path: '',
-            component: ModoComponent,
+            loadComponent: () =>
+              import('./components/pages/modo/modo.component').then((m) => m.ModoComponent),
           },
         ],
       },
@@ -215,11 +244,15 @@ export const routes: Routes = [
     children: [
       {
         path: 'terms',
-        component: TermsComponent,
+        loadComponent: () =>
+          import('./components/pages/legal/terms/terms.component').then((m) => m.TermsComponent),
       },
       {
         path: 'privacy',
-        component: PrivacyComponent,
+        loadComponent: () =>
+          import('./components/pages/legal/privacy/privacy.component').then(
+            (m) => m.PrivacyComponent
+          ),
       },
     ],
   },

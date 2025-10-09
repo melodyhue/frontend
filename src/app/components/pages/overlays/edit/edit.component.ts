@@ -2,10 +2,11 @@ import { Component, ChangeDetectionStrategy, inject, signal } from '@angular/cor
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { OverlaysService } from '../../../../core/services/overlays.service';
+import { ButtonComponent } from '../../../shared/button/button.component';
 
 @Component({
   selector: 'app-edit',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, ButtonComponent],
   templateUrl: './edit.component.html',
   styleUrl: './edit.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -80,5 +81,9 @@ export class EditComponent {
     if (v === 'now-playing') return 'classic';
     if (v === 'color-fullscreen') return 'color';
     return v; // classic / color (nouveau format)
+  }
+
+  goBack(): void {
+    this.router.navigate(['/overlays']);
   }
 }

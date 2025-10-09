@@ -2,10 +2,11 @@ import { Component, ChangeDetectionStrategy, inject, signal } from '@angular/cor
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { OverlaysService } from '../../../../core/services/overlays.service';
+import { ButtonComponent } from '../../../shared/button/button.component';
 
 @Component({
   selector: 'app-create',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, ButtonComponent],
   templateUrl: './create.component.html',
   styleUrl: './create.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -55,5 +56,9 @@ export class CreateComponent {
     if (v === 'now-playing') return 'classic';
     if (v === 'color-fullscreen') return 'color';
     return v; // classic / color (nouveau format)
+  }
+
+  cancel(): void {
+    this.router.navigate(['/overlays']);
   }
 }

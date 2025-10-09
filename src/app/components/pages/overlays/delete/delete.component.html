@@ -1,21 +1,23 @@
-<div class="overlay-delete">
+<div class="overlay-form">
     @if (confirming()) {
-    <div class="confirm-box">
-        <h2>Supprimer l'overlay ?</h2>
-        <p>Cette action est irréversible. Voulez-vous vraiment supprimer cet overlay ?</p>
-        <div class="actions">
-            <button class="btn btn-danger" (click)="confirmDelete()" [disabled]="working()">Supprimer</button>
-            <button class="btn btn-cancel" (click)="cancel()" [disabled]="working()">Annuler</button>
+    <div class="overlay-form__card overlay-form__card--danger">
+        <h2 class="overlay-form__title">Supprimer l'overlay ?</h2>
+        <p class="overlay-form__desc">Cette action est irréversible. Voulez-vous vraiment supprimer cet overlay ?</p>
+        <div class="overlay-form__actions">
+            <app-button variant="danger" (clicked)="confirmDelete()" [disabled]="working()">Supprimer</app-button>
+            <app-button variant="cancel" (clicked)="cancel()" [disabled]="working()">Annuler</app-button>
         </div>
     </div>
     } @else {
     @if (working()) {
     <p>Suppression en cours…</p>
     } @else if (error()) {
-    <p>Une erreur est survenue. Réessayez.</p>
-    <div class="actions">
-        <button class="btn btn-danger" (click)="confirmDelete()">Réessayer</button>
-        <button class="btn btn-cancel" (click)="cancel()">Annuler</button>
+    <div class="overlay-form__card">
+        <p>Une erreur est survenue. Réessayez.</p>
+        <div class="overlay-form__actions">
+            <app-button variant="danger" (clicked)="confirmDelete()">Réessayer</app-button>
+            <app-button variant="cancel" (clicked)="cancel()">Annuler</app-button>
+        </div>
     </div>
     }
     }

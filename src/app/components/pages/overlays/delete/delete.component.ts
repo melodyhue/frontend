@@ -1,10 +1,11 @@
 import { Component, ChangeDetectionStrategy, inject, signal } from '@angular/core';
+import { ButtonComponent } from '../../../shared/button/button.component';
 import { ActivatedRoute, Router } from '@angular/router';
 import { OverlaysService } from '../../../../core/services/overlays.service';
 
 @Component({
   selector: 'app-delete',
-  imports: [],
+  imports: [ButtonComponent],
   templateUrl: './delete.component.html',
   styleUrl: './delete.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

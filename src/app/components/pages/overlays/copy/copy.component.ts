@@ -2,11 +2,12 @@ import { Component, ChangeDetectionStrategy, inject, signal } from '@angular/cor
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { OverlaysService } from '../../../../core/services/overlays.service';
+import { ButtonComponent } from '../../../shared/button/button.component';
 import { OverlayOut } from '../../../../core/models/overlay.model';
 
 @Component({
   selector: 'app-copy',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, ButtonComponent],
   templateUrl: './copy.component.html',
   styleUrl: './copy.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

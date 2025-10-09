@@ -1,19 +1,31 @@
-<form [formGroup]="form" (ngSubmit)="create()">
-    <label>
-        Nom
-        <input type="text" formControlName="name" required maxlength="120" />
-    </label>
+<div class="overlay-form">
+    <div class="overlay-form__header">
+        <h2 class="overlay-form__title">Créer un overlay</h2>
+        <p class="overlay-form__desc">Renseignez un nom et choisissez un template.</p>
+    </div>
 
-    <label>
-        Template
-        <select formControlName="template">
-            @for (t of availableTemplates; track t.id) {
-            <option [value]="t.id">{{ t.name }}</option>
-            }
-        </select>
-    </label>
+    <div class="overlay-form__card">
+        <form [formGroup]="form" (ngSubmit)="create()" class="overlay-form__grid">
+            <div class="overlay-form__field">
+                <label class="overlay-form__label">Nom <span class="overlay-form__required">*</span></label>
+                <input class="overlay-form__input" type="text" formControlName="name" required maxlength="120" />
+            </div>
 
-    <p>Type: {{ selectedTemplateType }}</p>
+            <div class="overlay-form__field">
+                <label class="overlay-form__label">Template <span class="overlay-form__required">*</span></label>
+                <select class="overlay-form__input" formControlName="template">
+                    @for (t of availableTemplates; track t.id) {
+                    <option [value]="t.id">{{ t.name }}</option>
+                    }
+                </select>
+                <p class="overlay-form__hint">Type détecté: <strong>{{ selectedTemplateType }}</strong></p>
+            </div>
 
-    <button type="submit" [disabled]="form.invalid || saving()">Créer</button>
-</form>
+            <div class="overlay-form__actions">
+                <app-button type="submit" [disabled]="form.invalid || saving()" variant="primary">Créer</app-button>
+                <app-button type="button" (clicked)="cancel()" [disabled]="saving()"
+                    variant="cancel">Annuler</app-button>
+            </div>
+        </form>
+    </div>
+</div>
