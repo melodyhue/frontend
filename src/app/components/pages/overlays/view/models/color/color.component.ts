@@ -1,4 +1,15 @@
-import { ChangeDetectionStrategy, Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges, inject, signal, PLATFORM_ID } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  Input,
+  OnChanges,
+  OnDestroy,
+  OnInit,
+  SimpleChanges,
+  inject,
+  signal,
+  PLATFORM_ID,
+} from '@angular/core';
 import { PublicService } from '../../../../../../core/services';
 import { isPlatformBrowser } from '@angular/common';
 

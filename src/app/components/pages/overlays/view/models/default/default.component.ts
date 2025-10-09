@@ -1,4 +1,17 @@
-import { ChangeDetectionStrategy, Component, ElementRef, Input, OnChanges, OnDestroy, OnInit, SimpleChanges, ViewChild, inject, signal, PLATFORM_ID } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  Input,
+  OnChanges,
+  OnDestroy,
+  OnInit,
+  SimpleChanges,
+  ViewChild,
+  inject,
+  signal,
+  PLATFORM_ID,
+} from '@angular/core';
 import { DecimalPipe, isPlatformBrowser } from '@angular/common';
 import { PublicService } from '../../../../../../core/services';
 
@@ -9,7 +22,7 @@ import { PublicService } from '../../../../../../core/services';
   styleUrl: './default.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
-    '(window:resize)': 'onResize()'
+    '(window:resize)': 'onResize()',
   },
 })
 export class DefaultComponent implements OnInit, OnChanges, OnDestroy {
@@ -75,7 +88,8 @@ export class DefaultComponent implements OnInit, OnChanges, OnDestroy {
     const tick = () => {
       if (!this.userId) return;
       // Appliquer un intervalle minimal de 1000ms entre démarrages de requêtes
-      const now = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
+      const now =
+        typeof performance !== 'undefined' && performance.now ? performance.now() : Date.now();
       if (this.lastStart > 0) {
         const delta = now - this.lastStart;
         if (delta < 1000) {

@@ -4,8 +4,6 @@ import { Component } from '@angular/core';
   selector: 'app-admin',
   imports: [],
   templateUrl: './admin.component.html',
-  styleUrl: './admin.component.scss'
+  styleUrl: './admin.component.scss',
 })
-export class AdminComponent {
-
-}
+export class AdminComponent {}
