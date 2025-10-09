@@ -1,9 +1,10 @@
-import { Component, ChangeDetectionStrategy, inject, signal } from '@angular/core';
+import { Component, ChangeDetectionStrategy, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { OverlaysService } from '../../../../core/services/overlays.service';
 import { ButtonComponent } from '../../../shared/button/button.component';
 import { OverlayOut } from '../../../../core/models/overlay.model';
+import { LocaleService } from '../../../../core/services/locale.service';
 
 @Component({
   selector: 'app-copy',
@@ -17,6 +18,7 @@ export class CopyComponent {
   private readonly router = inject(Router);
   private readonly overlaysService = inject(OverlaysService);
   private readonly fb = inject(FormBuilder).nonNullable;
+  private readonly localeService = inject(LocaleService);
 
   readonly loading = signal(true);
   readonly working = signal(false);
@@ -84,4 +86,27 @@ export class CopyComponent {
       },
     });
   }
+
+  readonly content = computed(() => {
+    const l = this.localeService.locale();
+    return {
+      loading: l === 'fr' ? 'Chargement…' : 'Loading…',
+      error: l === 'fr' ? 'Une erreur est survenue.' : 'An error occurred.',
+      back: l === 'fr' ? 'Retour' : 'Back',
+      header: {
+        title: l === 'fr' ? "Copier l'overlay" : 'Copy overlay',
+        desc:
+          l === 'fr'
+            ? 'Créez une copie de votre overlay existant.'
+            : 'Create a copy of your existing overlay.',
+      },
+      fields: {
+        name: l === 'fr' ? 'Nom de la copie' : 'Copy name',
+      },
+      actions: {
+        create: l === 'fr' ? 'Créer' : 'Create',
+        cancel: l === 'fr' ? 'Annuler' : 'Cancel',
+      },
+    } as const;
+  });
 }

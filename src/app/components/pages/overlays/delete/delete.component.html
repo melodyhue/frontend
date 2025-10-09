@@ -1,22 +1,24 @@
 <div class="overlay-form">
     @if (confirming()) {
     <div class="overlay-form__card overlay-form__card--danger">
-        <h2 class="overlay-form__title">Supprimer l'overlay ?</h2>
-        <p class="overlay-form__desc">Cette action est irréversible. Voulez-vous vraiment supprimer cet overlay ?</p>
+        <h2 class="overlay-form__title">{{ content().title }}</h2>
+        <p class="overlay-form__desc">{{ content().desc }}</p>
         <div class="overlay-form__actions">
-            <app-button variant="danger" (clicked)="confirmDelete()" [disabled]="working()">Supprimer</app-button>
-            <app-button variant="cancel" (clicked)="cancel()" [disabled]="working()">Annuler</app-button>
+            <app-button variant="danger" (clicked)="confirmDelete()" [disabled]="working()">{{ content().actions.delete
+                }}</app-button>
+            <app-button variant="cancel" (clicked)="cancel()" [disabled]="working()">{{ content().actions.cancel
+                }}</app-button>
         </div>
     </div>
     } @else {
     @if (working()) {
-    <p>Suppression en cours…</p>
+    <p>{{ content().deleting }}</p>
     } @else if (error()) {
     <div class="overlay-form__card">
-        <p>Une erreur est survenue. Réessayez.</p>
+        <p>{{ content().error }}</p>
         <div class="overlay-form__actions">
-            <app-button variant="danger" (clicked)="confirmDelete()">Réessayer</app-button>
-            <app-button variant="cancel" (clicked)="cancel()">Annuler</app-button>
+            <app-button variant="danger" (clicked)="confirmDelete()">{{ content().actions.retry }}</app-button>
+            <app-button variant="cancel" (clicked)="cancel()">{{ content().actions.cancel }}</app-button>
         </div>
     </div>
     }

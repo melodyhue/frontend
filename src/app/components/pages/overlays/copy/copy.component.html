@@ -1,24 +1,26 @@
 @if (loading()) {
-<p>Chargement…</p>
+<p>{{ content().loading }}</p>
 } @else if (error()) {
-<p>Une erreur est survenue.</p>
-<app-button (clicked)="cancel()" variant="secondary">Retour</app-button>
+<p>{{ content().error }}</p>
+<app-button (clicked)="cancel()" variant="secondary">{{ content().back }}</app-button>
 } @else {
 <div class="overlay-form">
     <div class="overlay-form__header">
-        <h2 class="overlay-form__title">Copier l'overlay</h2>
-        <p class="overlay-form__desc">Créez une copie de votre overlay existant.</p>
+        <h2 class="overlay-form__title">{{ content().header.title }}</h2>
+        <p class="overlay-form__desc">{{ content().header.desc }}</p>
     </div>
     <div class="overlay-form__card">
         <form [formGroup]="form" (ngSubmit)="submit()" class="overlay-form__grid">
             <div class="overlay-form__field">
-                <label class="overlay-form__label">Nom de la copie <span class="overlay-form__required">*</span></label>
+                <label class="overlay-form__label">{{ content().fields.name }} <span
+                        class="overlay-form__required">*</span></label>
                 <input class="overlay-form__input" type="text" formControlName="name" required maxlength="120" />
             </div>
             <div class="overlay-form__actions">
-                <app-button type="submit" [disabled]="form.invalid || working()" variant="primary">Créer</app-button>
-                <app-button type="button" (clicked)="cancel()" [disabled]="working()"
-                    variant="cancel">Annuler</app-button>
+                <app-button type="submit" [disabled]="form.invalid || working()" variant="primary">{{
+                    content().actions.create }}</app-button>
+                <app-button type="button" (clicked)="cancel()" [disabled]="working()" variant="cancel">{{
+                    content().actions.cancel }}</app-button>
             </div>
         </form>
     </div>

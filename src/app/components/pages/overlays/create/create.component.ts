@@ -1,8 +1,9 @@
-import { Component, ChangeDetectionStrategy, inject, signal } from '@angular/core';
+import { Component, ChangeDetectionStrategy, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { OverlaysService } from '../../../../core/services/overlays.service';
 import { ButtonComponent } from '../../../shared/button/button.component';
+import { LocaleService } from '../../../../core/services/locale.service';
 
 @Component({
   selector: 'app-create',
@@ -15,6 +16,7 @@ export class CreateComponent {
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
   private readonly overlaysService = inject(OverlaysService);
+  private readonly localeService = inject(LocaleService);
 
   readonly saving = signal(false);
   readonly availableTemplates = [
@@ -60,5 +62,35 @@ export class CreateComponent {
 
   cancel(): void {
     this.router.navigate(['/overlays']);
+  }
+
+  readonly content = computed(() => {
+    const l = this.localeService.locale();
+    return {
+      header: {
+        title: l === 'fr' ? 'Créer un overlay' : 'Create overlay',
+        desc:
+          l === 'fr'
+            ? 'Renseignez un nom et choisissez un template.'
+            : 'Enter a name and choose a template.',
+      },
+      fields: {
+        name: l === 'fr' ? 'Nom' : 'Name',
+        template: l === 'fr' ? 'Template' : 'Template',
+        required: l === 'fr' ? 'obligatoire' : 'required',
+        detectedType: l === 'fr' ? 'Type détecté' : 'Detected type',
+      },
+      actions: {
+        create: l === 'fr' ? 'Créer' : 'Create',
+        cancel: l === 'fr' ? 'Annuler' : 'Cancel',
+      },
+    } as const;
+  });
+
+  getTemplateName(id: string): string {
+    const l = this.localeService.locale();
+    if (id === 'classic') return l === 'fr' ? 'Classique' : 'Classic';
+    if (id === 'color') return l === 'fr' ? 'Couleur' : 'Color';
+    return id;
   }
 }

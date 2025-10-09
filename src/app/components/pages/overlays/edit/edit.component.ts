@@ -1,8 +1,9 @@
-import { Component, ChangeDetectionStrategy, inject, signal } from '@angular/core';
+import { Component, ChangeDetectionStrategy, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { OverlaysService } from '../../../../core/services/overlays.service';
 import { ButtonComponent } from '../../../shared/button/button.component';
+import { LocaleService } from '../../../../core/services/locale.service';
 
 @Component({
   selector: 'app-edit',
@@ -16,6 +17,7 @@ export class EditComponent {
   private readonly router = inject(Router);
   private readonly fb = inject(FormBuilder).nonNullable;
   private readonly overlaysService = inject(OverlaysService);
+  private readonly localeService = inject(LocaleService);
 
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
@@ -85,5 +87,34 @@ export class EditComponent {
 
   goBack(): void {
     this.router.navigate(['/overlays']);
+  }
+
+  readonly content = computed(() => {
+    const l = this.localeService.locale();
+    return {
+      header: {
+        title: l === 'fr' ? "Modifier l'overlay" : 'Edit overlay',
+        desc:
+          l === 'fr'
+            ? 'Mettez à jour le nom et le template de votre overlay.'
+            : 'Update the name and template of your overlay.',
+      },
+      fields: {
+        name: l === 'fr' ? 'Nom' : 'Name',
+        template: l === 'fr' ? 'Template' : 'Template',
+        detectedType: l === 'fr' ? 'Type détecté' : 'Detected type',
+      },
+      actions: {
+        save: l === 'fr' ? 'Enregistrer' : 'Save',
+        cancel: l === 'fr' ? 'Annuler' : 'Cancel',
+      },
+    } as const;
+  });
+
+  getTemplateName(id: string): string {
+    const l = this.localeService.locale();
+    if (id === 'classic') return l === 'fr' ? 'Classique' : 'Classic';
+    if (id === 'color') return l === 'fr' ? 'Couleur' : 'Color';
+    return id;
   }
 }

@@ -1,7 +1,8 @@
-import { Component, ChangeDetectionStrategy, inject, signal } from '@angular/core';
+import { Component, ChangeDetectionStrategy, computed, inject, signal } from '@angular/core';
 import { ButtonComponent } from '../../../shared/button/button.component';
 import { ActivatedRoute, Router } from '@angular/router';
 import { OverlaysService } from '../../../../core/services/overlays.service';
+import { LocaleService } from '../../../../core/services/locale.service';
 
 @Component({
   selector: 'app-delete',
@@ -14,6 +15,7 @@ export class DeleteComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly overlaysService = inject(OverlaysService);
+  private readonly localeService = inject(LocaleService);
   readonly working = signal(false);
   readonly error = signal<string | null>(null);
   readonly confirming = signal(true);
@@ -49,4 +51,22 @@ export class DeleteComponent {
       },
     });
   }
+
+  readonly content = computed(() => {
+    const l = this.localeService.locale();
+    return {
+      title: l === 'fr' ? "Supprimer l'overlay ?" : 'Delete overlay?',
+      desc:
+        l === 'fr'
+          ? 'Cette action est irréversible. Voulez-vous vraiment supprimer cet overlay ?'
+          : 'This action is irreversible. Do you really want to delete this overlay?',
+      deleting: l === 'fr' ? 'Suppression en cours…' : 'Deleting…',
+      error: l === 'fr' ? 'Une erreur est survenue. Réessayez.' : 'An error occurred. Try again.',
+      actions: {
+        delete: l === 'fr' ? 'Supprimer' : 'Delete',
+        retry: l === 'fr' ? 'Réessayer' : 'Retry',
+        cancel: l === 'fr' ? 'Annuler' : 'Cancel',
+      },
+    } as const;
+  });
 }
