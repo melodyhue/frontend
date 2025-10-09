@@ -1,11 +1,6 @@
 .api {
   max-width: 900px;
   margin: 0 auto;
-  padding: 0 1.5rem;
-
-  @media (max-width: 768px) {
-    padding: 0 1rem;
-  }
 }
 
 .api__header {
@@ -34,6 +29,7 @@
   display: grid;
   grid-template-columns: 1fr; /* Toujours une seule colonne */
   gap: 1rem;
+  width: 100%;
 }
 
 .api__card {
@@ -83,6 +79,7 @@
   align-items: flex-start;
   gap: 0.5rem;
   margin: 0.75rem 0;
+  width: 100%;
 }
 
 .api__label {
@@ -100,6 +97,8 @@
 }
 
 .api__input {
+  /* Par défaut, l'input prend la largeur disponible, mais
+     dans le groupe flex on veut qu'il prenne l'espace restant sans déborder */
   width: 100%;
   box-sizing: border-box;
   padding: 0.75rem 1rem;
@@ -165,6 +164,10 @@
   font-size: 0.875rem;
   overflow: auto;
   color: #333;
+  /* Permettre le retour à la ligne des très longues chaînes (URLs) pour éviter le dépassement */
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .api__btn-icon {
@@ -186,5 +189,57 @@
     background: #e9ecef;
     border-color: #0a3228;
     color: #0a3228;
+  }
+}
+
+/* Fix débordement input + bouton sur petits écrans */
+.api__input-group .api__input {
+  flex: 1 1 auto;
+  width: auto; /* évite de dépasser quand le bouton est à côté */
+}
+
+@media (max-width: 768px) {
+  .api__card-title i {
+    width: 36px;
+    height: 36px;
+    font-size: 1rem;
+  }
+
+  .api__btn-icon {
+    width: 42px;
+    height: 42px;
+  }
+
+  .api__input {
+    padding: 0.65rem 0.85rem;
+    font-size: 0.9rem;
+  }
+
+  .api__example-code {
+    padding: 0.75rem;
+    font-size: 0.84rem;
+  }
+}
+
+@media (max-width: 400px) {
+  .api__btn-icon {
+    width: 38px;
+    height: 38px;
+  }
+
+  .api__card {
+    padding: 1.25rem;
+  }
+}
+
+/* Sur très petits écrans, permettre au bouton de passer à la ligne pour éviter tout dépassement */
+@media (max-width: 360px) {
+  .api__input-group {
+    flex-wrap: wrap;
+  }
+
+  .api__input-group .api__btn-icon {
+    width: 100%;
+    height: 40px;
   }
 }

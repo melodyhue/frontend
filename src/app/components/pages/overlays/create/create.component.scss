@@ -26,9 +26,11 @@
   &__grid {
     display: grid;
     gap: 1rem;
+    min-width: 0; /* éviter les dépassements dus à la min-width:auto des items */
   }
   &__field {
     margin-bottom: 0.25rem;
+    min-width: 0; /* permet aux contenus de se rétrécir dans la grille */
   }
   &__label {
     display: block;
@@ -41,6 +43,9 @@
   }
   &__input {
     width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box; /* évite l’overflow horizontal avec les bordures/padding */
     padding: 0.625rem 0.75rem;
     border: 2px solid #e9ecef;
     border-radius: 8px;
