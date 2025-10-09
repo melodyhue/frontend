@@ -3,16 +3,16 @@ import { DecimalPipe, isPlatformBrowser } from '@angular/common';
 import { PublicService } from '../../../../../../core/services';
 
 @Component({
-  selector: 'app-classic',
+  selector: 'app-default',
   imports: [DecimalPipe],
-  templateUrl: './classic.component.html',
-  styleUrl: './classic.component.scss',
+  templateUrl: './default.component.html',
+  styleUrl: './default.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '(window:resize)': 'onResize()'
   },
 })
-export class ClassicComponent implements OnInit, OnChanges, OnDestroy {
+export class DefaultComponent implements OnInit, OnChanges, OnDestroy {
   private readonly publicService = inject(PublicService);
   private readonly platformId = inject(PLATFORM_ID);
   private readonly isBrowser = isPlatformBrowser(this.platformId);
@@ -95,11 +95,27 @@ export class ClassicComponent implements OnInit, OnChanges, OnDestroy {
           this.track.set(t);
           const dur = Number(t?.duration_ms) || 0;
           const prog = Number(t?.progress_ms) || 0;
+          // Calcule une progression "effective" côté client en tenant compte de l'horodatage serveur
+          const nowMs = Date.now();
+          const trackTsSec = Number(t?.timestamp);
+          const trackTsMs = isFinite(trackTsSec) ? trackTsSec * 1000 : NaN;
+          let effectiveProg = prog;
+          if (t?.is_playing && isFinite(trackTsMs)) {
+            const elapsed = Math.max(0, nowMs - trackTsMs);
+            effectiveProg = prog + elapsed;
+          }
+          // Clamp aux bornes [0, dur]
+          effectiveProg = Math.max(0, Math.min(effectiveProg, dur));
           this.totalMs.set(dur);
-          this.currentMs.set(prog);
-          this.progressPct.set(dur > 0 ? Math.min((prog / dur) * 100, 100) : 0);
-          this.isVisible.set(!!t?.is_playing);
-          this.startRaf();
+          this.currentMs.set(effectiveProg);
+          this.progressPct.set(dur > 0 ? Math.min((effectiveProg / dur) * 100, 100) : 0);
+          const playing = !!t?.is_playing;
+          this.isVisible.set(playing);
+          if (playing) {
+            this.startRaf();
+          } else {
+            this.stopRaf();
+          }
           // recalcul du scroll après MAJ du DOM
           setTimeout(() => this.recomputeScrolling(), 100);
         },

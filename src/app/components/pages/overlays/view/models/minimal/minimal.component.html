@@ -1,0 +1,16 @@
+<div class="minimal" [class.show]="isVisible()" [class.pausing]="isPausing()">
+  <div class="box">
+    <span class="accent" [style.background-color]="color()">
+      <i class="fa-solid fa-music accent-icon" [style.color]="iconColor()" aria-hidden="true"></i>
+    </span>
+    <div class="panel">
+      <div class="line marquee" #lineContainer>
+        <div class="marquee__inner" #lineText>
+          <span class="text" #text1>{{ track()?.name || '-' }} - {{ track()?.artist || '-' }}</span>
+          <span class="text clone" #text2 aria-hidden="true">{{ track()?.name || '-' }} - {{ track()?.artist || '-'
+            }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

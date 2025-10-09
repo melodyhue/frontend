@@ -1,5 +1,21 @@
 @if (mode() === 'color') {
 <app-color [defaultColor]="currentColor()" [userId]="userId()"></app-color>
 } @else {
-<app-classic [defaultColor]="currentColor()" [userId]="userId()"></app-classic>
+@switch (template()) {
+@case ('default') {
+<app-default [defaultColor]="currentColor()" [userId]="userId()"></app-default>
+}
+@case ('minimal') {
+<app-minimal [defaultColor]="currentColor()" [userId]="userId()"></app-minimal>
+}
+@case ('compact') {
+<app-compact [defaultColor]="currentColor()" [userId]="userId()"></app-compact>
+}
+@case ('focus') {
+<app-focus [defaultColor]="currentColor()" [userId]="userId()"></app-focus>
+}
+@default {
+<app-default [defaultColor]="currentColor()" [userId]="userId()"></app-default>
+}
+}
 }

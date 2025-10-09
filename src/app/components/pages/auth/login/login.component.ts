@@ -8,6 +8,7 @@ import {
 } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { isPlatformBrowser } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import { Router, RouterLink } from '@angular/router';
 import {
   AUTH_TOKEN_STORAGE_KEY,
@@ -150,22 +151,62 @@ export class LoginComponent {
       error: (err) => {
         this.submissionInProgress.set(false);
         this.form.markAllAsTouched();
-        const status = err?.status ?? 0;
-        const apiMsg: string | undefined =
-          typeof err?.error === 'string'
-            ? err.error
-            : typeof err?.error?.message === 'string'
-            ? err.error.message
-            : undefined;
+        const status = Number((err as any)?.status) || 0;
+        let apiMsg: string | undefined;
+        if (err instanceof HttpErrorResponse) {
+          const body: any = err.error;
+          // Cas classique JSON
+          const pickFromObject = (obj: any): string | undefined => {
+            const detail =
+              typeof obj === 'object' ? (obj?.detail as string | undefined) : undefined;
+            const message =
+              typeof obj === 'object' ? (obj?.message as string | undefined) : undefined;
+            const errorText =
+              typeof obj === 'object' ? (obj?.error as string | undefined) : undefined;
+            return [detail, message, errorText].find(
+              (v) => typeof v === 'string' && v.trim().length > 0
+            ) as string | undefined;
+          };
+
+          apiMsg = pickFromObject(body);
+          if (!apiMsg && typeof body === 'string') {
+            apiMsg = body;
+          }
+
+          // Si le serveur renvoie un Blob (mauvais content-type, CORS), tenter une lecture texte
+          if (!apiMsg && body instanceof Blob) {
+            try {
+              // Lecture asynchrone; on mettra à jour le message ensuite
+              new Response(body)
+                .text()
+                .then((txt) => {
+                  let parsed: any = null;
+                  try {
+                    parsed = JSON.parse(txt);
+                  } catch {
+                    // pas du JSON, on garde le texte brut
+                  }
+                  const fromParsed = parsed ? pickFromObject(parsed) : undefined;
+                  const finalMsg = (fromParsed && fromParsed.trim()) || (txt && txt.trim()) || '';
+                  // Ne pas écraser le message standardisé 400/401/422
+                  if (finalMsg && status !== 400 && status !== 401 && status !== 422) {
+                    this.errorMessage.set(finalMsg);
+                  }
+                })
+                .catch(() => {});
+            } catch {}
+          }
+        }
         const isFr = this.localeService.locale() === 'fr';
-        let msg = apiMsg;
-        if (!msg) {
+        let msg: string | undefined;
+        // 400/401/422: toujours un message standardisé (ne pas afficher le detail brut)
+        if (status === 400 || status === 401 || status === 422) {
+          msg = isFr ? 'Email ou mot de passe incorrect' : 'Incorrect email or password';
+        } else if (!apiMsg) {
           if (status === 0) {
             msg = isFr
               ? 'Impossible de joindre le serveur. Vérifiez votre connexion.'
               : 'Cannot reach server. Check your connection.';
-          } else if (status === 400 || status === 401) {
-            msg = isFr ? 'Email ou mot de passe incorrect.' : 'Incorrect email or password.';
           } else if (status === 403) {
             msg = isFr ? 'Accès refusé.' : 'Access denied.';
           } else if (status === 429) {
@@ -177,6 +218,9 @@ export class LoginComponent {
           } else {
             msg = isFr ? 'Une erreur est survenue.' : 'An error occurred.';
           }
+        } else {
+          // Pour les autres statuts, si l'API fournit un message, on le réutilise
+          msg = apiMsg;
         }
         this.errorMessage.set(msg);
       },

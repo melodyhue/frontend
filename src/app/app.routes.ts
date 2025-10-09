@@ -83,6 +83,11 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'reset',
+        loadComponent: () =>
+          import('./components/pages/auth/reset/reset.component').then((m) => m.ResetComponent),
+      },
+      {
         path: 'spotify',
         children: [
           {

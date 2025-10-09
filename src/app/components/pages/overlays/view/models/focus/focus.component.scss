@@ -1,0 +1,212 @@
+* {
+  box-sizing: border-box;
+}
+:host {
+  display: block;
+  height: 100vh;
+  width: 100vw;
+  background: transparent;
+  overflow: hidden;
+}
+.focus {
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.frame {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  /* Taille commune image + bloc texte */
+  --cover-size: min(52vmin, 480px); /* image un peu plus petite qu'avant (60vmin, 520px) */
+  --enter-offset: calc(
+    var(--cover-size) * 0.35
+  ); /* combien le bloc texte rentre dans l'image à la pause */
+  opacity: 0; /* évite tout flash au montage */
+  transition: opacity 0.35s ease;
+}
+.focus.show .frame {
+  opacity: 1;
+  transition-delay: 0s;
+}
+.focus:not(.show) .frame {
+  opacity: 0;
+  transition-delay: 1.6s;
+} /* fade global après 1.6s */
+.cover {
+  width: var(--cover-size);
+  height: auto; /* dimensionnée par la largeur uniquement */
+  object-fit: cover;
+  border-radius: 24px;
+  box-shadow: none; /* pas d'ombre */
+  position: relative;
+  z-index: 2; /* l'image passe au-dessus du bloc texte durant l'entrée */
+}
+.info {
+  width: var(--cover-size); /* même largeur que l'image */
+  /* pas de hauteur forcée: s'adapte au contenu */
+  background: rgba(10, 10, 10, 0.85);
+  backdrop-filter: blur(16px) saturate(140%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 24px; /* même rayon que l'image pour cohérence visuelle */
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* centre verticalement le contenu */
+  gap: 6px;
+  color: #fff;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+  transform: translateY(0);
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.focus:not(.show) .info {
+  /* Le bloc de texte rentre dans l'image */
+  transform: translateY(calc(-1 * var(--enter-offset)));
+}
+.sep {
+  height: 3px;
+  width: 40px;
+  border-radius: 2px;
+  margin: 0 auto 6px auto;
+}
+.title {
+  font-weight: 700;
+  font-size: 20px;
+  white-space: nowrap;
+  /* l'ellipsis ne s'applique que sur la version statique */
+}
+.artist {
+  font-weight: 500;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.8);
+  white-space: nowrap;
+  /* l'ellipsis ne s'applique que sur la version statique */
+}
+.static .title,
+.static .artist {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+/* Marquee */
+.line {
+  min-width: 0;
+  --lh: 24px;
+  height: var(--lh);
+  line-height: var(--lh);
+  display: block;
+  position: relative; /* contexte pour superposer static et marquee */
+  contain: layout paint; /* isole le layout pour éviter les sauts à la bascule */
+}
+.info .line + .line {
+  --lh: 18px;
+}
+.marquee {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+}
+.line > .static,
+.line > .marquee {
+  position: absolute;
+  inset: 0; /* top/right/bottom/left à 0 */
+  width: 100%;
+  transform: translateZ(0); /* stabilise le rendu GPU au switch */
+}
+.line > .static {
+  z-index: 2;
+}
+.line > .marquee {
+  z-index: 1;
+}
+.marquee__inner {
+  display: flex;
+  white-space: nowrap;
+  will-change: transform;
+  animation: fcs-marquee 18s linear infinite;
+  animation-play-state: paused;
+}
+.static {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: var(--lh);
+  width: 100%;
+  text-align: center;
+}
+.hidden {
+  visibility: hidden; /* reste empilé mais invisible pour un switch instantané */
+  pointer-events: none;
+  transition: none !important; /* aucune transition parasite au moment du switch */
+}
+.run-marquee .marquee:not(.no-scroll) .marquee__inner {
+  animation-play-state: running;
+}
+.hidden {
+  visibility: hidden;
+  pointer-events: none;
+  transition: none !important;
+}
+.text {
+  display: inline-block;
+  white-space: nowrap;
+  padding-right: 48px;
+}
+.text.clone {
+  display: none;
+}
+.no-scroll .marquee__inner {
+  animation: none !important;
+  transform: none !important; /* pas de résidu de translateX au moment de la bascule */
+}
+.no-scroll .clone {
+  display: none;
+}
+.marquee.no-scroll {
+  justify-content: center;
+}
+.marquee {
+  width: 100%;
+}
+.marquee .marquee__inner {
+  width: max-content;
+}
+.line .text {
+  line-height: var(--lh);
+}
+.marquee.no-scroll {
+  text-align: center;
+}
+/* reset fort lors du passage en no-scroll pour éviter un "saut" visuel */
+.marquee.no-scroll .marquee__inner {
+  animation: none !important;
+  transform: none !important;
+}
+.run-marquee .marquee:not(.no-scroll) .clone {
+  display: inline-block;
+}
+@keyframes fcs-marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+@media (max-width: 600px) {
+  .frame {
+    --cover-size: min(72vmin, 360px);
+    --enter-offset: calc(var(--cover-size) * 0.4);
+  } /* un peu plus petit aussi sur mobile */
+  .title {
+    font-size: 18px;
+  }
+  .artist {
+    font-size: 13px;
+  }
+}

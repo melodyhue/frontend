@@ -23,12 +23,15 @@ export class EditComponent {
   readonly error = signal<string | null>(null);
   readonly saving = signal(false);
   readonly availableTemplates = [
-    { id: 'classic', name: 'Classic', type: 'widget' },
+    { id: 'default', name: 'Default', type: 'widget' },
+    { id: 'minimal', name: 'Minimal', type: 'widget' },
+    { id: 'compact', name: 'Compact', type: 'widget' },
+    { id: 'focus', name: 'Focus', type: 'widget' },
     { id: 'color', name: 'Color', type: 'color' },
   ] as const;
   readonly form = this.fb.group({
     name: ['', [Validators.required, Validators.maxLength(120)]],
-    template: ['classic', [Validators.required]],
+    template: ['default', [Validators.required]],
   });
 
   get selectedTemplateType(): string {
@@ -41,10 +44,14 @@ export class EditComponent {
     const id = this.route.snapshot.paramMap.get('id') ?? '';
     this.overlaysService.getById(id).subscribe({
       next: (o) => {
-        // Compat desc: migrer anciens ids ('now-playing' -> 'classic', 'color-fullscreen' -> 'color')
+        // Compat desc: migrer anciens ids ('now-playing' -> 'default', 'classic' -> 'default', 'color-fullscreen' -> 'color')
         const tpl = (o.template || '').toLowerCase();
         const migrated =
-          tpl === 'now-playing' ? 'classic' : tpl === 'color-fullscreen' ? 'color' : tpl;
+          tpl === 'now-playing' || tpl === 'classic'
+            ? 'default'
+            : tpl === 'color-fullscreen'
+            ? 'color'
+            : tpl;
         this.form.patchValue({
           name: o.name,
           template: migrated as any,
@@ -80,9 +87,9 @@ export class EditComponent {
   private mapTemplateForBackend(tpl: string): string {
     const v = (tpl || '').toLowerCase();
     // Envoyer les nouveaux ids côté back
-    if (v === 'now-playing') return 'classic';
+    if (v === 'now-playing' || v === 'classic') return 'default';
     if (v === 'color-fullscreen') return 'color';
-    return v; // classic / color (nouveau format)
+    return v; // default / color (nouveau format)
   }
 
   goBack(): void {
@@ -113,7 +120,10 @@ export class EditComponent {
 
   getTemplateName(id: string): string {
     const l = this.localeService.locale();
-    if (id === 'classic') return l === 'fr' ? 'Classique' : 'Classic';
+    if (id === 'default') return l === 'fr' ? 'Défaut' : 'Default';
+    if (id === 'minimal') return 'Minimal';
+    if (id === 'compact') return 'Compact';
+    if (id === 'focus') return 'Focus';
     if (id === 'color') return l === 'fr' ? 'Couleur' : 'Color';
     return id;
   }

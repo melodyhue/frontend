@@ -172,13 +172,23 @@ export class OverlaysComponent {
         const mapped = items.map((o) => {
           const key = (o.template || '').toLowerCase();
           const template =
-            key === 'classic' || key === 'now-playing'
-              ? 'Classic'
+            key === 'default' || key === 'now-playing'
+              ? 'Default'
               : key === 'color' || key === 'color-fullscreen'
               ? 'Color'
+              : key === 'minimal'
+              ? 'Minimal'
+              : key === 'compact'
+              ? 'Compact'
+              : key === 'focus'
+              ? 'Focus'
               : o.template;
           const type =
-            key === 'classic' || key === 'now-playing'
+            key === 'default' ||
+            key === 'now-playing' ||
+            key === 'minimal' ||
+            key === 'compact' ||
+            key === 'focus'
               ? 'widget'
               : key === 'color' || key === 'color-fullscreen'
               ? 'color'

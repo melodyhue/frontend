@@ -1,0 +1,32 @@
+<div class="focus" [class.show]="isVisible()" [class.run-marquee]="runMarquee()">
+    <div class="frame">
+        <img class="cover" [src]="track()?.image_url || ''" alt="cover" />
+        <div class="info" #info>
+            <div class="sep" [style.background]="color()"></div>
+            <!-- Title: statique centré OU marquee -->
+            <div class="line">
+                <div class="static" [class.hidden]="titleScroll()">
+                    <span class="title" #titleStatic>{{ track()?.name || '-' }}</span>
+                </div>
+                <div class="marquee" #titleContainer [class.hidden]="!titleScroll()">
+                    <div class="marquee__inner" #titleInner>
+                        <span class="text title" #title1>{{ track()?.name || '-' }}</span>
+                        <span class="text clone title" aria-hidden="true">{{ track()?.name || '-' }}</span>
+                    </div>
+                </div>
+            </div>
+            <!-- Artist: statique centré OU marquee -->
+            <div class="line">
+                <div class="static" [class.hidden]="artistScroll()">
+                    <span class="artist" #artistStatic>{{ track()?.artist || '-' }}</span>
+                </div>
+                <div class="marquee" #artistContainer [class.hidden]="!artistScroll()">
+                    <div class="marquee__inner" #artistInner>
+                        <span class="text artist" #artist1>{{ track()?.artist || '-' }}</span>
+                        <span class="text clone artist" aria-hidden="true">{{ track()?.artist || '-' }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

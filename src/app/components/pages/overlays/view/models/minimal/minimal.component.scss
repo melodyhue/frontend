@@ -1,0 +1,200 @@
+* {
+  box-sizing: border-box;
+}
+:host {
+  display: block;
+  height: 100vh;
+  width: 100vw;
+  background: transparent;
+  overflow: hidden;
+}
+
+.minimal {
+  position: relative;
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  opacity: 1; /* toujours visible pour laisser vivre l'animation interne */
+  transform: none;
+  transition: none;
+}
+
+.box {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
+  padding: 0; /* pour que l'accent touche le bord */
+  /* variables d'animation et dimensions */
+  --box-h: 48px; /* hauteur fixe: la box ne bouge pas */
+  --accent-w: var(--box-h);
+  --line-pad-x: 14px;
+  width: 480px; /* taille fixe (plus petit) */
+  max-width: 92vw; /* fallback responsive sur petits écrans */
+  height: var(--box-h);
+  background: transparent; /* le fond noir glisse avec .panel */
+  display: flex;
+  align-items: stretch; /* l'accent remplit la hauteur */
+  overflow: hidden; /* clip dans les coins arrondis */
+  position: relative;
+  transition: border-color 0.3s ease;
+}
+/* Le panneau qui contient toute la ligne. On l'anime pour faire rentrer/sortir TOUTE la box dans la couleur */
+.panel {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  width: calc(100% - var(--accent-w));
+  height: 100%;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.55); /* noir un peu translucide se déplace avec le panneau */
+  border-top-right-radius: 14px;
+  border-bottom-right-radius: 14px;
+  /* Démarre juste derrière l'accent (totalement caché) */
+  transform: translateX(calc(-1 * 100%));
+  opacity: 1;
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease;
+}
+
+.minimal.show .panel {
+  transform: translateX(0);
+  opacity: 1;
+  /* L'accent apparaît seul 1s, puis la box noire sort de la couleur */
+  transition-delay: 1s, 1s;
+}
+
+.minimal:not(.show) .panel {
+  transform: translateX(calc(-1 * 100%));
+  opacity: 0; /* après le slide, le noir disparaît pour ne pas réapparaître quand l'accent s'éteint */
+  /* d'abord le slide (0s), puis l'opacité s'éteint après 0.6s (durée du slide) */
+  transition-delay: 0s, 0.6s;
+}
+
+.accent {
+  /* Carré 1:1 basé sur la hauteur de la box */
+  height: 100%;
+  width: var(--accent-w);
+  align-self: stretch;
+  flex-shrink: 0;
+  /* coins collés aux bords haut/bas/gauche de la box, pas de radius à droite */
+  border-top-left-radius: 14px;
+  border-bottom-left-radius: 14px;
+  border-top-right-radius: 14px;
+  border-bottom-right-radius: 14px;
+  display: grid;
+  place-items: center;
+  position: relative;
+  z-index: 2; /* au-dessus du texte pour l'effet de "passage dans la couleur" */
+  opacity: 0;
+  transition: opacity 0.35s ease, border-top-right-radius 0.25s ease,
+    border-bottom-right-radius 0.25s ease, background-color 0.35s ease;
+}
+
+/* Affichage (lecture): pas de délai, coins droits carrés */
+.minimal.show .accent {
+  opacity: 1;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  /* au moment où la box noire sort (après 1s), on retire les arrondis */
+  transition-delay: 0s, 1s, 1s;
+}
+/* Disparition (pause): coins droits arrondis après l'entrée complète de la box noire (0.6s),
+   et la couleur s'éteint après le hold (1.6s total) */
+.minimal:not(.show):not(.pausing) .accent {
+  opacity: 0;
+  border-top-right-radius: 14px;
+  border-bottom-right-radius: 14px;
+  /* arrondi dès la fin de pausing (immédiat ici), et fade après hold */
+  transition-delay: 1.6s, 0s, 0s;
+}
+/* Pendant la phase pausing (juste au moment où on met en pause), conserver les coins carrés
+   puis, quand .pausing est retiré (après 0.6s), l'arrondi s'applique */
+.minimal.pausing .accent {
+  opacity: 1;
+  /* dès que la box noire rentre, on arrondit les coins droits */
+  border-top-right-radius: 14px;
+  border-bottom-right-radius: 14px;
+  /* pas de délai: arrondi immédiat au début du slide d'entrée */
+  transition-delay: 0s, 0s, 0s;
+}
+
+/* Quand on cache, laisser aussi disparaître la bordure après la tenue de la couleur */
+.minimal:not(.show) .box {
+  border-color: transparent;
+  transition-delay: 1.6s;
+}
+.minimal.show .box {
+  border-color: rgba(255, 255, 255, 0.12);
+  transition-delay: 0s;
+}
+
+.accent-icon {
+  font-family: 'Font Awesome 6 Free', 'Font Awesome 5 Free', 'Font Awesome 6 Pro',
+    'Font Awesome 5 Pro', system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans,
+    Helvetica Neue, Arial, sans-serif;
+  font-weight: 900;
+  font-size: 18px;
+  line-height: 1;
+}
+
+.line {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #fff;
+  font-size: 20px;
+  font-weight: 600;
+  width: 100%; /* prend la largeur de .panel */
+  min-width: 0;
+  overflow: hidden;
+  padding: 0 var(--line-pad-x); /* espace horizontal; vertical centré via align-items */
+  position: relative;
+  z-index: 1;
+}
+
+.text {
+  display: inline-block;
+  white-space: nowrap;
+  padding-right: 40px;
+}
+.no-scroll .text {
+  padding-right: 0;
+}
+.marquee {
+  position: relative;
+  overflow: hidden;
+}
+.marquee__inner {
+  display: inline-flex;
+  white-space: nowrap;
+  will-change: transform;
+  animation: marquee 16s linear infinite;
+}
+.no-scroll .marquee__inner {
+  animation: none;
+  transform: translateX(0);
+}
+.no-scroll .clone {
+  display: none;
+}
+
+/* mêmes espacements sur les deux copies pour une boucle parfaite */
+/* .text:not(.clone) { padding-right: 40px; } */
+/* .text.clone { padding-right: 0; } */
+
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+@media (max-width: 720px) {
+  .box {
+    width: 92vw;
+  }
+}

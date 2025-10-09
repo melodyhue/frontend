@@ -1,0 +1,23 @@
+<div class="compact" [class.show]="isVisible()" [class.run-marquee]="runMarquee">
+  <div class="card" #card>
+    <img class="cover" #cover [src]="track()?.image_url || ''" alt="cover" />
+    <div class="panel">
+      <div class="panel__inner">
+        <div class="texts">
+          <div class="line marquee" #titleContainer>
+            <div class="marquee__inner" #titleInner>
+              <span class="text" #title1>{{ track()?.name || '-' }}</span>
+              <span class="text clone" #title2 aria-hidden="true">{{ track()?.name || '-' }}</span>
+            </div>
+          </div>
+          <div class="line small marquee" #artistContainer>
+            <div class="marquee__inner" #artistInner>
+              <span class="text" #artist1>{{ track()?.artist || '-' }}</span>
+              <span class="text clone" #artist2 aria-hidden="true">{{ track()?.artist || '-' }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
