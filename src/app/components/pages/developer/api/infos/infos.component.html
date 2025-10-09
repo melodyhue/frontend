@@ -1,0 +1,5 @@
+@if (data()) {
+{{ data() | json }}
+} @else if (error()) {
+{{ ({ status: 'error' }) | json }}
+}

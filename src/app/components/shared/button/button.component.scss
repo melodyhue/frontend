@@ -1,0 +1,223 @@
+:host {
+  display: inline-block;
+  animation: none !important;
+}
+
+:host.app-button--full-width {
+  display: block;
+  width: 100%;
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-weight: 600;
+  text-align: center;
+  text-decoration: none;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  outline: none;
+  transition: none;
+  white-space: nowrap;
+  user-select: none;
+  animation: none !important;
+
+  &:hover,
+  &:focus-visible,
+  &:active {
+    transition: background 160ms ease, transform 160ms ease, box-shadow 160ms ease,
+      border-color 160ms ease;
+  }
+}
+
+.button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+:host.app-button--full-width .button {
+  width: 100%;
+}
+
+// Tailles
+:host.app-button--sm .button {
+  padding: 0.5rem 1rem;
+  font-size: 0.85rem;
+}
+
+:host.app-button--md .button {
+  padding: 0.65rem 1.25rem;
+  font-size: 0.9rem;
+}
+
+:host.app-button--lg .button {
+  padding: 0.85rem 1.75rem;
+  font-size: 1rem;
+}
+
+// Variante Primary
+:host.app-button--primary .button {
+  background: #0a3228;
+  color: #ffffff;
+  border: 1px solid transparent;
+}
+
+:host.app-button--primary .button:hover:not(:disabled) {
+  background: #0d4a38;
+  transform: translateY(-1px);
+}
+
+:host.app-button--primary .button:focus-visible {
+  box-shadow: 0 0 0 3px rgba(10, 50, 40, 0.4);
+}
+
+:host.app-button--primary .button:active:not(:disabled) {
+  background: #083020;
+  transform: translateY(0);
+}
+
+// Variante Secondary
+:host.app-button--secondary .button {
+  background: #e9ecef;
+  color: #333333;
+  border: 1px solid transparent;
+}
+
+:host.app-button--secondary .button:hover:not(:disabled) {
+  background: #dee2e6;
+}
+
+:host.app-button--secondary .button:focus-visible {
+  box-shadow: 0 0 0 3px rgba(233, 236, 239, 0.6);
+}
+
+:host.app-button--secondary .button:active:not(:disabled) {
+  background: #ced4da;
+}
+
+// Variante Outline
+:host.app-button--outline .button {
+  background: transparent;
+  color: #0a3228;
+  border: 1px solid #0a3228;
+}
+
+:host.app-button--outline .button:hover:not(:disabled) {
+  background: rgba(10, 50, 40, 0.1);
+  border-color: #0d4a38;
+}
+
+:host.app-button--outline .button:focus-visible {
+  box-shadow: 0 0 0 3px rgba(10, 50, 40, 0.25);
+}
+
+:host.app-button--outline .button:active:not(:disabled) {
+  background: rgba(10, 50, 40, 0.15);
+}
+
+// Variante Ghost
+:host.app-button--ghost .button {
+  background: transparent;
+  color: rgba(255, 255, 255, 0.85);
+  border: 1px solid transparent;
+}
+
+:host.app-button--ghost .button:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+:host.app-button--ghost .button:focus-visible {
+  border-color: rgba(109, 240, 207, 0.6);
+  box-shadow: 0 0 0 3px rgba(109, 240, 207, 0.25);
+}
+
+:host.app-button--ghost .button:active:not(:disabled) {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+// Variante Danger (rouge)
+:host.app-button--danger .button {
+  background: #dc3545;
+  color: #ffffff;
+  border: 1px solid transparent;
+}
+
+:host.app-button--danger .button:hover:not(:disabled) {
+  background: #c82333;
+  transform: translateY(-1px);
+}
+
+:host.app-button--danger .button:focus-visible {
+  box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.4);
+}
+
+:host.app-button--danger .button:active:not(:disabled) {
+  background: #bd2130;
+  transform: translateY(0);
+}
+
+// Variante Cancel (gris)
+:host.app-button--cancel .button {
+  background: #e9ecef;
+  color: #333333;
+  border: 1px solid transparent;
+}
+
+:host.app-button--cancel .button:hover:not(:disabled) {
+  background: #dee2e6;
+}
+
+:host.app-button--cancel .button:focus-visible {
+  box-shadow: 0 0 0 3px rgba(233, 236, 239, 0.6);
+}
+
+:host.app-button--cancel .button:active:not(:disabled) {
+  background: #ced4da;
+}
+
+// Variante Success (vert)
+:host.app-button--success .button {
+  background: #0a3228;
+  color: #ffffff;
+  border: 1px solid transparent;
+}
+
+:host.app-button--success .button:hover:not(:disabled) {
+  background: #0d4a38;
+  transform: translateY(-1px);
+}
+
+:host.app-button--success .button:focus-visible {
+  box-shadow: 0 0 0 3px rgba(10, 50, 40, 0.4);
+}
+
+:host.app-button--success .button:active:not(:disabled) {
+  background: #083020;
+  transform: translateY(0);
+}
+
+// Variante Accent (turquoise pour fond foncé)
+:host.app-button--accent .button {
+  background: #6df0cf;
+  color: #0a3228;
+  border: 1px solid transparent;
+  font-weight: 700;
+}
+
+:host.app-button--accent .button:hover:not(:disabled) {
+  background: #7ff5d8;
+  transform: translateY(-1px);
+}
+
+:host.app-button--accent .button:focus-visible {
+  box-shadow: 0 0 0 3px rgba(109, 240, 207, 0.4);
+}
+
+:host.app-button--accent .button:active:not(:disabled) {
+  background: #5de0bf;
+  transform: translateY(0);
+}

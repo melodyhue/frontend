@@ -1,0 +1,213 @@
+.profile {
+  max-width: 900px;
+  margin: 0 auto;
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  &__title {
+    margin: 0;
+    font-size: clamp(1.75rem, 4vw, 2.5rem);
+    font-weight: 700;
+    color: #0a3228;
+  }
+
+  &__actions {
+    display: flex;
+    gap: 0.75rem;
+  }
+
+  &__btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 200ms ease;
+
+    &--primary {
+      background-color: #0a3228;
+      color: white;
+
+      &:hover {
+        background-color: #0d4a38;
+        transform: translateY(-1px);
+      }
+    }
+
+    &--secondary {
+      background-color: #e9ecef;
+      color: #333;
+
+      &:hover {
+        background-color: #dee2e6;
+        transform: translateY(-1px);
+      }
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+  }
+
+  &__content {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+  }
+
+  &__card {
+    background: white;
+    border-radius: 12px;
+    border: 1px solid #e9ecef;
+    padding: 1.5rem;
+
+    &--avatar {
+      grid-column: 1 / -1;
+    }
+  }
+
+  &__card-title {
+    margin: 0 0 1rem;
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #0a3228;
+  }
+
+  &__info-value {
+    margin: 0;
+    font-size: 1rem;
+    color: #333;
+  }
+
+  // Avatar Section
+  &__avatar-display {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+  }
+
+  &__avatar-img {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid #0a3228;
+  }
+
+  &__avatar-initials {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 4rem;
+    font-weight: 700;
+    color: white;
+    border: 4px solid #0a3228;
+  }
+
+  &__username {
+    margin: 0;
+    text-align: center;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #0a3228;
+  }
+
+  &__card-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0 0 0.75rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #0a3228;
+
+    i {
+      font-size: 1.125rem;
+    }
+  }
+
+  // Status Section
+  &__status {
+    display: flex;
+    align-items: center;
+  }
+
+  &__status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    font-weight: 600;
+
+    &--connected {
+      background-color: #d2faf0;
+      color: #0a3228;
+
+      i {
+        color: #1db954;
+      }
+    }
+
+    &--disconnected {
+      background-color: #ffe5e8;
+      color: #721c24;
+
+      i {
+        color: #dc3545;
+      }
+    }
+  }
+
+  // Mobile responsive
+  @media (max-width: 768px) {
+    &__header {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    &__actions {
+      width: 100%;
+      flex-direction: column;
+
+      button {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+
+    &__content {
+      grid-template-columns: 1fr;
+    }
+
+    &__card {
+      &--avatar {
+        grid-column: 1;
+      }
+    }
+
+    &__colors {
+      grid-template-columns: repeat(auto-fill, minmax(45px, 1fr));
+    }
+
+    &__color-swatch {
+      width: 45px;
+      height: 45px;
+    }
+  }
+}

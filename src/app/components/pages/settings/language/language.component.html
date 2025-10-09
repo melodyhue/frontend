@@ -1,0 +1,50 @@
+<div class="language">
+  <div class="language__header">
+    <h1 class="language__title">{{ title() }}</h1>
+  </div>
+
+  <!-- Language Selection Section -->
+  <section class="language__section">
+    <div class="language__card">
+      <div class="language__card-header">
+        <div class="language__card-icon">
+          <i class="fa-solid fa-language"></i>
+        </div>
+        <div class="language__card-info">
+          <h2 class="language__card-title">{{ selectLanguageLabel() }}</h2>
+          <p class="language__card-description">{{ description() }}</p>
+        </div>
+      </div>
+
+      <div class="language__card-content">
+        <div class="language__options">
+          @for (option of localeOptions; track option.code) {
+          <button type="button" class="language__option"
+            [class.language__option--active]="localeService.locale() === option.code"
+            (click)="selectLocale(option.code)" [attr.aria-pressed]="localeService.locale() === option.code"
+            [attr.aria-label]="(option.code === 'fr' ? 'Sélectionner Français' : 'Select English') + (localeService.locale() === option.code ? ' (actif)' : '')">
+            <div class="language__option-content">
+              <div class="language__option-flag">
+                @if (option.code === 'fr') {
+                <i class="fa-solid fa-f language__flag-icon"></i>
+                } @else {
+                <i class="fa-solid fa-e language__flag-icon"></i>
+                }
+              </div>
+              <div class="language__option-text">
+                <span class="language__option-name">
+                  {{ option.code === 'fr' ? 'Français' : 'English' }}
+                </span>
+                <span class="language__option-code">{{ option.code.toUpperCase() }}</span>
+              </div>
+            </div>
+            @if (localeService.locale() === option.code) {
+            <i class="fa-solid fa-circle-check language__option-check"></i>
+            }
+          </button>
+          }
+        </div>
+      </div>
+    </div>
+  </section>
+</div>

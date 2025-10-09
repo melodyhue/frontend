@@ -1,0 +1,38 @@
+:host {
+  display: flex;
+  min-height: 100vh;
+  background: #d7fff5;
+}
+
+app-sidebar {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+  flex-shrink: 0;
+}
+
+.content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+  min-width: 0;
+}
+
+.content-wrapper {
+  flex: 1;
+  padding: 2rem;
+}
+
+app-footer {
+  margin-top: auto;
+  flex-shrink: 0;
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .content-wrapper {
+    padding: 1.5rem 1rem;
+  }
+}

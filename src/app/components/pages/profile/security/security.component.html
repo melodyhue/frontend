@@ -1,0 +1,227 @@
+<div class="security">
+  <div class="security__header">
+    <h1 class="security__title">{{ title() }}</h1>
+  </div>
+
+  @if (successMessage()) {
+  <div class="security__success">
+    <i class="fa-solid fa-circle-check"></i>
+    <span>{{ successMessage() }}</span>
+  </div>
+  }
+
+  <!-- Change Password Card -->
+  <form [formGroup]="passwordForm" (ngSubmit)="onSubmitPassword()" class="security__card">
+    <h2 class="security__card-title">
+      <i class="fa-solid fa-lock"></i>
+      {{ labels().changePassword }}
+    </h2>
+
+    <!-- Current Password -->
+    <div class="security__field">
+      <label class="security__label" for="currentPassword">
+        {{ labels().currentPassword }}
+        <span class="security__required">*</span>
+      </label>
+      <div class="security__password-field">
+        <input id="currentPassword" [type]="showCurrentPassword() ? 'text' : 'password'"
+          formControlName="currentPassword" class="security__input"
+          [class.security__input--error]="passwordForm.get('currentPassword')?.invalid && passwordForm.get('currentPassword')?.touched">
+        <button type="button" class="security__toggle-password"
+          (click)="showCurrentPassword.set(!showCurrentPassword())">
+          <i [class]="showCurrentPassword() ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye'"></i>
+        </button>
+      </div>
+      @if (getPasswordError('currentPassword')) {
+      <span class="security__error">{{ getPasswordError('currentPassword') }}</span>
+      }
+    </div>
+
+    <!-- New Password -->
+    <div class="security__field">
+      <label class="security__label" for="newPassword">
+        {{ labels().newPassword }}
+        <span class="security__required">*</span>
+      </label>
+      <div class="security__password-field">
+        <input id="newPassword" [type]="showNewPassword() ? 'text' : 'password'" formControlName="newPassword"
+          class="security__input"
+          [class.security__input--error]="passwordForm.get('newPassword')?.invalid && passwordForm.get('newPassword')?.touched">
+        <button type="button" class="security__toggle-password" (click)="showNewPassword.set(!showNewPassword())">
+          <i [class]="showNewPassword() ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye'"></i>
+        </button>
+      </div>
+      @if (getPasswordError('newPassword')) {
+      <span class="security__error">{{ getPasswordError('newPassword') }}</span>
+      }
+
+      <!-- Password Strength Indicator -->
+      @if (passwordForm.get('newPassword')?.value) {
+      <div class="security__strength">
+        <div class="security__strength-bars">
+          <div class="security__strength-bar" [class.security__strength-bar--weak]="getPasswordStrength() >= 1"
+            [class.security__strength-bar--medium]="getPasswordStrength() >= 2"
+            [class.security__strength-bar--strong]="getPasswordStrength() >= 3"></div>
+          <div class="security__strength-bar" [class.security__strength-bar--weak]="getPasswordStrength() >= 2"
+            [class.security__strength-bar--medium]="getPasswordStrength() >= 3"
+            [class.security__strength-bar--strong]="getPasswordStrength() >= 4"></div>
+          <div class="security__strength-bar" [class.security__strength-bar--weak]="getPasswordStrength() >= 3"
+            [class.security__strength-bar--medium]="getPasswordStrength() >= 4"
+            [class.security__strength-bar--strong]="getPasswordStrength() >= 5"></div>
+          <div class="security__strength-bar" [class.security__strength-bar--strong]="getPasswordStrength() >= 5"></div>
+        </div>
+        <span class="security__strength-text">{{ getPasswordStrengthLabel() }}</span>
+      </div>
+      }
+    </div>
+
+    <!-- Confirm Password -->
+    <div class="security__field">
+      <label class="security__label" for="confirmPassword">
+        {{ labels().confirmPassword }}
+        <span class="security__required">*</span>
+      </label>
+      <div class="security__password-field">
+        <input id="confirmPassword" [type]="showConfirmPassword() ? 'text' : 'password'"
+          formControlName="confirmPassword" class="security__input"
+          [class.security__input--error]="passwordForm.get('confirmPassword')?.invalid && passwordForm.get('confirmPassword')?.touched || passwordForm.errors?.['passwordMismatch'] && passwordForm.get('confirmPassword')?.touched">
+        <button type="button" class="security__toggle-password"
+          (click)="showConfirmPassword.set(!showConfirmPassword())">
+          <i [class]="showConfirmPassword() ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye'"></i>
+        </button>
+      </div>
+      @if (getPasswordError('confirmPassword')) {
+      <span class="security__error">{{ getPasswordError('confirmPassword') }}</span>
+      }
+    </div>
+
+    <div class="security__actions">
+      <app-button variant="cancel" (clicked)="cancel()">
+        <span>{{ labels().cancel }}</span>
+      </app-button>
+      <app-button type="submit" variant="success" [disabled]="passwordForm.invalid || isSaving()">
+        @if (isSaving()) {
+        <i class="fa-solid fa-spinner fa-spin"></i>
+        <span>{{ labels().saving }}</span>
+        } @else {
+        <i class="fa-solid fa-floppy-disk"></i>
+        <span>{{ labels().save }}</span>
+        }
+      </app-button>
+    </div>
+  </form>
+
+  <!-- Two-Factor Authentication Card -->
+  <div class="security__card">
+    <div class="security__card-header">
+      <div>
+        <h2 class="security__card-title">
+          <i class="fa-solid fa-shield-halved"></i>
+          {{ labels().twoFactor }}
+        </h2>
+        <p class="security__card-desc">{{ labels().twoFactorDesc }}</p>
+      </div>
+      <div class="security__status-badge" [class.security__status-badge--enabled]="twoFactorEnabled()">
+        <i [class]="twoFactorEnabled() ? 'fa-solid fa-circle-check' : 'fa-solid fa-circle-xmark'"></i>
+        {{ twoFactorEnabled() ? labels().enabled : labels().disabled }}
+      </div>
+    </div>
+
+    <div class="security__2fa-content">
+      <div class="security__2fa-wrapper">
+        <app-button variant="success" [disabled]="true">
+          <i class="fa-solid fa-shield"></i>
+          <span>{{ labels().enable2FA }}</span>
+        </app-button>
+        <span class="security__coming-soon">{{ labels().comingSoon }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Account Card - DANGER ZONE -->
+  <div class="security__card security__card--danger">
+    <div class="security__danger-header">
+      <i class="fa-solid fa-triangle-exclamation"></i>
+      <h2 class="security__danger-title">{{ labels().dangerZone }}</h2>
+    </div>
+
+    <div class="security__danger-warning">
+      <i class="fa-solid fa-skull-crossbones"></i>
+      <div>
+        <p class="security__danger-warning-title">{{ labels().deleteAccountWarning }}</p>
+        <p class="security__danger-warning-text">{{ labels().deleteAccountWarningDesc }}</p>
+      </div>
+    </div>
+
+    @if (!showDeleteConfirm()) {
+    <div class="security__danger-actions">
+      <app-button variant="danger" size="lg" (clicked)="revealDeleteConfirm()">
+        <i class="fa-solid fa-user-xmark"></i>
+        <span>{{ labels().deleteAccount }}</span>
+      </app-button>
+    </div>
+    } @else {
+    <form [formGroup]="deleteAccountForm" (ngSubmit)="onSubmitDeleteAccount()" class="security__delete-form">
+      <div class="security__delete-info">
+        <i class="fa-solid fa-info-circle"></i>
+        <p>{{ labels().deleteAccountConfirmInfo }}</p>
+      </div>
+
+      <!-- Password Confirmation -->
+      <div class="security__field">
+        <label class="security__label" for="deletePassword">
+          {{ labels().confirmPasswordToDelete }}
+          <span class="security__required">*</span>
+        </label>
+        <div class="security__password-field">
+          <input id="deletePassword" [type]="showDeletePassword() ? 'text' : 'password'" formControlName="password"
+            class="security__input"
+            [class.security__input--error]="deleteAccountForm.get('password')?.invalid && deleteAccountForm.get('password')?.touched">
+          <button type="button" class="security__toggle-password"
+            (click)="showDeletePassword.set(!showDeletePassword())">
+            <i [class]="showDeletePassword() ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye'"></i>
+          </button>
+        </div>
+        @if (getDeleteError('password')) {
+        <span class="security__error">{{ getDeleteError('password') }}</span>
+        }
+      </div>
+
+      <!-- Confirmation Text -->
+      <div class="security__field">
+        <label class="security__label" for="deleteConfirmation">
+          {{ labels().typeToConfirm }}
+          <span class="security__required">*</span>
+        </label>
+        <div class="security__confirm-text-info">
+          <i class="fa-solid fa-keyboard"></i>
+          <span>{{ labels().typeExactly }}: <strong>{{ deleteConfirmationText() }}</strong></span>
+        </div>
+        <input id="deleteConfirmation" type="text" formControlName="confirmationText"
+          class="security__input security__input--monospace"
+          [class.security__input--error]="deleteAccountForm.get('confirmationText')?.invalid && deleteAccountForm.get('confirmationText')?.touched"
+          [placeholder]="deleteConfirmationText()">
+        @if (getDeleteError('confirmationText')) {
+        <span class="security__error">{{ getDeleteError('confirmationText') }}</span>
+        }
+      </div>
+
+      <div class="security__delete-actions">
+        <app-button variant="cancel" (clicked)="cancelDeleteAccount()">
+          <i class="fa-solid fa-xmark"></i>
+          <span>{{ labels().cancelDelete }}</span>
+        </app-button>
+        <app-button type="submit" variant="danger" [disabled]="deleteAccountForm.invalid || isDeleting()">
+          @if (isDeleting()) {
+          <i class="fa-solid fa-spinner fa-spin"></i>
+          <span>{{ labels().deleting }}</span>
+          } @else {
+          <i class="fa-solid fa-trash-can"></i>
+          <span>{{ labels().deleteAccountPermanently }}</span>
+          }
+        </app-button>
+      </div>
+    </form>
+    }
+  </div>
+</div>

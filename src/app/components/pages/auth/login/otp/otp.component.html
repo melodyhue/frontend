@@ -1,0 +1,48 @@
+<section class="auth">
+  <div class="auth__card">
+    <header class="auth__header">
+      <h1>{{ title() }}</h1>
+      <p class="auth__subtitle">
+        {{ subtitle() }}
+      </p>
+    </header>
+
+    <form class="auth__form" [formGroup]="form" (ngSubmit)="onSubmit()" aria-describedby="otp-form-description">
+      <p id="otp-form-description" class="visually-hidden">
+        {{ formDescription() }}
+      </p>
+
+      <div class="form-field">
+        <label>{{ codeLabel() }}</label>
+        <div class="otp-grid" (paste)="onDigitPaste($event)">
+          @for (i of slots; track i) {
+          <input #otpInput [id]="'otp-' + i" [attr.inputmode]="'numeric'" [attr.autocomplete]="'one-time-code'"
+            maxlength="1" [formControlName]="'d' + i" class="otp-grid__cell"
+            [class.form-field__input--invalid]="canShowFormError()" (input)="onDigitInput(i, $event)"
+            (keydown)="onDigitKeydown(i, $event)" [attr.aria-invalid]="canShowFormError()"
+            [attr.aria-describedby]="canShowFormError() ? 'code-error' : null" />
+          }
+        </div>
+        @if (canShowFormError()) {
+        <p id="code-error" class="form-field__error">{{ getFormErrorMessage() }}</p>
+        }
+      </div>
+
+      <app-button type="submit" [fullWidth]="true" variant="accent" [disabled]="submissionInProgress()"
+        [attr.aria-busy]="submissionInProgress()">
+        @if (submissionInProgress()) {
+        <span>{{ submittingLabel() }}</span>
+        } @else {
+        <span>{{ submitButtonLabel() }}</span>
+        }
+      </app-button>
+
+      @if (errorMessage()) {
+      <div class="auth__alert auth__alert--error" role="alert">
+        <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+        <span>{{ errorMessage() }}</span>
+      </div>
+      }
+    </form>
+  </div>
+</section>

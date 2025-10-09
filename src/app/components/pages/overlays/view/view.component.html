@@ -1,0 +1,5 @@
+@if (mode() === 'color') {
+<app-color [defaultColor]="currentColor()" [userId]="userId()"></app-color>
+} @else {
+<app-classic [defaultColor]="currentColor()" [userId]="userId()"></app-classic>
+}

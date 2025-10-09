@@ -1,0 +1,167 @@
+:host {
+  display: block;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Styles réutilisés de la page login pour un rendu identique */
+.auth {
+  display: grid;
+  align-content: start;
+  justify-items: center;
+  padding: 1.5rem 1.5rem;
+  padding-top: 15vh;
+  height: 100%;
+  background: #0a3228;
+  overflow-y: auto;
+}
+
+.auth__card {
+  width: min(100%, 400px);
+  padding: 2rem 1.75rem;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.auth__header {
+  display: grid;
+  gap: 0.5rem;
+  margin-bottom: 1.75rem;
+}
+
+.auth__header h1 {
+  font-size: clamp(1.6rem, 3vw, 1.85rem);
+  font-weight: 700;
+  margin: 0;
+  color: #ffffff;
+}
+
+.auth__subtitle {
+  margin: 0;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.auth__form {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.form-field {
+  display: grid;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.form-field label {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.form-field__input--invalid {
+  border-color: #ff6b6b !important;
+  box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.2) !important;
+}
+
+.form-field__error {
+  font-size: 0.8rem;
+  color: #ffb3b3;
+  margin: 0;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* On garde le style des champs du login */
+.otp-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 0.6rem;
+  margin-top: 0.25rem;
+  width: 100%;
+  max-width: 100%;
+}
+
+.otp-grid__cell {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0; /* permet de rétrécir dans la grille */
+  aspect-ratio: 1 / 1;
+  text-align: center;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border-radius: 8px;
+  /* mêmes couleurs que login inputs */
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.9);
+  transition: border-color 150ms ease, box-shadow 150ms ease, background-color 150ms ease;
+  box-sizing: border-box;
+  padding: 0.4rem; /* évite que le contenu pousse la largeur */
+}
+
+.otp-grid__cell:focus-visible {
+  border-color: rgba(109, 240, 207, 0.6);
+  box-shadow: 0 0 0 3px rgba(109, 240, 207, 0.2);
+  background: rgba(255, 255, 255, 0.08);
+  outline: none;
+}
+
+/* Réutilise .form-field__input--invalid pour la bordure rouge (déjà stylée dans login) */
+
+@media (max-width: 480px) {
+  .auth {
+    padding: 2rem 2rem;
+    align-content: start;
+  }
+
+  .auth__card {
+    width: 100%;
+    padding: 1.5rem 1.25rem;
+    border-radius: 10px;
+  }
+
+  .auth__header {
+    margin-bottom: 1.5rem;
+  }
+
+  .auth__header h1 {
+    font-size: 1.5rem;
+  }
+
+  .auth__subtitle {
+    font-size: 0.875rem;
+  }
+
+  .auth__form {
+    gap: 1.125rem;
+  }
+
+  .form-field {
+    gap: 0.4rem;
+  }
+
+  .form-field label {
+    font-size: 0.875rem;
+  }
+
+  .otp-grid {
+    gap: 0.5rem;
+  }
+  .otp-grid__cell {
+    font-size: 1rem;
+    border-radius: 8px;
+  }
+}
