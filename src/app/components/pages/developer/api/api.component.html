@@ -1,66 +1,64 @@
 <section class="api">
-    <header class="api__header">
-        <h1 class="api__title">{{ labels().title }}</h1>
-        <p class="api__description">{{ labels().description }}</p>
-    </header>
+  <header class="api__header">
+    <h1 class="api__title">{{ labels().title }}</h1>
+    <p class="api__description">{{ labels().description }}</p>
+  </header>
 
-    <div class="api__cards">
-        <article class="api__card">
-            <h2 class="api__card-title">
-                <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
-                <span>{{ labels().infosTitle }}</span>
-            </h2>
-            <p class="api__card-description">{{ labels().infosDescription }}</p>
+  <div class="api__cards">
+    <article class="api__card">
+      <h2 class="api__card-title">
+        <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+        <span>{{ labels().infosTitle }}</span>
+      </h2>
+      <p class="api__card-description">{{ labels().infosDescription }}</p>
 
-            <div class="api__row">
-                <div class="api__label">{{ labels().absoluteUrl }}</div>
-                <div class="api__input-group">
-                    <input type="text" [value]="absoluteUrls().infos" readonly
-                        class="api__input api__input--readonly" />
-                    <button class="api__btn-icon" type="button" (click)="copyToClipboard(absoluteUrls().infos)"
-                        [title]="copyState() === 'done' ? labels().copied : labels().copy"
-                        aria-label="{{ copyState() === 'done' ? labels().copied : labels().copy }}">
-                        <i [class]="copyState() === 'done' ? 'fa-solid fa-check' : 'fa-solid fa-copy'"></i>
-                    </button>
-                </div>
-            </div>
+      <div class="api__row">
+        <div class="api__label">{{ labels().absoluteUrl }}</div>
+        <div class="api__input-group">
+          <input type="text" [value]="absoluteUrls().infos" readonly class="api__input api__input--readonly" />
+          <button class="api__btn-icon" type="button" (click)="copyToClipboard(absoluteUrls().infos)"
+            [title]="copyState() === 'done' ? labels().copied : labels().copy"
+            aria-label="{{ copyState() === 'done' ? labels().copied : labels().copy }}">
+            <i [class]="copyState() === 'done' ? 'fa-solid fa-check' : 'fa-solid fa-copy'"></i>
+          </button>
+        </div>
+      </div>
 
-            <div class="api__example">
-                <div class="api__example-title">
-                    <i class="fa-solid fa-code"></i>
-                    <span>{{ labels().exampleTitle }}</span>
-                </div>
-                <pre class="api__example-code"><code>{{ infoSampleJson() }}</code></pre>
-            </div>
-        </article>
+      <div class="api__example">
+        <div class="api__example-title">
+          <i class="fa-solid fa-code"></i>
+          <span>{{ labels().exampleTitle }}</span>
+        </div>
+        <pre class="api__example-code"><code>{{ infoSampleJson() }}</code></pre>
+      </div>
+    </article>
 
-        <article class="api__card">
-            <h2 class="api__card-title">
-                <i class="fa-solid fa-palette" aria-hidden="true"></i>
-                <span>{{ labels().colorTitle }}</span>
-            </h2>
-            <p class="api__card-description">{{ labels().colorDescription }}</p>
+    <article class="api__card">
+      <h2 class="api__card-title">
+        <i class="fa-solid fa-palette" aria-hidden="true"></i>
+        <span>{{ labels().colorTitle }}</span>
+      </h2>
+      <p class="api__card-description">{{ labels().colorDescription }}</p>
 
-            <div class="api__row">
-                <div class="api__label">{{ labels().absoluteUrl }}</div>
-                <div class="api__input-group">
-                    <input type="text" [value]="absoluteUrls().color" readonly
-                        class="api__input api__input--readonly" />
-                    <button class="api__btn-icon" type="button" (click)="copyToClipboard(absoluteUrls().color)"
-                        [title]="copyState() === 'done' ? labels().copied : labels().copy"
-                        aria-label="{{ copyState() === 'done' ? labels().copied : labels().copy }}">
-                        <i [class]="copyState() === 'done' ? 'fa-solid fa-check' : 'fa-solid fa-copy'"></i>
-                    </button>
-                </div>
-            </div>
+      <div class="api__row">
+        <div class="api__label">{{ labels().absoluteUrl }}</div>
+        <div class="api__input-group">
+          <input type="text" [value]="absoluteUrls().color" readonly class="api__input api__input--readonly" />
+          <button class="api__btn-icon" type="button" (click)="copyToClipboard(absoluteUrls().color)"
+            [title]="copyState() === 'done' ? labels().copied : labels().copy"
+            aria-label="{{ copyState() === 'done' ? labels().copied : labels().copy }}">
+            <i [class]="copyState() === 'done' ? 'fa-solid fa-check' : 'fa-solid fa-copy'"></i>
+          </button>
+        </div>
+      </div>
 
-            <div class="api__example">
-                <div class="api__example-title">
-                    <i class="fa-solid fa-code"></i>
-                    <span>{{ labels().exampleTitle }}</span>
-                </div>
-                <pre class="api__example-code"><code>{{ colorSampleJson() }}</code></pre>
-            </div>
-        </article>
-    </div>
+      <div class="api__example">
+        <div class="api__example-title">
+          <i class="fa-solid fa-code"></i>
+          <span>{{ labels().exampleTitle }}</span>
+        </div>
+        <pre class="api__example-code"><code>{{ colorSampleJson() }}</code></pre>
+      </div>
+    </article>
+  </div>
 </section>

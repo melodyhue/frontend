@@ -1,25 +1,33 @@
 <div class="spotify-callback">
-    <div class="spotify-callback__card">
-        <div class="spotify-callback__icon">
-            <i class="fa-brands fa-spotify"></i>
-        </div>
-        <div class="spotify-callback__content">
-            @if (loading()) {
-            <p>
-                <i class="fa-solid fa-spinner fa-spin"></i>
-                Processing authorization...
-            </p>
-            } @else if (success()) {
-            <p>
-                <i class="fa-solid fa-circle-check" style="color:#22c55e"></i>
-                {{ message() }}
-            </p>
-            } @else {
-            <p>
-                <i class="fa-solid fa-triangle-exclamation" style="color:#ef4444"></i>
-                {{ message() }}
-            </p>
-            }
-        </div>
+  <div class="spotify-callback__card" [class.is-loading]="loading()" [class.is-success]="success() === true"
+    [class.is-error]="success() === false">
+    <div class="spotify-callback__icon" aria-hidden="true">
+      <i class="fa-brands fa-spotify"></i>
     </div>
+    <div class="spotify-callback__content">
+      <h1 class="title">Authentification Spotify</h1>
+      @if (loading()) {
+      <p class="message">
+        <i class="fa-solid fa-spinner fa-spin"></i>
+        Traitement de l’autorisation...
+      </p>
+      <div class="progress" role="progressbar" aria-busy="true" aria-label="Chargement"></div>
+      } @else if (success()) {
+      <p class="message">
+        <i class="fa-solid fa-circle-check"></i>
+        {{ message() }}
+      </p>
+      <p class="hint">
+        Redirection en cours...
+      </p>
+      } @else {
+      <p class="message">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        {{ message() }}
+      </p>
+      <p class="hint">Vous pouvez fermer cette fenêtre et réessayer.</p>
+      }
+    </div>
+  </div>
+
 </div>

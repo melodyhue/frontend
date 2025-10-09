@@ -4,8 +4,6 @@ import { Component } from '@angular/core';
   selector: 'app-modo',
   imports: [],
   templateUrl: './modo.component.html',
-  styleUrl: './modo.component.scss'
+  styleUrl: './modo.component.scss',
 })
-export class ModoComponent {
-
-}
+export class ModoComponent {}

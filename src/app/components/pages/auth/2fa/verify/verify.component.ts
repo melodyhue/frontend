@@ -4,8 +4,6 @@ import { Component } from '@angular/core';
   selector: 'app-verify',
   imports: [],
   templateUrl: './verify.component.html',
-  styleUrl: './verify.component.scss'
+  styleUrl: './verify.component.scss',
 })
-export class VerifyComponent {
-
-}
+export class VerifyComponent {}
