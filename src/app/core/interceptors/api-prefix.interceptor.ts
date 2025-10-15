@@ -59,8 +59,8 @@ export const apiPrefixInterceptor: HttpInterceptorFn = (
     }
   }
 
-  // Toujours envoyer les cookies navigateur (cookies HttpOnly inclus) pour les requêtes relatives
-  if (!ABSOLUTE_URL.test(modified.url) && !modified.withCredentials) {
+  // Toujours envoyer les cookies navigateur (cookies HttpOnly inclus), y compris pour les URLs absolues
+  if (!modified.withCredentials) {
     modified = modified.clone({ withCredentials: true });
   }
 
