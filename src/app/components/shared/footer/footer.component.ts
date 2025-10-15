@@ -1,6 +1,7 @@
 import { Component, ChangeDetectionStrategy, computed, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { LocaleService } from '../../../core/services/locale.service';
+import pkg from '../../../../../package.json';
 
 @Component({
   selector: 'app-footer',
@@ -13,6 +14,7 @@ export class FooterComponent {
   private readonly localeService = inject(LocaleService);
 
   readonly currentYear = new Date().getFullYear();
+  readonly version = pkg.version as string;
 
   readonly copyright = computed(() => {
     const locale = this.localeService.locale();
