@@ -37,7 +37,6 @@ export interface AuthState {
   readonly token_type?: string; // bearer
   readonly createdAt: string;
   readonly session: 'persistent' | 'session';
-  readonly role?: string;
   readonly user_id?: string;
 }
 

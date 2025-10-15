@@ -6,6 +6,8 @@ export interface UserOut {
   readonly last_login_at: string | null;
   readonly avatar_url?: string | null;
   readonly role?: string; // optional backend-provided role: 'admin' | 'moderator' | 'user'
+  readonly twofa_enabled?: boolean; // état 2FA exposé par l'API (/users/me)
+  readonly two_factor_enabled?: boolean; // compat: anciens schémas potentiels
 }
 
 export interface UpdateUsernameIn {

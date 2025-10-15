@@ -16,6 +16,19 @@ export const serverRoutes: ServerRoute[] = [
   { path: 'overlays/copy/:id', renderMode: RenderMode.Server },
   { path: 'overlays/delete/:id', renderMode: RenderMode.Server },
 
+  // Routes Modo - users (toutes dynamiques => Server)
+  { path: 'modo/users/view/:id', renderMode: RenderMode.Server },
+  { path: 'modo/users/edit/:id', renderMode: RenderMode.Server },
+  { path: 'modo/users/warn/:id', renderMode: RenderMode.Server },
+  { path: 'modo/users/ban/:id', renderMode: RenderMode.Server },
+
+  // Routes Modo - overlays (dynamiques)
+  { path: 'modo/overlays/edit/:id', renderMode: RenderMode.Server },
+  { path: 'modo/overlays/delete/:id', renderMode: RenderMode.Server },
+
+  // Eviter le prerender sur la page logout (déclenche des appels API)
+  { path: 'auth/logout', renderMode: RenderMode.Server },
+
   // Le reste reste prerender statique
   {
     path: '**',

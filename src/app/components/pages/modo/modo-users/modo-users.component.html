@@ -1,0 +1,94 @@
+<div class="overlays">
+  <div class="overlays__header">
+    <div class="overlays__header-content">
+      <h1 class="overlays__title">{{ labels().title }}</h1>
+      <p class="overlays__description">{{ labels().description }}</p>
+    </div>
+    <div class="overlays__header-actions">
+      <div class="overlays__search-group">
+        <input class="overlays__search" type="search" [placeholder]="labels().searchPlaceholder" [value]="searchText()"
+          (input)="onSearchInput($event)" (keyup.enter)="applySearch()" />
+        <button class="overlays__action-btn overlays__action-btn--search" (click)="applySearch()"
+          [title]="labels().searchButtonTitle" [attr.aria-label]="labels().searchButtonAria"><i
+            class="fa-solid fa-magnifying-glass"></i></button>
+      </div>
+    </div>
+  </div>
+
+  @if (loading()) {
+  <div class="overlays__empty">
+    <p>{{ labels().loading }}</p>
+  </div>
+  } @else if (error()) {
+  <div class="overlays__empty">
+    <p>{{ labels().error }}</p>
+  </div>
+  } @else if (list() && list()!.items.length === 0) {
+  <div class="overlays__empty">
+    <i class="fa-solid fa-users overlays__empty-icon"></i>
+    <h2 class="overlays__empty-title">{{ labels().emptyTitle }}</h2>
+    <p class="overlays__empty-message">{{ labels().emptyMessage }}</p>
+  </div>
+  } @else if (list()) {
+  <div class="overlays__table-container">
+    <table class="overlays__table">
+      <thead>
+        <tr>
+          <th class="overlays__sortable" (click)="sortBy('username')">
+            {{ labels().tableHeaders.username }}
+            <i class="fa-solid {{ getSortIcon('username') }}"></i>
+          </th>
+          <th class="overlays__sortable" (click)="sortBy('email')">
+            {{ labels().tableHeaders.email }}
+            <i class="fa-solid {{ getSortIcon('email') }}"></i>
+          </th>
+          <th class="overlays__sortable" (click)="sortBy('role')">
+            {{ labels().tableHeaders.role }}
+            <i class="fa-solid {{ getSortIcon('role') }}"></i>
+          </th>
+          <th class="overlays__table-actions">{{ labels().tableHeaders.actions }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (u of sortedRows(); track u.id) {
+        <tr>
+          <td class="overlays__table-name">
+            <i class="fa-solid fa-user"></i>
+            <span>{{ u.username }}</span>
+          </td>
+          <td>{{ u.email }}</td>
+          <td><span class="overlays__type-badge">{{ u.role }}</span></td>
+          <td class="overlays__table-actions">
+            <div class="overlays__actions">
+              <a class="overlays__action-btn overlays__action-btn--view" [routerLink]="['/modo/users/view', u.id]"
+                [title]="labels().actions.view" [attr.aria-label]="labels().actions.view"><i
+                  class="fa-solid fa-eye"></i></a>
+              <a class="overlays__action-btn overlays__action-btn--edit" [routerLink]="['/modo/users/edit', u.id]"
+                [title]="labels().actions.edit" [attr.aria-label]="labels().actions.edit"><i
+                  class="fa-solid fa-pen"></i></a>
+              <a class="overlays__action-btn overlays__action-btn--duplicate" [routerLink]="['/modo/users/warn', u.id]"
+                [title]="labels().actions.warn" [attr.aria-label]="labels().actions.warn"><i
+                  class="fa-solid fa-triangle-exclamation"></i></a>
+              <a class="overlays__action-btn overlays__action-btn--delete" [routerLink]="['/modo/users/ban', u.id]"
+                [title]="labels().actions.ban" [attr.aria-label]="labels().actions.ban"><i
+                  class="fa-solid fa-ban"></i></a>
+            </div>
+          </td>
+        </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+  @if (totalPages() > 1) {
+  <div class="overlays__pager">
+    <button class="overlays__action-btn overlays__action-btn--view" (click)="prev()" [disabled]="page() <= 1"
+      [title]="labels().pager.prev" [attr.aria-label]="labels().pager.prev"><i
+        class="fa-solid fa-arrow-left"></i></button>
+    <span>{{ labels().pager.page }} {{ page() }} / {{ totalPages() }}</span>
+    <button class="overlays__action-btn overlays__action-btn--view" (click)="next()" [disabled]="page() >= totalPages()"
+      [title]="labels().pager.next" [attr.aria-label]="labels().pager.next"><i
+        class="fa-solid fa-arrow-right"></i></button>
+  </div>
+  }
+  }
+</div>

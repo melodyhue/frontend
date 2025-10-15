@@ -118,6 +118,20 @@
   color: rgba(255, 255, 255, 0.6);
 }
 
+.footer__version-inline {
+  display: inline-block;
+  padding: 0.1rem 0.4rem;
+  margin-right: 0.35rem;
+  border: 1px solid rgba(109, 240, 207, 0.32);
+  color: #6df0cf;
+  border-radius: 999px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  font-size: 0.75rem;
+  background: rgba(109, 240, 207, 0.06);
+  vertical-align: baseline;
+}
+
 @media (max-width: 768px) {
   .footer {
     margin-left: 0;

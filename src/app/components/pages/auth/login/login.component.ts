@@ -129,7 +129,6 @@ export class LoginComponent {
             token_type: maybeAny.token_type,
             requires_2fa: maybeAny.requires_2fa,
             ticket: maybeAny.ticket,
-            role: maybeAny.role,
             user_id: maybeAny.user_id,
           });
           this.submissionInProgress.set(false);
@@ -141,11 +140,27 @@ export class LoginComponent {
         const requires2fa = !!maybeAny?.requires_2fa;
         const ticket = maybeAny?.ticket ?? null;
         this.authService.storeTicket(ticket);
-        this.submissionInProgress.set(false);
         if (requires2fa) {
+          this.submissionInProgress.set(false);
           this.router.navigateByUrl('/auth/login/otp');
         } else {
-          this.router.navigateByUrl('/profile');
+          // Cas sans 2FA et sans tokens dans la réponse: on force un refresh via cookie
+          // pour récupérer un access_token en mémoire AVANT de router, afin d'éviter
+          // la redirection immédiate du guard vers /login.
+          this.authService.refreshWithCookie().subscribe({
+            next: (tokens) => {
+              this.authService.storeTokenPair(tokens);
+              this.submissionInProgress.set(false);
+              this.router.navigateByUrl('/profile');
+            },
+            error: () => {
+              // Si le refresh échoue, on affiche une erreur au lieu de boucler
+              this.submissionInProgress.set(false);
+              this.errorMessage.set(
+                'Impossible de terminer la connexion. Veuillez réessayer ou vérifier les cookies.'
+              );
+            },
+          });
         }
       },
       error: (err) => {

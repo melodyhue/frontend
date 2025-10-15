@@ -1,1 +1,36 @@
-<p>verify works!</p>
+<div class="security">
+    <div class="security__card">
+        <div class="security__card-header">
+            <div>
+                <h2 class="security__card-title">
+                    <i class="fa-solid fa-circle-check"></i>
+                    Vérifier l’activation 2FA
+                </h2>
+                <p class="security__card-desc">Saisis le code à 6 chiffres généré par ton application.</p>
+            </div>
+        </div>
+
+        @if (error()) {
+        <div class="security__error">{{ error() }}</div>
+        }
+
+        <form [formGroup]="form" (ngSubmit)="onSubmit()">
+            <div class="security__field">
+                <label class="security__label" for="code">Code (6 chiffres)</label>
+                <input id="code" class="security__input" type="text" inputmode="numeric" autocomplete="one-time-code"
+                    formControlName="code" />
+            </div>
+
+            <div class="security__actions">
+                <app-button variant="cancel" routerLink="/auth/2fa/setup">
+                    <i class="fa-solid fa-arrow-left"></i>
+                    <span>Retour</span>
+                </app-button>
+                <app-button type="submit" variant="success" [disabled]="loading() || form.invalid">
+                    <i class="fa-solid fa-check"></i>
+                    <span>Valider</span>
+                </app-button>
+            </div>
+        </form>
+    </div>
+</div>

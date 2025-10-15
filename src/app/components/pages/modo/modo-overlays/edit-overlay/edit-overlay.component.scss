@@ -1,0 +1,18 @@
+@use '../../../overlays/edit/edit.component.scss' as *;
+
+.overlay-form__textarea {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono',
+    'Courier New', monospace;
+  min-height: 240px;
+  resize: vertical;
+}
+
+.overlay-form__error {
+  color: #dc3545;
+  margin: 0.5rem 0 0;
+}
+
+.overlay-form__success {
+  color: #0a3228;
+  margin: 0.5rem 0 0;
+}

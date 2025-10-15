@@ -81,27 +81,16 @@ export class SidebarComponent {
 
   constructor() {
     if (this.isBrowser) {
-      // Init role from auth state
-      this.role.set(this.getRoleFromAuth());
-      // Au chargement, on vérifie le rôle côté backend et on aligne si nécessaire
+      // Au chargement, on récupère le rôle côté backend
       this.usersService.me().subscribe({
         next: (u) => {
           const backendRole = (u as any)?.role || null;
-          if (backendRole && backendRole !== this.role()) {
-            this.role.set(backendRole);
-            // Persister le rôle mis à jour dans l'état d'auth pour cohérence globale
-            this.authService.updateAuthState({ role: backendRole });
-          }
+          this.role.set(backendRole);
         },
         error: () => {
-          // en cas d'échec, on garde le rôle local
+          // en cas d'échec, on laisse null
+          this.role.set(null);
         },
-      });
-      // Sync on storage changes (when login/logout occurs in another tab or within app)
-      window.addEventListener('storage', (e) => {
-        if (e.key === 'melodyhue:auth:token') {
-          this.role.set(this.getRoleFromAuth());
-        }
       });
       if (typeof queueMicrotask === 'function') {
         queueMicrotask(() => this.isReady.set(true));
@@ -111,15 +100,7 @@ export class SidebarComponent {
     }
   }
 
-  private getRoleFromAuth(): string | null {
-    try {
-      const st = this.authService.readAuthState();
-      const role = (st?.role || '').toString().trim().toLowerCase();
-      return role || null;
-    } catch {
-      return null;
-    }
-  }
+  // Le rôle ne doit pas provenir du stockage local car modifiable côté client
 
   readonly sections: readonly SidebarSection[] = [
     {
@@ -195,6 +176,11 @@ export class SidebarComponent {
           icon: 'fa-solid fa-tachometer-alt',
           exact: true,
         },
+        {
+          path: '/admin/roles',
+          label: { fr: 'Rôles', en: 'Roles' },
+          icon: 'fa-solid fa-user-shield',
+        },
       ],
     },
     {
@@ -202,10 +188,14 @@ export class SidebarComponent {
       title: { fr: 'Modération', en: 'Moderation' },
       items: [
         {
-          path: '/modo',
+          path: '/modo/users',
           label: { fr: 'Utilisateurs', en: 'Users' },
           icon: 'fa-solid fa-users',
-          exact: true,
+        },
+        {
+          path: '/modo/overlays',
+          label: { fr: 'Overlays', en: 'Overlays' },
+          icon: 'fa-solid fa-layer-group',
         },
       ],
     },

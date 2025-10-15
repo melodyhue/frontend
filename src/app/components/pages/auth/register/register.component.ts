@@ -169,7 +169,6 @@ export class RegisterComponent {
             token_type: maybeAny.token_type,
             requires_2fa: maybeAny.requires_2fa,
             ticket: maybeAny.ticket,
-            role: maybeAny.role,
             user_id: maybeAny.user_id,
           });
         }

@@ -16,6 +16,15 @@
     min-width: 280px;
   }
 
+  /* Conteneur d'actions à droite du header (ex: recherche) */
+  &__header-actions {
+    flex: 0 0 auto;
+    min-width: 260px;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+  }
+
   &__title {
     margin: 0 0 0.5rem;
     font-size: clamp(1.75rem, 4vw, 2.5rem);
@@ -28,6 +37,36 @@
     font-size: 1rem;
     color: #555;
     line-height: 1.5;
+  }
+
+  /* Champ de recherche réutilisable (Modo inclus) */
+  &__search {
+    /* L'input occupe la place dispo, reste sur une ligne avec le bouton */
+    flex: 1 1 auto;
+    width: auto;
+    min-width: 140px;
+    box-sizing: border-box;
+    padding: 0.625rem 0.75rem;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    font-size: 1rem;
+    background: #fff;
+    transition: border-color 150ms;
+
+    &:focus {
+      outline: none;
+      border-color: #6df0cf;
+    }
+  }
+
+  /* Groupe input + bouton recherche */
+  &__search-group {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: nowrap; /* Empêche le bouton de passer en dessous */
+    align-items: center;
+    width: 100%;
+    max-width: 460px; /* borne pour garder un alignement propre */
   }
 
   &__create-btn {
@@ -69,6 +108,118 @@
     background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
     border-radius: 12px;
     min-height: 400px;
+  }
+
+  /* Carte générique pour formulaires et vues détails */
+  &__card {
+    background: #fff;
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    padding: 1.25rem;
+    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.02);
+  }
+
+  /* Formulaires génériques */
+  &__form {
+    display: grid;
+    gap: 1rem;
+  }
+
+  &__form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+
+    span {
+      font-weight: 600;
+      color: #0a3228;
+    }
+  }
+
+  &__input,
+  &__textarea,
+  select.overlays__input {
+    box-sizing: border-box;
+    padding: 0.625rem 0.75rem;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    font-size: 1rem;
+    background: #fff;
+    transition: border-color 150ms;
+
+    &:focus {
+      outline: none;
+      border-color: #6df0cf;
+    }
+  }
+
+  &__textarea {
+    min-height: 120px;
+    resize: vertical;
+  }
+
+  &__form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+  }
+
+  &__primary-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    background-color: #0a3228;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 200ms ease;
+
+    &:hover {
+      background-color: #0d4a38;
+      transform: translateY(-1px);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+  }
+
+  &__status {
+    margin-top: 0.5rem;
+
+    &--error {
+      color: #c1121f;
+    }
+
+    &--success {
+      color: #187e64;
+    }
+  }
+
+  &__details {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+
+    li {
+      padding: 0.5rem 0;
+      border-bottom: 1px solid #e9ecef;
+
+      &:last-child {
+        border-bottom: none;
+      }
+    }
   }
 
   &__empty-icon {
@@ -226,6 +377,14 @@
     justify-content: flex-end;
   }
 
+  /* Pager générique */
+  &__pager {
+    margin-top: 1rem;
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+  }
+
   &__action-btn {
     display: flex;
     align-items: center;
@@ -237,6 +396,21 @@
     cursor: pointer;
     transition: all 150ms ease;
     background-color: transparent;
+    /* Variante pour un bouton de recherche avec fond plein */
+    &--search {
+      flex: 0 0 auto;
+      background-color: #0a3228;
+      color: #fff;
+
+      &:hover {
+        background-color: #0d4a38;
+        transform: translateY(-1px);
+      }
+
+      &:active {
+        transform: translateY(0);
+      }
+    }
 
     i {
       font-size: 0.875rem;

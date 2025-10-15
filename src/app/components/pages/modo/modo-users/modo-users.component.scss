@@ -1,0 +1,12 @@
+@use '../../overlays/overlays.component.scss' as *;
+
+.overlays__pager {
+  margin-top: 1rem;
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.overlays__action-btn {
+  text-decoration: none;
+}

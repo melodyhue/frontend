@@ -1,0 +1,91 @@
+<div class="security">
+  <div class="security__card">
+    <div class="security__card-header">
+      <div>
+        @if (!tokenFromUrl()) {
+        <h2 class="security__card-title">
+          <i class="fa-solid fa-ban"></i>
+          Désactiver l’authentification à deux facteurs
+        </h2>
+        <p class="security__card-desc">Deux méthodes: via ton code TOTP ou par email si tu n’as plus accès à l’app.</p>
+        } @else {
+        <h2 class="security__card-title">
+          <i class="fa-solid fa-ban"></i>
+          Confirmer la désactivation 2FA
+        </h2>
+        <p class="security__card-desc">Ce lien te permet de désactiver la 2FA sans code. Confirme pour continuer.</p>
+        }
+      </div>
+    </div>
+
+    @if (error()) {
+    <div class="security__error">{{ error() }}</div>
+    }
+    @if (info() && !tokenFromUrl()) {
+    <div class="security__success">{{ info() }}</div>
+    }
+    @if (!tokenFromUrl()) {
+    <!-- Méthode 1: via code TOTP -->
+    <form [formGroup]="formTotp" (ngSubmit)="disableWithCode()">
+      <div class="security__field">
+        <label class="security__label" for="totp">Code TOTP (6 chiffres)</label>
+        <input id="totp" class="security__input" type="text" inputmode="numeric" formControlName="code" />
+      </div>
+      <div class="security__actions">
+        <app-button variant="cancel" routerLink="/profile/security">
+          <i class="fa-solid fa-arrow-left"></i>
+          <span>Annuler</span>
+        </app-button>
+        <app-button type="submit" variant="danger" [disabled]="loading() || formTotp.invalid">
+          <i class="fa-solid fa-ban"></i>
+          <span>Désactiver avec code</span>
+        </app-button>
+      </div>
+    </form>
+    }
+
+    @if (!tokenFromUrl()) {
+    <!-- Méthode 2: via email -->
+    <div class="security__actions security__actions--separated security__actions--stack-right">
+      <p class="security__card-desc">Ou si tu n’as plus accès à ton application 2FA:</p>
+      <app-button variant="secondary" (clicked)="requestEmail()" [disabled]="loading()">
+        <i class="fa-solid fa-envelope"></i>
+        <span>Envoyer l’email de désactivation</span>
+      </app-button>
+    </div>
+    }
+
+    @if (emailToken() && !tokenFromUrl()) {
+    <div class="security__field">
+      <label class="security__label" for="token">Token (DEBUG)</label>
+      <input id="token" class="security__input security__input--monospace" [value]="emailToken()!" readonly />
+    </div>
+    <form [formGroup]="formEmail" (ngSubmit)="confirmEmail()">
+      <div class="security__field">
+        <label class="security__label" for="tokenInput">Coller le token de l’email</label>
+        <input id="tokenInput" type="text" class="security__input" formControlName="token"
+          placeholder="Colle le token ici" />
+      </div>
+      <div class="security__actions">
+        <app-button type="submit" variant="success" [disabled]="loading()">
+          <i class="fa-solid fa-check"></i>
+          <span>Confirmer la désactivation</span>
+        </app-button>
+      </div>
+    </form>
+    }
+
+    @if (tokenFromUrl()) {
+    <div class="security__actions">
+      <app-button variant="cancel" routerLink="/profile/security">
+        <i class="fa-solid fa-arrow-left"></i>
+        <span>Annuler</span>
+      </app-button>
+      <app-button variant="danger" (clicked)="confirmEmail()" [disabled]="loading()">
+        <i class="fa-solid fa-ban"></i>
+        <span>Désactiver maintenant</span>
+      </app-button>
+    </div>
+    }
+  </div>
+</div>

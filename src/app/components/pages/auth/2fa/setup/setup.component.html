@@ -1,1 +1,51 @@
-<p>setup works!</p>
+<div class="security">
+    <div class="security__card">
+        @if (loading()) {
+        <div class="security__field">Chargement…</div>
+        } @else if (error()) {
+        <div class="security__error">{{ error() }}</div>
+        } @else if (hasData()) {
+        <div class="security__card-header">
+            <div>
+                <h2 class="security__card-title">
+                    <i class="fa-solid fa-shield-halved"></i>
+                    Activer l’authentification à deux facteurs
+                </h2>
+                <p class="security__card-desc">Scanne le QR dans ton application d’authentification puis continue.</p>
+            </div>
+        </div>
+
+        <div class="security__qr">
+            @if (qrDataUrl()) {
+            <img [src]="qrDataUrl()!" alt="QR code 2FA" width="200" height="200" />
+            } @else {
+            <div class="security__card-desc">Génération du QR…</div>
+            }
+        </div>
+
+        <div class="security__field">
+            <label class="security__label">Secret</label>
+            <input class="security__input security__input--monospace" [value]="secret()!" readonly />
+        </div>
+
+        <div class="security__field">
+            <label class="security__label">OTPAUTH</label>
+            <a class="security__card-desc" [href]="otpauthUrl()!" target="_blank" rel="noopener">Ouvrir dans mon app
+                2FA</a>
+        </div>
+
+        <div class="security__actions">
+            <app-button variant="cancel" routerLink="/profile/security">
+                <i class="fa-solid fa-xmark"></i>
+                <span>Annuler</span>
+            </app-button>
+            <app-button routerLink="/auth/2fa/verify" variant="success">
+                <i class="fa-solid fa-arrow-right"></i>
+                <span>J’ai scanné, continuer</span>
+            </app-button>
+        </div>
+        } @else {
+        <div class="security__card-desc">Aucune donnée.</div>
+        }
+    </div>
+</div>

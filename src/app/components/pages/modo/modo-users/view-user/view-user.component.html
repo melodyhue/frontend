@@ -1,0 +1,29 @@
+<div class="overlays">
+    <div class="overlays__header">
+        <div class="overlays__header-content">
+            <h1 class="overlays__title">Détails utilisateur</h1>
+            <p class="overlays__description">Informations du compte et activité.</p>
+        </div>
+    </div>
+
+    @if (loading()) {
+    <div class="overlays__empty">
+        <p>Chargement…</p>
+    </div>
+    } @else if (error()) {
+    <div class="overlays__empty">
+        <p>Impossible de charger l’utilisateur.</p>
+    </div>
+    } @else if (user()) {
+    <div class="overlays__card">
+        <ul class="overlays__details">
+            <li><strong>ID:</strong> {{ user()!.id }}</li>
+            <li><strong>Username:</strong> {{ user()!.username }}</li>
+            <li><strong>Email:</strong> {{ user()!.email }}</li>
+            <li><strong>Rôle:</strong> {{ user()!.role }}</li>
+            <li><strong>Inscription:</strong> {{ user()!.created_at }}</li>
+            <li><strong>Dernière connexion:</strong> {{ user()!.last_login_at }}</li>
+        </ul>
+    </div>
+    }
+</div>

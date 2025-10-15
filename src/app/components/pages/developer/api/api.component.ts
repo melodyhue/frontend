@@ -8,7 +8,7 @@ import {
 } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { LocaleService } from '../../../../core/services/locale.service';
-import { AuthService } from '../../../../core/services/auth.service';
+import { UsersService } from '../../../../core/services/users.service';
 
 @Component({
   selector: 'app-api',
@@ -24,22 +24,22 @@ export class ApiComponent {
   private readonly localeService = inject(LocaleService);
   private readonly platformId = inject(PLATFORM_ID);
   private readonly isBrowser = isPlatformBrowser(this.platformId);
-  private readonly authService = inject(AuthService);
+  private readonly usersService = inject(UsersService);
 
-  // Essayer de prendre l'ID utilisateur depuis l'état d’auth, sinon laisser vide
+  // ID utilisateur récupéré via l'API
   readonly userId = signal<string>('');
 
   private readonly origin = signal<string>('#');
 
   constructor() {
-    if (this.isBrowser) {
-      // Eviter les erreurs SSR
-      this.origin.set(window.location.origin);
-      const state = this.authService.readAuthState();
-      if (state?.user_id) {
-        this.userId.set(state.user_id);
-      }
-    }
+    if (!this.isBrowser) return;
+    // Eviter les erreurs SSR
+    this.origin.set(window.location.origin);
+    // Récupérer l'utilisateur courant via l'API
+    this.usersService.me().subscribe({
+      next: (u) => this.userId.set(u.id),
+      error: () => this.userId.set(''),
+    });
   }
 
   readonly labels = computed(() => {
@@ -69,9 +69,11 @@ export class ApiComponent {
 
   readonly absoluteUrls = computed(() => {
     const base = this.origin();
+    const uid = this.userId();
+    const disabled = base === '#' || !uid;
     return {
-      infos: base === '#' ? '#' : `${base}/developer/api/${this.userId()}/infos`,
-      color: base === '#' ? '#' : `${base}/developer/api/${this.userId()}/color`,
+      infos: disabled ? '#' : `${base}/developer/api/${uid}/infos`,
+      color: disabled ? '#' : `${base}/developer/api/${uid}/color`,
     } as const;
   });
 
