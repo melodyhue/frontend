@@ -3,6 +3,7 @@ import { PLATFORM_ID, inject } from '@angular/core';
 import { AuthService } from '../services/auth.service';
 import { firstValueFrom } from 'rxjs';
 import { isPlatformBrowser } from '@angular/common';
+import { UsersService } from '../services/users.service';
 
 function denyToLogin(router: Router): UrlTree {
   return router.createUrlTree(['/login']);
@@ -13,11 +14,19 @@ export const authRequiredCanMatch = async () => {
   const isBrowser = isPlatformBrowser(platformId);
   const router = inject(Router);
   const auth = inject(AuthService);
+  const users = inject(UsersService);
   try {
     // En SSR (pas de localStorage), on laisse passer: le check se fera côté navigateur
     if (!isBrowser) return true;
-    // Cookie-only flow: tenter directement /users/me (l'intercepteur se charge de refresh automatique)
-    await firstValueFrom(auth.me());
+    // Cookie-only flow: tenter directement /users/me
+    const me = await firstValueFrom(auth.me());
+    // Si le backend expose un flag de ban dans /users/me, déconnecter immédiatement
+    if ((me as any)?.is_banned === true) {
+      try {
+        await firstValueFrom(auth.logout());
+      } catch {}
+      return router.createUrlTree(['/login'], { queryParams: { reason: 'banned' } });
+    }
     return true;
   } catch {
     return isBrowser ? denyToLogin(router) : true;

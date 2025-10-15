@@ -53,7 +53,7 @@ export class AdminComponent {
   );
 
   formatDateTime(dateInput: string | Date | null | undefined): string {
-    if (!dateInput) return '—';
+    if (!dateInput) return '-';
     const d = dateInput instanceof Date ? dateInput : new Date(dateInput);
     if (Number.isNaN(d.getTime())) return String(dateInput);
     const locale = this.locale();

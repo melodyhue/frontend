@@ -1,0 +1,17 @@
+@use '../../overlays/overlays.component.scss' as *;
+
+/* Spécifique à Warnlist: bouton "supprimer tous" aligné et avec fond plein */
+.overlays {
+  &__filters {
+    .overlays__action-btn--search {
+      /* réutilise le style "search" (fond plein vert foncé) pour mieux ressortir */
+      min-width: 36px;
+      position: relative;
+      /* Evite tout pseudo-content hérité (certains resets/icônes peuvent ajouter un point) */
+      &::before,
+      &::after {
+        content: none !important;
+      }
+    }
+  }
+}

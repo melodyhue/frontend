@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ModerationService, ModoUserOut } from '../../../../../core/services/moderation.service';
 
 @Component({
@@ -13,6 +13,7 @@ import { ModerationService, ModoUserOut } from '../../../../../core/services/mod
 })
 export class EditUserComponent {
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly modo = inject(ModerationService);
 
   readonly user = signal<ModoUserOut | null>(null);
@@ -48,7 +49,11 @@ export class EditUserComponent {
     this.saving.set(true);
     const payload: Record<string, unknown> = { ...this.form() };
     this.modo.editUser(id, payload).subscribe({
-      next: () => this.saving.set(false),
+      next: () => {
+        this.saving.set(false);
+        // Redirection vers modo/users après sauvegarde
+        this.router.navigate(['/modo/users']);
+      },
       error: (err) => {
         console.error('edit user failed', err);
         this.saving.set(false);

@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ModerationService } from '../../../../../core/services/moderation.service';
 
 @Component({
@@ -13,6 +13,7 @@ import { ModerationService } from '../../../../../core/services/moderation.servi
 })
 export class WarnUserComponent {
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly modo = inject(ModerationService);
 
   readonly reason = signal('');
@@ -31,7 +32,8 @@ export class WarnUserComponent {
     this.modo.warnUser(id, this.reason()).subscribe({
       next: () => {
         this.sending.set(false);
-        this.done.set(true);
+        // Redirige vers la liste des utilisateurs modo après succès
+        this.router.navigate(['/modo/users']);
       },
       error: (err) => {
         console.error('warn failed', err);

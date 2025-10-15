@@ -163,7 +163,7 @@ export class ModoOverlaysComponent {
 
   // Aligner l'affichage des dates avec la page Overlays utilisateur
   formatDateString(dateStr?: string): string {
-    if (!dateStr) return '—';
+    if (!dateStr) return '-';
     const d = new Date(dateStr);
     if (Number.isNaN(d.getTime())) return dateStr;
     const locale = this.locale();

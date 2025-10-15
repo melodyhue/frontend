@@ -4,15 +4,15 @@
       <h1 class="overlays__title">{{ labels().title }}</h1>
       <p class="overlays__description">{{ labels().description }}</p>
     </div>
-    <div class="overlays__header-actions">
-      <div class="overlays__search-group">
-        <input type="search" class="overlays__search" [placeholder]="labels().searchPlaceholder" [value]="searchText()"
-          (input)="onSearchInput($event)" (keyup.enter)="applySearch()" />
-        <button class="overlays__action-btn overlays__action-btn--search" (click)="applySearch()"
-          [title]="labels().searchButtonTitle" [attr.aria-label]="labels().searchButtonAria">
-          <i class="fa-solid fa-magnifying-glass"></i>
-        </button>
-      </div>
+  </div>
+  <div class="overlays__filters">
+    <div class="overlays__search-group">
+      <input type="search" class="overlays__search" [placeholder]="labels().searchPlaceholder" [value]="searchText()"
+        (input)="onSearchInput($event)" (keyup.enter)="applySearch()" />
+      <button class="overlays__action-btn overlays__action-btn--search" (click)="applySearch()"
+        [title]="labels().searchButtonTitle" [attr.aria-label]="labels().searchButtonAria">
+        <i class="fa-solid fa-magnifying-glass"></i>
+      </button>
     </div>
   </div>
 
@@ -59,8 +59,8 @@
         <tr>
           <td class="overlays__table-name"><i class="fa-solid fa-layer-group"></i><span>{{ o.name || o.id
               }}</span></td>
-          <td [attr.title]="o.owner_username || o.owner_id">{{ o.owner_username || o.owner_id || '—' }}</td>
-          <td><span class="overlays__type-badge">{{ o.template || '—' }}</span></td>
+          <td [attr.title]="o.owner_username || o.owner_id">{{ o.owner_username || o.owner_id || '-' }}</td>
+          <td><span class="overlays__type-badge">{{ o.template || '-' }}</span></td>
           <td>{{ formatDateString(o.updated_at) }}</td>
           <td class="overlays__table-actions">
             <div class="overlays__actions">

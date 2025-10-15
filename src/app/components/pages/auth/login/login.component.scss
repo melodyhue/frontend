@@ -80,6 +80,13 @@
   color: #ffd8d8;
 }
 
+.auth__alert--notice {
+  background: rgba(109, 240, 207, 0.12);
+  border: 1px solid rgba(109, 240, 207, 0.35);
+  color: #e2fff8;
+  margin-bottom: 1rem;
+}
+
 .form-field {
   display: grid;
   gap: 0.5rem;

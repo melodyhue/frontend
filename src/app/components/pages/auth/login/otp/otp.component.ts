@@ -10,7 +10,7 @@ import {
   QueryList,
 } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { isPlatformBrowser } from '@angular/common';
 import { ButtonComponent } from '../../../../shared/button/button.component';
 import {
@@ -30,6 +30,7 @@ import { AuthService } from '../../../../../core/services/auth.service';
 export class OtpComponent {
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
   private readonly platformId = inject(PLATFORM_ID);
   private readonly isBrowser = isPlatformBrowser(this.platformId);
   readonly localeService = inject(LocaleService);
@@ -38,6 +39,8 @@ export class OtpComponent {
   readonly submissionInProgress = signal(false);
   private readonly submitAttempted = signal(false);
   readonly errorMessage = signal<string>('');
+  // Ticket 2FA conservé en mémoire (pas dans le storage)
+  private otpTicket: string | null = null;
 
   // Texte/i18n
   readonly title = computed(() =>
@@ -102,6 +105,19 @@ export class OtpComponent {
     ].join('')
   );
 
+  ngOnInit(): void {
+    // Récupérer le ticket depuis URL/état, sinon depuis le storage si présent
+    const qpTicket = this.route.snapshot.queryParamMap.get('ticket');
+    const stateTicket =
+      history.state && typeof history.state.ticket === 'string'
+        ? (history.state.ticket as string)
+        : null;
+    const existing = this.authService.readTicket();
+    this.otpTicket = qpTicket || stateTicket || existing || null;
+    // Supprimer immédiatement toute trace du ticket dans le storage
+    this.authService.storeTicket(null);
+  }
+
   onSubmit(): void {
     this.submitAttempted.set(true);
     this.errorMessage.set('');
@@ -124,9 +140,15 @@ export class OtpComponent {
       return;
     }
 
-    const ticket = this.authService.readTicket();
+    const ticket = this.otpTicket;
     if (!ticket) {
       this.submissionInProgress.set(false);
+      const isFr = this.localeService.locale() === 'fr';
+      this.errorMessage.set(
+        isFr
+          ? 'Session 2FA expirée ou ticket manquant. Reconnectez-vous.'
+          : '2FA session expired or missing ticket. Please log in again.'
+      );
       this.form.markAllAsTouched();
       return;
     }

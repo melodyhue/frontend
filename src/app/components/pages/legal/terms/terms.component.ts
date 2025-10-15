@@ -21,8 +21,8 @@ export class TermsComponent {
   readonly lastUpdated = computed(() => {
     const locale = this.localeService.locale();
     return locale === 'fr'
-      ? 'Dernière mise à jour : 6 octobre 2025'
-      : 'Last updated: October 6, 2025';
+      ? 'Dernière mise à jour : 15 octobre 2025'
+      : 'Last updated: October 15, 2025';
   });
 
   readonly content = computed(() => {
@@ -54,7 +54,7 @@ export class TermsComponent {
           {
             title: '5. Utilisation acceptable',
             content:
-              "MelodyHue est destiné à un usage personnel pour le streaming et la création de contenu. Vous vous engagez à respecter les conditions d'utilisation de Spotify et à ne pas utiliser le service à des fins commerciales sans autorisation.",
+              "MelodyHue est destiné à un usage personnel pour le streaming et la création de contenu. La monétisation standard des créateurs est autorisée (ex. publicités, abonnements, tips/donations, sponsoring du stream), tant que MelodyHue n'est pas revendu ou facturé en tant que produit ou service. Toute exploitation commerciale de MelodyHue comme produit/service (ex. revente, location, intégration dans une offre payante ou un SaaS, prestation en agence/événementiel, affichage dans des lieux commerciaux) nécessite une autorisation écrite préalable. Vous devez respecter les conditions et politiques de Spotify applicables.",
           },
           {
             title: '6. Propriété intellectuelle',
@@ -109,7 +109,7 @@ export class TermsComponent {
           {
             title: '5. Acceptable Use',
             content:
-              "MelodyHue is intended for personal use in streaming and content creation. You agree to comply with Spotify's terms of service and not to use the service for commercial purposes without authorization.",
+              'MelodyHue is intended for personal use in streaming and content creation. Standard creator monetization is allowed (e.g., ads, subscriptions, tips/donations, stream sponsorship) provided MelodyHue is not resold or charged as a product or service. Any commercial exploitation of MelodyHue as a product/service (e.g., reselling, renting, embedding in a paid product or SaaS, agency/event usage, display in commercial venues) requires prior written authorization. You must comply with applicable Spotify terms and policies.',
           },
           {
             title: '6. Intellectual Property',

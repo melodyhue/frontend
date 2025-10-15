@@ -4,14 +4,14 @@
       <h1 class="overlays__title">{{ labels().title }}</h1>
       <p class="overlays__description">{{ labels().description }}</p>
     </div>
-    <div class="overlays__header-actions">
-      <div class="overlays__search-group">
-        <input class="overlays__search" type="search" [placeholder]="labels().searchPlaceholder" [value]="searchText()"
-          (input)="onSearchInput($event)" (keyup.enter)="applySearch()" />
-        <button class="overlays__action-btn overlays__action-btn--search" (click)="applySearch()"
-          [title]="labels().searchButtonTitle" [attr.aria-label]="labels().searchButtonAria"><i
-            class="fa-solid fa-magnifying-glass"></i></button>
-      </div>
+  </div>
+  <div class="overlays__filters">
+    <div class="overlays__search-group">
+      <input class="overlays__search" type="search" [placeholder]="labels().searchPlaceholder" [value]="searchText()"
+        (input)="onSearchInput($event)" (keyup.enter)="applySearch()" />
+      <button class="overlays__action-btn overlays__action-btn--search" (click)="applySearch()"
+        [title]="labels().searchButtonTitle" [attr.aria-label]="labels().searchButtonAria"><i
+          class="fa-solid fa-magnifying-glass"></i></button>
     </div>
   </div>
 
@@ -51,13 +51,13 @@
       </thead>
       <tbody>
         @for (u of sortedRows(); track u.id) {
-        <tr>
+        <tr [class.overlays__row-banned]="u.is_banned === true">
           <td class="overlays__table-name">
             <i class="fa-solid fa-user"></i>
             <span>{{ u.username }}</span>
           </td>
           <td>{{ u.email }}</td>
-          <td><span class="overlays__type-badge">{{ u.role }}</span></td>
+          <td><span class="overlays__type-badge">{{ roleLabel(u.role) }}</span></td>
           <td class="overlays__table-actions">
             <div class="overlays__actions">
               <a class="overlays__action-btn overlays__action-btn--view" [routerLink]="['/modo/users/view', u.id]"
@@ -69,9 +69,18 @@
               <a class="overlays__action-btn overlays__action-btn--duplicate" [routerLink]="['/modo/users/warn', u.id]"
                 [title]="labels().actions.warn" [attr.aria-label]="labels().actions.warn"><i
                   class="fa-solid fa-triangle-exclamation"></i></a>
+              @if (isAdmin()) {
+              @if (!u.is_banned) {
               <a class="overlays__action-btn overlays__action-btn--delete" [routerLink]="['/modo/users/ban', u.id]"
                 [title]="labels().actions.ban" [attr.aria-label]="labels().actions.ban"><i
                   class="fa-solid fa-ban"></i></a>
+              } @else {
+              <button class="overlays__action-btn overlays__action-btn--delete" type="button" (click)="onUnban(u.id)"
+                [title]="labels().actions.unban" [attr.aria-label]="labels().actions.unban">
+                <i class="fa-solid fa-check"></i>
+              </button>
+              }
+              }
             </div>
           </td>
         </tr>

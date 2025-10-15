@@ -16,6 +16,16 @@
     min-width: 280px;
   }
 
+  /* Barre de filtres sous l'entête */
+  &__filters {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    justify-content: flex-start;
+    margin: -1rem 0 1.5rem; /* se rapproche de l'entête, en dessous */
+    flex-wrap: wrap;
+  }
+
   /* Conteneur d'actions à droite du header (ex: recherche) */
   &__header-actions {
     flex: 0 0 auto;
@@ -396,6 +406,7 @@
     cursor: pointer;
     transition: all 150ms ease;
     background-color: transparent;
+    text-decoration: none; /* éviter soulignement ou marqueurs résiduels sur les liens */
     /* Variante pour un bouton de recherche avec fond plein */
     &--search {
       flex: 0 0 auto;
