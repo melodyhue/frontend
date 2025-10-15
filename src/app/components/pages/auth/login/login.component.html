@@ -8,6 +8,13 @@
       </p>
     </header>
 
+    @if (noticeMessage()) {
+    <div class="auth__alert auth__alert--notice" role="status" aria-live="polite">
+      <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+      <span>{{ noticeMessage() }}</span>
+    </div>
+    }
+
     <form class="auth__form" [formGroup]="form" (ngSubmit)="onSubmit()" aria-describedby="auth-form-description"
       aria-live="polite" novalidate>
       <p id="auth-form-description" class="visually-hidden">

@@ -1,5 +1,17 @@
 @use '../../overlays/overlays.component.scss' as *;
 
+.overlays__row-banned {
+  opacity: 0.7;
+}
+
+/* Optionnel: ajouter un petit badge visuel si besoin sur le rôle ou le nom */
+.overlays__row-banned .overlays__type-badge::after {
+  content: ' • banned';
+  margin-left: 6px;
+  color: #c0392b;
+  font-weight: 600;
+}
+
 .overlays__pager {
   margin-top: 1rem;
   display: flex;

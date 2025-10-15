@@ -43,6 +43,15 @@
         <span>{{ errorMessage() }}</span>
       </div>
       }
+
+      @if (errorMessage()) {
+      <div class="auth__actions">
+        <app-button variant="secondary" routerLink="/auth/login">
+          <i class="fa-solid fa-arrow-left"></i>
+          <span>{{ localeService.locale() === 'fr' ? 'Retour à la connexion' : 'Back to login' }}</span>
+        </app-button>
+      </div>
+      }
     </form>
   </div>
 </section>

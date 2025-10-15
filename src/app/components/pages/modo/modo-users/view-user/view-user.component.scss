@@ -1,1 +1,16 @@
 @use '../../../overlays/overlays.component.scss' as *;
+
+.ban-info {
+  margin-top: 1rem;
+  border-left: 4px solid #c0392b;
+  background: #fff7f7;
+
+  &__title {
+    margin: 0 0 0.25rem;
+    font-weight: 700;
+    color: #8e1b12;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+}

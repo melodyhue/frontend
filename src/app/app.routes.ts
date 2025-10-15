@@ -271,6 +271,25 @@ export const routes: Routes = [
                 (m) => m.RolesComponent
               ),
           },
+          {
+            path: 'warnlist',
+            children: [
+              {
+                path: '',
+                loadComponent: () =>
+                  import('./components/pages/admin/warnlist/warnlist.component').then(
+                    (m) => m.WarnlistComponent
+                  ),
+              },
+              {
+                path: 'delete/:warning_id/:user_id',
+                loadComponent: () =>
+                  import('./components/pages/admin/warnlist/delete/delete.component').then(
+                    (m) => m.DeleteComponent
+                  ),
+              },
+            ],
+          },
         ],
       },
       {
@@ -311,6 +330,8 @@ export const routes: Routes = [
               },
               {
                 path: 'ban/:id',
+                canMatch: [adminOnlyCanMatch],
+                canActivate: [adminOnlyCanActivate],
                 loadComponent: () =>
                   import('./components/pages/modo/modo-users/ban-user/ban-user.component').then(
                     (m) => m.BanUserComponent

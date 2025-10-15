@@ -1,0 +1,6 @@
+@use '../../../overlays/delete/delete.component.scss' as overlayDelete;
+
+/* Surcharge légère: autoriser le retour à la ligne des boutons pour éviter qu'un bouton (Annuler) disparaisse hors écran */
+.overlay-form__actions {
+  flex-wrap: wrap;
+}

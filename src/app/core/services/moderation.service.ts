@@ -9,6 +9,9 @@ export interface ModoUsersListOut {
     role: string;
     created_at: string;
     last_login_at: string | null;
+    is_banned?: boolean;
+    ban_reason?: string | null;
+    ban_until?: string | null;
   }>;
   total: number;
   page: number;
@@ -22,6 +25,9 @@ export interface ModoUserOut {
   role: string;
   created_at: string;
   last_login_at: string | null;
+  is_banned?: boolean;
+  ban_reason?: string | null;
+  ban_until?: string | null;
 }
 
 export interface ModoOverlaysListOut {

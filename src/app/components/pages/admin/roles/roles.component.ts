@@ -49,7 +49,7 @@ export class RolesComponent {
           tableHeaders: { username: 'Username', email: 'Email', role: 'Rôle', actions: 'Actions' },
           pager: { prev: 'Précédent', next: 'Suivant', page: 'Page' },
           actions: { changeRole: 'Changer de rôle' },
-          roles: { user: 'User', moderator: 'Moderator', admin: 'Admin' },
+          roles: { user: 'Utilisateur', moderator: 'Modérateur', admin: 'Administrateur' },
         }
       : {
           title: 'Roles management',
@@ -62,7 +62,7 @@ export class RolesComponent {
           tableHeaders: { username: 'Username', email: 'Email', role: 'Role', actions: 'Actions' },
           pager: { prev: 'Previous', next: 'Next', page: 'Page' },
           actions: { changeRole: 'Change role' },
-          roles: { user: 'User', moderator: 'Moderator', admin: 'Admin' },
+          roles: { user: 'User', moderator: 'Moderator', admin: 'Administrator' },
         }
   );
 
@@ -145,5 +145,18 @@ export class RolesComponent {
   getSortIcon(key: 'username' | 'email' | 'role'): string {
     if (this.sortKey() !== key) return 'fa-sort';
     return this.sortDir() === 'asc' ? 'fa-sort-up' : 'fa-sort-down';
+  }
+
+  // Libellé localisé pour un rôle donné
+  roleLabel(role: string): string {
+    const r = this.labels().roles;
+    switch (role) {
+      case 'admin':
+        return r.admin;
+      case 'moderator':
+        return r.moderator;
+      default:
+        return r.user;
+    }
   }
 }

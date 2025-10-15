@@ -9,7 +9,7 @@ import {
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { isPlatformBrowser } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import {
   AUTH_TOKEN_STORAGE_KEY,
   AUTH_TICKET_STORAGE_KEY,
@@ -17,6 +17,7 @@ import {
 import { LocaleService } from '../../../../core/services/locale.service';
 import { ButtonComponent } from '../../../shared/button/button.component';
 import { AuthService } from '../../../../core/services/auth.service';
+import { RealtimeService } from '../../../../core/services/realtime.service';
 
 @Component({
   selector: 'app-login',
@@ -28,14 +29,17 @@ import { AuthService } from '../../../../core/services/auth.service';
 export class LoginComponent {
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
   private readonly platformId = inject(PLATFORM_ID);
   private readonly isBrowser = isPlatformBrowser(this.platformId);
   readonly localeService = inject(LocaleService);
   private readonly authService = inject(AuthService);
+  private readonly realtime = inject(RealtimeService);
 
   readonly submissionInProgress = signal(false);
   private readonly submitAttempted = signal(false);
   readonly errorMessage = signal<string>('');
+  readonly noticeMessage = signal<string>('');
 
   readonly title = computed(() => (this.localeService.locale() === 'fr' ? 'Connexion' : 'Log in'));
 
@@ -85,6 +89,15 @@ export class LoginComponent {
 
   readonly controls = this.form.controls;
 
+  constructor() {
+    // Afficher un message si redirigé avec motif "banned"
+    const reason = this.route.snapshot.queryParamMap.get('reason');
+    if (reason === 'banned') {
+      const isFr = this.localeService.locale() === 'fr';
+      this.noticeMessage.set(isFr ? 'Compte banni' : 'Account banned');
+    }
+  }
+
   readonly canShowFormError = computed(() => this.shouldShowFormError());
 
   onSubmit(): void {
@@ -104,11 +117,6 @@ export class LoginComponent {
 
     // Préférences de session
     const sessionPref = this.controls.rememberMe.value ? 'persistent' : 'session';
-    if (this.isBrowser) {
-      try {
-        window.localStorage.setItem(AUTH_TICKET_STORAGE_KEY, '');
-      } catch {}
-    }
     this.authService.storeSessionPreference(sessionPref);
 
     // Appel API: login step 1
@@ -123,6 +131,8 @@ export class LoginComponent {
         const maybeAny = res as any;
         // Si des tokens sont déjà présents (nouveau backend), on les stocke et on va au profil
         if (maybeAny?.access_token && maybeAny?.refresh_token) {
+          // S'assurer qu'aucun ticket n'est conservé (pas de 2FA à suivre)
+          this.authService.storeTicket(null);
           this.authService.storeLoginTokens({
             access_token: maybeAny.access_token,
             refresh_token: maybeAny.refresh_token,
@@ -132,18 +142,44 @@ export class LoginComponent {
             user_id: maybeAny.user_id,
           });
           this.submissionInProgress.set(false);
+          // WS après login
+          this.realtime.start();
           this.router.navigateByUrl('/profile');
           return;
         }
 
         // Sinon, flux historique avec ticket/2FA
-        const requires2fa = !!maybeAny?.requires_2fa;
-        const ticket = maybeAny?.ticket ?? null;
+        const requires2fa = Boolean(
+          maybeAny?.requires_2fa ||
+            maybeAny?.two_factor_required ||
+            maybeAny?.twofa_required ||
+            maybeAny?.otp_required ||
+            maybeAny?.['2fa_required']
+        );
+        const ticket =
+          (typeof maybeAny?.ticket === 'string' && maybeAny.ticket) ||
+          (typeof maybeAny?.twofa_ticket === 'string' && maybeAny.twofa_ticket) ||
+          (typeof maybeAny?.otp_ticket === 'string' && maybeAny.otp_ticket) ||
+          (typeof maybeAny?.['2fa_ticket'] === 'string' && maybeAny['2fa_ticket']) ||
+          (typeof maybeAny?.login_ticket === 'string' && maybeAny.login_ticket) ||
+          (typeof maybeAny?.session_ticket === 'string' && maybeAny.session_ticket) ||
+          (typeof maybeAny?.data?.ticket === 'string' && maybeAny.data.ticket) ||
+          null;
         this.authService.storeTicket(ticket);
         if (requires2fa) {
           this.submissionInProgress.set(false);
-          this.router.navigateByUrl('/auth/login/otp');
+          // Passer aussi le ticket dans l'URL et dans l'état de navigation pour plus de robustesse
+          if (ticket) {
+            this.router.navigate(['/auth/login/otp'], {
+              queryParams: { ticket },
+              state: { ticket },
+            });
+          } else {
+            this.router.navigateByUrl('/auth/login/otp');
+          }
         } else {
+          // Aucun 2FA requis: s'assurer qu'aucun ticket n'est stocké
+          this.authService.storeTicket(null);
           // Cas sans 2FA et sans tokens dans la réponse: on force un refresh via cookie
           // pour récupérer un access_token en mémoire AVANT de router, afin d'éviter
           // la redirection immédiate du guard vers /login.
@@ -151,6 +187,8 @@ export class LoginComponent {
             next: (tokens) => {
               this.authService.storeTokenPair(tokens);
               this.submissionInProgress.set(false);
+              // WS après login
+              this.realtime.start();
               this.router.navigateByUrl('/profile');
             },
             error: () => {

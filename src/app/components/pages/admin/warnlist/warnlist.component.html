@@ -1,0 +1,95 @@
+<div class="overlays">
+  <div class="overlays__header">
+    <div class="overlays__header-content">
+      <h1 class="overlays__title">{{ labels().title }}</h1>
+      <p class="overlays__description">{{ labels().description }}</p>
+    </div>
+  </div>
+  <div class="overlays__filters">
+    <div class="overlays__search-group">
+      <input class="overlays__search" type="search" [placeholder]="labels().searchPlaceholder" [value]="searchTerm()"
+        (input)="onGlobalSearchInput($event)" (keyup.enter)="doGlobalSearch()" />
+      <button class="overlays__action-btn overlays__action-btn--search" type="button" (click)="doGlobalSearch()"
+        [title]="labels().search" [attr.aria-label]="labels().search">
+        <i class="fa-solid fa-magnifying-glass"></i>
+      </button>
+    </div>
+    <div class="overlays__search-group">
+      <select class="overlays__input" [disabled]="usersOptions().length === 0" (change)="onSelectUser($event)">
+        <option value="">-- {{ labels().selectLabel }} --</option>
+        @for (u of usersOptions(); track u.id) {
+        <option [value]="u.id">{{ u.username }} - {{ u.email }}</option>
+        }
+      </select>
+      @if (selectedUserId()) {
+      <a class="overlays__action-btn overlays__action-btn--search"
+        [routerLink]="['/admin','warnlist','delete', 'none', selectedUserId()]"
+        [title]="labels().actions.deleteAllForUser" [attr.aria-label]="labels().actions.deleteAllForUser">
+        <i class="fa-solid fa-user-slash"></i>
+      </a>
+      }
+    </div>
+  </div>
+
+  @if (isLoading()) {
+  <div class="overlays__empty">
+    <p>{{ labels().loading }}</p>
+  </div>
+  } @else if (error()) {
+  <div class="overlays__empty">
+    <p>{{ labels().error }}</p>
+  </div>
+  } @else {
+  <div class="overlays__table-container">
+    @if (items().length === 0) {
+    <div class="overlays__empty">
+      <i class="fa-solid fa-exclamation-triangle overlays__empty-icon"></i>
+      <h2 class="overlays__empty-title">{{ labels().empty }}</h2>
+    </div>
+    } @else {
+    <table class="overlays__table">
+      <thead>
+        <tr>
+          <th>{{ labels().table.createdAt }}</th>
+          <th>{{ labels().table.user }}</th>
+          <th>{{ labels().table.moderator }}</th>
+          <th>{{ labels().table.reason }}</th>
+          <th class="overlays__table-actions">{{ labels().table.actions }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (w of items(); track w.id) {
+        <tr>
+          <td>{{ formatDate(w.created_at) }}</td>
+          <td>{{ w.user_username }} - {{ w.user_email }}</td>
+          <td>{{ w.moderator_username }}</td>
+          <td>{{ w.reason }}</td>
+          <td class="overlays__table-actions">
+            <div class="overlays__actions">
+              <a class="overlays__action-btn overlays__action-btn--delete"
+                [routerLink]="['/admin','warnlist','delete', w.id, w.user_id]" [title]="labels().actions.delete"
+                [attr.aria-label]="labels().actions.delete">
+                <i class="fa-solid fa-trash"></i>
+              </a>
+            </div>
+          </td>
+        </tr>
+        }
+      </tbody>
+    </table>
+    }
+  </div>
+
+  @if (totalPages() > 1) {
+  <div class="overlays__pager">
+    <button class="overlays__action-btn overlays__action-btn--view" type="button" (click)="prev()"
+      [disabled]="page() <= 1" [title]="labels().pager.prev" [attr.aria-label]="labels().pager.prev"><i
+        class="fa-solid fa-arrow-left"></i></button>
+    <span>{{ labels().pager.page }} {{ page() }} / {{ totalPages() }}</span>
+    <button class="overlays__action-btn overlays__action-btn--view" type="button" (click)="next()"
+      [disabled]="page() >= totalPages()" [title]="labels().pager.next" [attr.aria-label]="labels().pager.next"><i
+        class="fa-solid fa-arrow-right"></i></button>
+  </div>
+  }
+  }
+</div>

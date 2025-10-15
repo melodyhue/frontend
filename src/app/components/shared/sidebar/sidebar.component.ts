@@ -177,6 +177,11 @@ export class SidebarComponent {
           exact: true,
         },
         {
+          path: '/admin/warnlist',
+          label: { fr: 'Avertissements', en: 'Warnings' },
+          icon: 'fa-solid fa-exclamation-triangle',
+        },
+        {
           path: '/admin/roles',
           label: { fr: 'Rôles', en: 'Roles' },
           icon: 'fa-solid fa-user-shield',

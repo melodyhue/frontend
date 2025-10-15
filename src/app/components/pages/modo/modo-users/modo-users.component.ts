@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkWithHref } from '@angular/router';
 import { ModerationService, ModoUsersListOut } from '../../../../core/services/moderation.service';
 import { LocaleService } from '../../../../core/services/locale.service';
+import { UsersService } from '../../../../core/services/users.service';
 
 @Component({
   selector: 'app-modo-users',
@@ -14,6 +15,7 @@ import { LocaleService } from '../../../../core/services/locale.service';
 export class ModoUsersComponent {
   private readonly modo = inject(ModerationService);
   private readonly localeService = inject(LocaleService);
+  private readonly usersService = inject(UsersService);
   readonly locale = this.localeService.locale;
 
   readonly list = signal<ModoUsersListOut | null>(null);
@@ -53,7 +55,8 @@ export class ModoUsersComponent {
             role: 'Rôle',
             actions: 'Actions',
           },
-          actions: { view: 'Voir', edit: 'Éditer', warn: 'Avertir', ban: 'Bannir' },
+          roles: { user: 'Utilisateur', moderator: 'Modérateur', admin: 'Administrateur' },
+          actions: { view: 'Voir', edit: 'Éditer', warn: 'Avertir', ban: 'Bannir', unban: 'Unban' },
           pager: { prev: 'Précédent', next: 'Suivant', page: 'Page' },
         }
       : {
@@ -72,7 +75,8 @@ export class ModoUsersComponent {
             role: 'Role',
             actions: 'Actions',
           },
-          actions: { view: 'View', edit: 'Edit', warn: 'Warn', ban: 'Ban' },
+          roles: { user: 'User', moderator: 'Moderator', admin: 'Administrator' },
+          actions: { view: 'View', edit: 'Edit', warn: 'Warn', ban: 'Ban', unban: 'Unban' },
           pager: { prev: 'Previous', next: 'Next', page: 'Page' },
         }
   );
@@ -80,6 +84,16 @@ export class ModoUsersComponent {
   constructor() {
     // Init champ de recherche avec la valeur effective
     this.searchText.set(this.search());
+    // Charger le rôle courant pour l'affichage conditionnel des actions
+    this.usersService.me().subscribe({
+      next: (me) => {
+        const role = (me as any)?.role ? String((me as any).role).toLowerCase() : null;
+        this.isAdmin.set(role === 'admin');
+      },
+      error: () => {
+        this.isAdmin.set(false);
+      },
+    });
     this.load();
   }
 
@@ -153,5 +167,34 @@ export class ModoUsersComponent {
   getSortIcon(key: 'username' | 'email' | 'role'): string {
     if (this.sortKey() !== key) return 'fa-sort';
     return this.sortDir() === 'asc' ? 'fa-sort-up' : 'fa-sort-down';
+  }
+
+  // Droit admin (pour afficher/cacher le bouton Ban)
+  readonly isAdmin = signal<boolean>(false);
+
+  onUnban(userId: string): void {
+    if (!this.isAdmin()) return;
+    this.modo.revokeBan(userId).subscribe({
+      next: () => {
+        this.load();
+      },
+      error: (err) => {
+        console.error('unban failed', err);
+        // Optionnel: vous pouvez ajouter un signal d'erreur locale si besoin
+      },
+    });
+  }
+
+  // Libellé localisé pour un rôle donné
+  roleLabel(role: string): string {
+    const r = this.labels().roles;
+    switch (role) {
+      case 'admin':
+        return r.admin;
+      case 'moderator':
+        return r.moderator;
+      default:
+        return r.user;
+    }
   }
 }

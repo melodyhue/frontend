@@ -1,79 +1,80 @@
 <div class="overlays">
-    <div class="overlays__header">
-        <div class="overlays__header-content">
-            <h1 class="overlays__title">{{ labels().title }}</h1>
-            <p class="overlays__description">{{ labels().description }}</p>
-        </div>
-        <div class="overlays__header-actions">
-            <div class="overlays__search-group">
-                <input class="overlays__search" type="search" [placeholder]="labels().searchPlaceholder"
-                    [value]="search()" (input)="onSearch($event)" (keyup.enter)="onSearch($event)" />
-                <button class="overlays__action-btn overlays__action-btn--search" type="button"
-                    (click)="onSearch($event)" [title]="labels().searchButtonTitle"
-                    [attr.aria-label]="labels().searchButtonAria">
-                    <i class="fa-solid fa-magnifying-glass"></i>
-                </button>
-            </div>
-        </div>
+  <div class="overlays__header">
+    <div class="overlays__header-content">
+      <h1 class="overlays__title">{{ labels().title }}</h1>
+      <p class="overlays__description">{{ labels().description }}</p>
     </div>
+  </div>
+  <div class="overlays__filters">
+    <div class="overlays__search-group">
+      <input class="overlays__search" type="search" [placeholder]="labels().searchPlaceholder" [value]="search()"
+        (input)="onSearch($event)" (keyup.enter)="onSearch($event)" />
+      <button class="overlays__action-btn overlays__action-btn--search" type="button" (click)="onSearch($event)"
+        [title]="labels().searchButtonTitle" [attr.aria-label]="labels().searchButtonAria">
+        <i class="fa-solid fa-magnifying-glass"></i>
+      </button>
+    </div>
+  </div>
 
-    @if (loading()) {
-    <div class="overlays__empty">
-        <p>{{ labels().loading }}</p>
-    </div>
-    } @else if (error()) {
-    <div class="overlays__empty">
-        <p>{{ labels().error }}</p>
-    </div>
-    } @else if (users()) {
-    <div class="overlays__table-container">
-        <table class="overlays__table">
-            <thead>
-                <tr>
-                    <th class="overlays__sortable" (click)="sortBy('username')">
-                        {{ labels().tableHeaders.username }}
-                        <i class="fa-solid {{ getSortIcon('username') }}"></i>
-                    </th>
-                    <th class="overlays__sortable" (click)="sortBy('email')">
-                        {{ labels().tableHeaders.email }}
-                        <i class="fa-solid {{ getSortIcon('email') }}"></i>
-                    </th>
-                    <th class="overlays__sortable" (click)="sortBy('role')">
-                        {{ labels().tableHeaders.role }}
-                        <i class="fa-solid {{ getSortIcon('role') }}"></i>
-                    </th>
-                    <th class="overlays__table-actions">{{ labels().tableHeaders.actions }}</th>
-                </tr>
-            </thead>
-            <tbody>
-                @for (u of sortedRows(); track u.id) {
-                <tr>
-                    <td class="overlays__table-name"><i class="fa-solid fa-user"></i><span>{{ u.username }}</span></td>
-                    <td>{{ u.email }}</td>
-                    <td><span class="overlays__type-badge">{{ u.role }}</span></td>
-                    <td class="overlays__table-actions">
-                        <select class="overlays__input" (change)="changeRole(u.id, $event)">
-                            <option value="user" [selected]="u.role === 'user'">{{ labels().roles.user }}</option>
-                            <option value="moderator" [selected]="u.role === 'moderator'">{{ labels().roles.moderator }}
-                            </option>
-                            <option value="admin" [selected]="u.role === 'admin'">{{ labels().roles.admin }}</option>
-                        </select>
-                    </td>
-                </tr>
-                }
-            </tbody>
-        </table>
-    </div>
-    @if (totalPages() > 1) {
-    <div class="overlays__pager">
-        <button class="overlays__action-btn overlays__action-btn--view" type="button" (click)="prev()"
-            [disabled]="page() <= 1" [title]="labels().pager.prev" [attr.aria-label]="labels().pager.prev"><i
-                class="fa-solid fa-arrow-left"></i></button>
-        <span>{{ labels().pager.page }} {{ page() }} / {{ totalPages() }}</span>
-        <button class="overlays__action-btn overlays__action-btn--view" type="button" (click)="next()"
-            [disabled]="page() >= totalPages()" [title]="labels().pager.next" [attr.aria-label]="labels().pager.next"><i
-                class="fa-solid fa-arrow-right"></i></button>
-    </div>
-    }
-    }
+  @if (loading()) {
+  <div class="overlays__empty">
+    <p>{{ labels().loading }}</p>
+  </div>
+  } @else if (error()) {
+  <div class="overlays__empty">
+    <p>{{ labels().error }}</p>
+  </div>
+  } @else if (users()) {
+  <div class="overlays__table-container">
+    <table class="overlays__table">
+      <thead>
+        <tr>
+          <th class="overlays__sortable" (click)="sortBy('username')">
+            {{ labels().tableHeaders.username }}
+            <i class="fa-solid {{ getSortIcon('username') }}"></i>
+          </th>
+          <th class="overlays__sortable" (click)="sortBy('email')">
+            {{ labels().tableHeaders.email }}
+            <i class="fa-solid {{ getSortIcon('email') }}"></i>
+          </th>
+          <th class="overlays__sortable" (click)="sortBy('role')">
+            {{ labels().tableHeaders.role }}
+            <i class="fa-solid {{ getSortIcon('role') }}"></i>
+          </th>
+          <th class="overlays__table-actions">{{ labels().tableHeaders.actions }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (u of sortedRows(); track u.id) {
+        <tr>
+          <td class="overlays__table-name"><i class="fa-solid fa-user"></i><span>{{ u.username }}</span></td>
+          <td>{{ u.email }}</td>
+          <td>
+            <span class="overlays__type-badge">{{ roleLabel(u.role) }}</span>
+          </td>
+          <td class="overlays__table-actions">
+            <select class="overlays__input" (change)="changeRole(u.id, $event)">
+              <option value="user" [selected]="u.role === 'user'">{{ labels().roles.user }}</option>
+              <option value="moderator" [selected]="u.role === 'moderator'">{{ labels().roles.moderator }}
+              </option>
+              <option value="admin" [selected]="u.role === 'admin'">{{ labels().roles.admin }}</option>
+            </select>
+          </td>
+        </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+  @if (totalPages() > 1) {
+  <div class="overlays__pager">
+    <button class="overlays__action-btn overlays__action-btn--view" type="button" (click)="prev()"
+      [disabled]="page() <= 1" [title]="labels().pager.prev" [attr.aria-label]="labels().pager.prev"><i
+        class="fa-solid fa-arrow-left"></i></button>
+    <span>{{ labels().pager.page }} {{ page() }} / {{ totalPages() }}</span>
+    <button class="overlays__action-btn overlays__action-btn--view" type="button" (click)="next()"
+      [disabled]="page() >= totalPages()" [title]="labels().pager.next" [attr.aria-label]="labels().pager.next"><i
+        class="fa-solid fa-arrow-right"></i></button>
+  </div>
+  }
+  }
 </div>

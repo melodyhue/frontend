@@ -21,8 +21,8 @@ export class PrivacyComponent {
   readonly lastUpdated = computed(() => {
     const locale = this.localeService.locale();
     return locale === 'fr'
-      ? 'Dernière mise à jour : 6 octobre 2025'
-      : 'Last updated: October 6, 2025';
+      ? 'Dernière mise à jour : 15 octobre 2025'
+      : 'Last updated: October 15, 2025';
   });
 
   readonly content = computed(() => {
@@ -34,17 +34,17 @@ export class PrivacyComponent {
           {
             title: '1. Collecte des informations',
             content:
-              "MelodyHue collecte uniquement les informations nécessaires à son fonctionnement : votre identifiant Spotify, les informations de lecture en cours (titre, artiste, pochette) et vos préférences d'overlay. Vos préférences d'overlay (thème, position, animations, etc.) sont stockées dans notre base de données pour être accessibles depuis OBS, XSplit et autres logiciels de streaming. Nous récupérons également la couleur dominante des pochettes d'albums pour l'affichage.",
+              "Nous collectons uniquement ce qui est nécessaire au fonctionnement du service : vos informations de compte (email, nom d'utilisateur), un mot de passe haché, vos préférences d'overlay (thème, position, style), vos sessions (jetons de rafraîchissement), et, si vous connectez Spotify, vos identifiants d'application et/ou votre jeton d'actualisation Spotify. Les informations de lecture en cours (titre, artiste, pochette) sont récupérées en temps réel via l'API Spotify et traitées à la volée. Nous calculons une couleur dominante à partir des pochettes uniquement pour l'affichage.",
           },
           {
             title: '2. Utilisation des informations',
             content:
-              "Vos informations sont utilisées exclusivement pour afficher vos overlays en temps réel dans votre logiciel de streaming. Nous ne stockons pas votre historique d'écoute. Les données de lecture sont traitées en temps réel et ne sont pas conservées après la fin de votre session. Seules vos préférences d'overlay sont conservées dans notre base de données.",
+              "Vos données servent à vous authentifier, configurer vos overlays et les afficher dans vos outils de streaming (OBS, XSplit, etc.). Nous ne stockons pas votre historique d'écoute. Les données de lecture sont traitées en temps réel et ne sont pas conservées après utilisation. Nous pouvons conserver des informations de modération (avertissements/bannissements) si des actions sont prises sur votre compte.",
           },
           {
             title: '3. Intégration Spotify',
             content:
-              "MelodyHue se connecte à l'API Spotify pour récupérer vos informations de lecture en temps réel. Nous ne partageons jamais vos données Spotify avec des tiers. Vos tokens d'authentification Spotify et votre identifiant Spotify sont stockés de manière chiffrée dans notre base de données et ne sont jamais exposés.",
+              "MelodyHue se connecte à l'API Spotify pour récupérer vos informations de lecture en temps réel. Le client_id (non secret) peut être stocké en clair. Le client_secret et/ou le refresh_token sont chiffrés en base de données. Vous pouvez à tout moment déconnecter Spotify : nous effaçons alors le refresh_token de la base et la session Spotify en mémoire.",
           },
           {
             title: '4. Partage des informations',
@@ -54,27 +54,27 @@ export class PrivacyComponent {
           {
             title: '5. Cookies et stockage local',
             content:
-              "MelodyHue utilise le stockage local de votre navigateur pour mémoriser votre session utilisateur. Votre mot de passe, vos tokens d'authentification Spotify, votre identifiant Spotify et vos préférences d'overlay sont stockés de manière chiffrée dans notre base de données afin d'être accessibles depuis OBS, XSplit et autres logiciels de streaming.",
+              "Nous utilisons des cookies HttpOnly pour la session : mh_access_token (court terme, env. 15 minutes) et mh_refresh_token (plus long terme, env. 30 jours). Ces cookies sont marqués HttpOnly (non lisibles par JavaScript) et configurés avec Secure/SameSite/Domain selon l'environnement. Nous n'utilisons pas le stockage local du navigateur pour l'authentification. Vos préférences d'overlay sont stockées côté serveur.",
           },
           {
             title: '6. Sécurité des données',
             content:
-              "Nous utilisons des protocoles de sécurité avancés pour protéger vos informations. Toutes les communications avec l'API Spotify sont chiffrées via HTTPS. Vos mots de passe, tokens d'authentification Spotify et identifiants Spotify sont stockés de manière chiffrée dans notre base de données. Nous utilisons des algorithmes de chiffrement robustes pour garantir la sécurité de vos données sensibles.",
+              "Les mots de passe sont hachés (Argon2). Les secrets Spotify (client_secret, refresh_token) sont chiffrés en base. Les jetons d'accès sont courts et transmis via cookie HttpOnly. Les communications sont chiffrées (HTTPS). Si vous activez la 2FA, un secret TOTP est stocké pour votre compte ; par sécurité, la 2FA est automatiquement désactivée lors d'une réinitialisation de mot de passe réussie (vous pouvez la reconfigurer ensuite).",
           },
           {
             title: '7. Conservation des données',
             content:
-              "MelodyHue conserve vos préférences d'overlay, vos tokens Spotify chiffrés et votre mot de passe chiffré dans notre base de données tant que votre compte est actif. Les informations de lecture sont traitées en temps réel et ne sont pas stockées. Vous pouvez supprimer votre compte et toutes vos données à tout moment, ce qui effacera définitivement toutes vos informations de nos serveurs.",
+              "Nous conservons vos informations de compte, préférences d'overlay, sessions (jetons de rafraîchissement), paramètres et, si applicable, les secrets Spotify et le secret 2FA tant que votre compte est actif. Les données de lecture sont traitées à la volée et non stockées. En cas de suppression de compte, nous supprimons les données associées (overlays, sessions, 2FA, secrets Spotify, paramètres, avertissements/bannissements).",
           },
           {
             title: '8. Vos droits',
             content:
-              "Vous pouvez à tout moment déconnecter votre compte Spotify, supprimer vos préférences d'overlay de notre base de données, supprimer votre compte, ou cesser d'utiliser MelodyHue. La déconnexion révoque immédiatement tous les accès à vos données Spotify. La suppression de compte efface définitivement toutes vos données de nos serveurs.",
+              "Vous pouvez : vous déconnecter (nous effaçons les cookies de session), révoquer Spotify (nous effaçons le refresh_token), reconfigurer/désactiver la 2FA, demander la suppression de votre compte (effacement définitif des données associées), ou cesser d'utiliser le service. Vous pouvez aussi demander l'accès ou la rectification de vos informations (email, nom d'utilisateur).",
           },
           {
             title: '9. Données tierces',
             content:
-              "Les pochettes d'albums, titres et noms d'artistes affichés proviennent de Spotify et sont soumis à leur politique de confidentialité. MelodyHue ne modifie ni ne stocke ces données.",
+              "Les pochettes, titres et artistes proviennent de l'API Spotify et sont soumis à la politique de Spotify. Nous n'altérons pas ces données et ne les stockons pas. Des emails transactionnels (ex. réinitialisation de mot de passe) peuvent être envoyés via un prestataire dédié, agissant en sous-traitant.",
           },
           {
             title: '10. Contact',
@@ -89,17 +89,17 @@ export class PrivacyComponent {
           {
             title: '1. Information Collection',
             content:
-              'MelodyHue collects only the information necessary for operation: your Spotify identifier, current playback information (title, artist, artwork) and your overlay preferences. Your overlay preferences (theme, position, animations, etc.) are stored in our database to be accessible from OBS, XSplit and other streaming software. We also extract dominant colors from album artwork for display.',
+              "We collect only what's necessary to operate the service: your account info (email, username), a hashed password, your overlay preferences (theme, placement, style), your sessions (refresh tokens), and, if you connect Spotify, your app identifiers and/or Spotify refresh token. Now-playing data (title, artist, artwork) is fetched in real time from Spotify. We compute a dominant color from artwork for display purposes only.",
           },
           {
             title: '2. Use of Information',
             content:
-              'Your information is used exclusively to display your overlays in real-time in your streaming software. We do not store your listening history. Playback data is processed in real-time and is not retained after your session ends. Only your overlay preferences are stored in our database.',
+              'Your data is used to authenticate you, configure overlays, and render them in your streaming tools (OBS, XSplit, etc.). We do not store your listening history. Playback data is processed on the fly and not retained. We may retain moderation data (warnings/bans) when actions are taken on your account.',
           },
           {
             title: '3. Spotify Integration',
             content:
-              'MelodyHue connects to the Spotify API to retrieve your real-time playback information. We never share your Spotify data with third parties. Your Spotify authentication tokens and Spotify identifier are stored encrypted in our database and never exposed.',
+              'MelodyHue connects to the Spotify API to retrieve real-time playback info. The client_id (not a secret) may be stored in plain text. The client_secret and/or refresh_token are encrypted at rest. You can disconnect Spotify at any time; we then clear the refresh_token from the database and reset any in-memory Spotify session.',
           },
           {
             title: '4. Information Sharing',
@@ -109,27 +109,27 @@ export class PrivacyComponent {
           {
             title: '5. Cookies and Local Storage',
             content:
-              "MelodyHue uses your browser's local storage to remember your user session. Your password, Spotify authentication tokens, Spotify identifier and overlay preferences are stored encrypted in our database to be accessible from OBS, XSplit and other streaming software.",
+              'We use HttpOnly cookies for session: mh_access_token (short-lived, ~15 minutes) and mh_refresh_token (longer-lived, ~30 days). These cookies are HttpOnly (not readable by JavaScript) and configured with Secure/SameSite/Domain depending on environment. We do not use browser local storage for authentication. Your overlay preferences are stored server-side.',
           },
           {
             title: '6. Data Security',
             content:
-              'We use advanced security protocols to protect your information. All communications with the Spotify API are encrypted via HTTPS. Your passwords, Spotify authentication tokens and Spotify identifiers are stored encrypted in our database. We use robust encryption algorithms to ensure the security of your sensitive data.',
+              'Passwords are hashed (Argon2). Spotify secrets (client_secret, refresh_token) are encrypted at rest. Access tokens are short-lived and sent via HttpOnly cookies. All communications use HTTPS. If you enable 2FA, a TOTP secret is stored; for safety, 2FA is automatically disabled after a successful password reset (you can re-enable it).',
           },
           {
             title: '7. Data Retention',
             content:
-              'MelodyHue retains your overlay preferences, encrypted Spotify tokens and encrypted password in our database as long as your account is active. Playback information is processed in real-time and not stored. You can delete your account and all your data at any time, which will permanently erase all your information from our servers.',
+              'We retain your account info, overlay preferences, sessions (refresh tokens), settings, and, if applicable, Spotify secrets and 2FA secret while your account remains active. Playback data is processed transiently and not stored. When you delete your account, associated data (overlays, sessions, 2FA, Spotify secrets, settings, warnings/bans) is removed.',
           },
           {
             title: '8. Your Rights',
             content:
-              'You can disconnect your Spotify account, delete your overlay preferences from our database, delete your account, or stop using MelodyHue at any time. Disconnection immediately revokes all access to your Spotify data. Account deletion permanently erases all your data from our servers.',
+              'You can: log out (we clear session cookies), disconnect Spotify (we remove the refresh_token), reconfigure/disable 2FA, request account deletion (permanent data removal), or stop using the service. You may also request access to or correction of your info (email, username).',
           },
           {
             title: '9. Third-Party Data',
             content:
-              'Album artwork, titles and artist names displayed come from Spotify and are subject to their privacy policy. MelodyHue does not modify or store this data.',
+              'Artwork, titles and artists come from Spotify and are subject to Spotify’s privacy policy. We do not alter or store this data. Transactional emails (e.g., password reset) may be sent via an email delivery provider acting as a processor.',
           },
           {
             title: '10. Contact',
