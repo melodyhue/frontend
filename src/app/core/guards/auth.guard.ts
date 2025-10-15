@@ -30,18 +30,20 @@ function redirectToProfile(router: Router): UrlTree {
   return router.createUrlTree(['/', ...parts]);
 }
 
-// Unauth only: si déjà connecté, redirige vers /profile
-export const unauthOnlyCanMatch = () => {
+// Unauth only: si déjà connecté côté serveur (cookies), redirige vers /profile
+export const unauthOnlyCanMatch = async () => {
   const platformId = inject(PLATFORM_ID);
   const isBrowser = isPlatformBrowser(platformId);
   const router = inject(Router);
   const auth = inject(AuthService);
   try {
-    if (!isBrowser) return true; // laisser SSR passer, redirection côté client
-    const state = auth.readAuthState();
-    const hasToken = !!state?.access_token;
-    return hasToken ? redirectToProfile(router) : true;
+    // En SSR, on ne bloque pas; on effectuera la vérification côté navigateur
+    if (!isBrowser) return true;
+    // Tenter /users/me (l’intercepteur gère le refresh sur 401). Si OK => déjà connecté.
+    await firstValueFrom(auth.me());
+    return redirectToProfile(router);
   } catch {
+    // Pas connecté: laisser accéder à la page de login
     return true;
   }
 };

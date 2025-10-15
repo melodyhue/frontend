@@ -39,11 +39,8 @@ export class SessionRefreshService implements OnDestroy {
       // Évite de spammer: au moins 5 minutes entre deux refresh forcés
       if (now - lastTs < 5 * 60 * 1000) return;
 
-      // Stratégie: si on a un refresh_token, utiliser le refresh par body (recommandé par l'API)
-      const rt = this.authService.getRefreshToken();
-      const refresh$ = rt
-        ? this.authService.refresh({ refresh_token: rt })
-        : this.authService.refreshWithCookie();
+      // Stratégie: utiliser la méthode cookie-based (le serveur lit le cookie HttpOnly)
+      const refresh$ = this.authService.refreshWithCookie();
 
       refresh$.subscribe({
         next: (tokens) => {

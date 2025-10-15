@@ -80,13 +80,9 @@ export class AuthService {
   // Nouvelle méthode recommandée: le serveur lit le refresh token depuis un cookie HttpOnly
   refreshWithCookie() {
     return this.http
-      .post<TokenPair>(
-        'auth/refresh',
-        {},
-        {
-          withCredentials: true,
-        }
-      )
+      .post<TokenPair>('auth/refresh', undefined, {
+        withCredentials: true,
+      })
       .pipe(
         tap({
           next: (_: TokenPair) => {},
