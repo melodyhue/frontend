@@ -1,3 +1,4 @@
-<button [type]="type()" [disabled]="disabled()" [attr.aria-label]="ariaLabel()" (click)="handleClick()" class="button">
-  <ng-content />
+<button [type]="type()" [disabled]="disabled()" [attr.aria-label]="ariaLabel()" (click)="handleClick($event)"
+  class="button">
+  <ng-content></ng-content>
 </button>

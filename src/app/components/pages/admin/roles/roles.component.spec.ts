@@ -1,17 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ModoComponent } from './modo.component';
+import { RolesComponent } from './roles.component';
 
-describe('ModoComponent', () => {
-  let component: ModoComponent;
-  let fixture: ComponentFixture<ModoComponent>;
+describe('RolesComponent', () => {
+  let component: RolesComponent;
+  let fixture: ComponentFixture<RolesComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ModoComponent],
-    }).compileComponents();
+      imports: [RolesComponent]
+    })
+    .compileComponents();
 
-    fixture = TestBed.createComponent(ModoComponent);
+    fixture = TestBed.createComponent(RolesComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

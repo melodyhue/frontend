@@ -17,8 +17,8 @@ export class FooterComponent {
   readonly copyright = computed(() => {
     const locale = this.localeService.locale();
     return locale === 'fr'
-      ? `© ${this.currentYear} MelodyHue. Tous droits réservés.`
-      : `© ${this.currentYear} MelodyHue. All rights reserved.`;
+      ? `© ${this.currentYear} MelodyHue - Tous droits réservés.`
+      : `© ${this.currentYear} MelodyHue - All rights reserved.`;
   });
 
   readonly madeWith = computed(() => {

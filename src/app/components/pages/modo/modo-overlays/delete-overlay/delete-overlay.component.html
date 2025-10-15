@@ -1,0 +1,27 @@
+@if (loading()) {
+<div class="overlays__empty">
+    <p>Chargement…</p>
+</div>
+} @else {
+<div class="overlay-delete">
+    <div class="overlay-delete__card">
+        <h2 class="overlay-delete__title">Supprimer l’overlay</h2>
+        <p class="overlay-delete__text">Cette action est irréversible. Confirmez la suppression de <strong>{{
+                overlay()?.name || overlay()?.id }}</strong>.</p>
+
+        <div class="overlay-delete__actions">
+            <app-button variant="danger" (clicked)="confirmDelete()" [disabled]="loading()">
+                <i class="fa-solid fa-trash"></i>
+                <span>Supprimer</span>
+            </app-button>
+        </div>
+
+        @if (error()) {
+        <p class="overlay-delete__error">Échec de la suppression: {{ error() }}</p>
+        }
+        @if (done()) {
+        <p class="overlay-delete__success">Overlay supprimé.</p>
+        }
+    </div>
+</div>
+}

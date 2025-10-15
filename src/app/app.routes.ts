@@ -1,5 +1,10 @@
 import { Routes } from '@angular/router';
-import { adminOnlyCanMatch, moderatorOrAdminCanMatch } from './core/guards/role.guard';
+import {
+  adminOnlyCanActivate,
+  adminOnlyCanMatch,
+  moderatorOrAdminCanActivate,
+  moderatorOrAdminCanMatch,
+} from './core/guards/role.guard';
 import { authRequiredCanMatch, unauthOnlyCanMatch } from './core/guards/auth.guard';
 
 export const routes: Routes = [
@@ -144,6 +149,35 @@ export const routes: Routes = [
         ],
       },
       {
+        path: 'auth/2fa',
+        children: [
+          {
+            path: 'setup',
+            canMatch: [authRequiredCanMatch],
+            loadComponent: () =>
+              import('./components/pages/auth/2fa/setup/setup.component').then(
+                (m) => m.SetupComponent
+              ),
+          },
+          {
+            path: 'verify',
+            canMatch: [authRequiredCanMatch],
+            loadComponent: () =>
+              import('./components/pages/auth/2fa/verify/verify.component').then(
+                (m) => m.VerifyComponent
+              ),
+          },
+          {
+            path: 'disable',
+            canMatch: [authRequiredCanMatch],
+            loadComponent: () =>
+              import('./components/pages/auth/2fa/disable/disable.component').then(
+                (m) => m.DisableComponent
+              ),
+          },
+        ],
+      },
+      {
         path: 'overlays',
         children: [
           {
@@ -223,22 +257,92 @@ export const routes: Routes = [
       {
         path: 'admin',
         canMatch: [adminOnlyCanMatch],
+        canActivate: [adminOnlyCanActivate],
         children: [
           {
             path: '',
             loadComponent: () =>
               import('./components/pages/admin/admin.component').then((m) => m.AdminComponent),
           },
+          {
+            path: 'roles',
+            loadComponent: () =>
+              import('./components/pages/admin/roles/roles.component').then(
+                (m) => m.RolesComponent
+              ),
+          },
         ],
       },
       {
         path: 'modo',
         canMatch: [moderatorOrAdminCanMatch],
+        canActivate: [moderatorOrAdminCanActivate],
         children: [
           {
-            path: '',
-            loadComponent: () =>
-              import('./components/pages/modo/modo.component').then((m) => m.ModoComponent),
+            path: 'users',
+            children: [
+              {
+                path: '',
+                loadComponent: () =>
+                  import('./components/pages/modo/modo-users/modo-users.component').then(
+                    (m) => m.ModoUsersComponent
+                  ),
+              },
+              {
+                path: 'view/:id',
+                loadComponent: () =>
+                  import('./components/pages/modo/modo-users/view-user/view-user.component').then(
+                    (m) => m.ViewUserComponent
+                  ),
+              },
+              {
+                path: 'edit/:id',
+                loadComponent: () =>
+                  import('./components/pages/modo/modo-users/edit-user/edit-user.component').then(
+                    (m) => m.EditUserComponent
+                  ),
+              },
+              {
+                path: 'warn/:id',
+                loadComponent: () =>
+                  import('./components/pages/modo/modo-users/warn-user/warn-user.component').then(
+                    (m) => m.WarnUserComponent
+                  ),
+              },
+              {
+                path: 'ban/:id',
+                loadComponent: () =>
+                  import('./components/pages/modo/modo-users/ban-user/ban-user.component').then(
+                    (m) => m.BanUserComponent
+                  ),
+              },
+            ],
+          },
+          {
+            path: 'overlays',
+            children: [
+              {
+                path: '',
+                loadComponent: () =>
+                  import('./components/pages/modo/modo-overlays/modo-overlays.component').then(
+                    (m) => m.ModoOverlaysComponent
+                  ),
+              },
+              {
+                path: 'edit/:id',
+                loadComponent: () =>
+                  import(
+                    './components/pages/modo/modo-overlays/edit-overlay/edit-overlay.component'
+                  ).then((m) => m.EditOverlayComponent),
+              },
+              {
+                path: 'delete/:id',
+                loadComponent: () =>
+                  import(
+                    './components/pages/modo/modo-overlays/delete-overlay/delete-overlay.component'
+                  ).then((m) => m.DeleteOverlayComponent),
+              },
+            ],
           },
         ],
       },

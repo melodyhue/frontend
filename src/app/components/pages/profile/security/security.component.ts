@@ -1,5 +1,14 @@
-import { Component, ChangeDetectionStrategy, computed, signal, inject } from '@angular/core';
-import { Router } from '@angular/router';
+import {
+  Component,
+  ChangeDetectionStrategy,
+  computed,
+  signal,
+  inject,
+  PLATFORM_ID,
+} from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
+import { Router, NavigationEnd } from '@angular/router';
+import { filter } from 'rxjs/operators';
 import { ReactiveFormsModule, FormBuilder, Validators, AbstractControl } from '@angular/forms';
 import { LocaleService } from '../../../../core/services/locale.service';
 import { ButtonComponent } from '../../../shared/button/button.component';
@@ -14,6 +23,7 @@ import { AuthService } from '../../../../core/services/auth.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SecurityComponent {
+  private readonly platformId = inject(PLATFORM_ID);
   private readonly localeService = inject(LocaleService);
   private readonly router = inject(Router);
   private readonly fb = inject(FormBuilder);
@@ -55,6 +65,27 @@ export class SecurityComponent {
     const locale = this.localeService.locale();
     return locale === 'fr' ? 'Sécurité' : 'Security';
   });
+
+  ngOnInit(): void {
+    // Ne pas appeler /users/me côté SSR (pas de cookies/token), sinon l'état reste faux
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+    const load = () =>
+      this.usersService.me().subscribe({
+        next: (me) => {
+          const enabled = (me as any).twofa_enabled ?? (me as any).two_factor_enabled ?? false;
+          this.twoFactorEnabled.set(!!enabled);
+        },
+        error: () => {
+          // laisser false par défaut si indisponible
+        },
+      });
+    load();
+
+    // Recharger à chaque retour sur cette page (après setup/verify/disable)
+    this.router.events.pipe(filter((e) => e instanceof NavigationEnd)).subscribe(() => load());
+  }
 
   readonly labels = computed(() => {
     const locale = this.localeService.locale();
@@ -303,5 +334,9 @@ export class SecurityComponent {
     }
 
     return '';
+  }
+
+  goTo2FASetup(): void {
+    this.router.navigateByUrl('/auth/2fa/setup');
   }
 }

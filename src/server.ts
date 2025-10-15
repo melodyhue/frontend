@@ -7,18 +7,15 @@ import {
 import express from 'express';
 import 'dotenv/config';
 import { join } from 'node:path';
+import type { Request as ExpressRequest, Response as ExpressResponse } from 'express';
 
 const browserDistFolder = join(import.meta.dirname, '../browser');
 
 const app = express();
 const angularApp = new AngularNodeAppEngine();
-// Base API: peut être surchargée via la variable d'environnement API_BASE_URL.
-// Par défaut: en prod on utilise l'API publique, en dev on pointe sur localhost.
-const API_BASE_RAW =
-  process.env['API_BASE_URL'] ||
-  (process.env['NODE_ENV'] === 'production'
-    ? 'https://api.melodyhue.com'
-    : 'http://localhost:8765');
+// Base API: surchargée via la variable d'environnement API_BASE_URL.
+// Fallback: même valeur que le front par défaut (développement).
+const API_BASE_RAW = process.env['API_BASE_URL'] || 'https://developer.laxe4k.com';
 // Normaliser (supprimer slash fin) pour éviter les doubles // dans l’URL cible
 const API_BASE = API_BASE_RAW.replace(/\/+$/, '');
 // Headers communs pour les requêtes upstream
@@ -44,6 +41,95 @@ function forwardOrFetchJson(target: string, res: express.Response) {
     res.setHeader('cache-control', 'no-store');
     res.send(bodyText);
   });
+}
+
+/**
+ * Generic proxy that forwards method, headers (including Cookie), and body to the upstream API,
+ * and passes back Set-Cookie so the browser can store HttpOnly cookies on the SAME ORIGIN.
+ */
+async function proxyPass(req: ExpressRequest, res: ExpressResponse) {
+  const target = `${API_BASE}${req.originalUrl}`;
+  try {
+    const headers: Record<string, string> = {
+      ...UPSTREAM_HEADERS,
+    };
+    // Forward content-type if present (for JSON bodies)
+    if (req.headers['content-type']) headers['content-type'] = String(req.headers['content-type']);
+    // Forward cookies from client to upstream
+    if (req.headers['cookie']) headers['cookie'] = String(req.headers['cookie']);
+    // Forward Authorization header (Bearer ...)
+    if (req.headers['authorization'])
+      headers['authorization'] = String(req.headers['authorization']);
+
+    const method = req.method.toUpperCase();
+    const hasBody = !['GET', 'HEAD'].includes(method);
+
+    // Build fetch options; when streaming a request body in Node, the 'duplex' option is required
+    const fetchOpts: any = {
+      method,
+      headers,
+      // Do not use credentials storage on server; we explicitly forward Cookie header
+    };
+    if (hasBody) {
+      fetchOpts.body = req as any; // stream body directly
+      fetchOpts.duplex = 'half'; // required by Node fetch for streaming requests
+    }
+
+    const upstream = await fetch(target, fetchOpts);
+
+    // Status code
+    res.status(upstream.status);
+
+    // Forward content-type and cache-control
+    const ct = upstream.headers.get('content-type');
+    if (ct) res.setHeader('content-type', ct);
+    res.setHeader('cache-control', 'no-store');
+
+    // Forward Set-Cookie headers (rewrite Domain to current host; ensure Secure/SameSite=None on HTTPS)
+    const anyHeaders = upstream.headers as any;
+    let setCookies: string[] | undefined;
+    if (typeof anyHeaders.getSetCookie === 'function') {
+      setCookies = anyHeaders.getSetCookie();
+    } else if (typeof anyHeaders.raw === 'function') {
+      const raw = anyHeaders.raw();
+      if (raw && raw['set-cookie']) setCookies = raw['set-cookie'];
+    } else {
+      const single = upstream.headers.get('set-cookie');
+      if (single) setCookies = [single];
+    }
+    if (setCookies && setCookies.length) {
+      const host = req.headers['x-forwarded-host']?.toString() || req.headers.host || '';
+      const isHttps = (req.headers['x-forwarded-proto']?.toString() || req.protocol) === 'https';
+      const rewritten = setCookies.map((ck) => {
+        try {
+          // Split attributes and remove any Domain=... to bind cookie to current origin
+          const parts = ck.split(';').map((p) => p.trim());
+          const filtered = parts.filter((p) => !/^domain=/i.test(p));
+          // Ensure Path
+          if (!filtered.some((p) => /^path=/i.test(p))) filtered.push('Path=/');
+          // On HTTPS, enforce Secure and SameSite=None (needed for cross-site scenarios)
+          if (isHttps && !filtered.some((p) => /^secure$/i.test(p))) filtered.push('Secure');
+          if (isHttps && !filtered.some((p) => /^samesite=/i.test(p)))
+            filtered.push('SameSite=None');
+          return filtered.join('; ');
+        } catch {
+          return ck;
+        }
+      });
+      res.setHeader('set-cookie', rewritten);
+    }
+
+    // Stream/relay body
+    const bodyText = await upstream.text();
+    res.send(bodyText);
+  } catch (err) {
+    if (process.env['DEBUG_PROXY']) {
+      console.error('[Proxy] ERROR', req.method, req.originalUrl, '->', target, 'Error:', err);
+    }
+    res
+      .status(502)
+      .json({ status: 'error', message: 'Upstream fetch failed', detail: (err as Error).message });
+  }
 }
 
 /**
@@ -144,30 +230,33 @@ app.get('/health', async (_req, res) => {
   }
 });
 
-app.get('/users/:userId', async (req, res) => {
-  const userId = req.params['userId'];
-  if (!userId) {
-    res.status(400).json({ status: 'error', message: 'Missing userId' });
-    return;
-  }
-  const target = `${API_BASE}/users/${encodeURIComponent(userId)}`;
-  try {
-    const upstream = await fetch(target, { headers: { accept: 'application/json' } });
-    const bodyText = await upstream.text();
-    res.status(upstream.status);
-    const ct = upstream.headers.get('content-type') || 'application/json; charset=utf-8';
-    res.setHeader('content-type', ct);
-    res.setHeader('cache-control', 'no-store');
-    res.send(bodyText);
-  } catch (err) {
-    if (process.env['DEBUG_PROXY']) {
-      console.error('[Proxy] GET /users/:userId ->', target, 'Error:', err);
+/**
+ * Same-origin proxy for authenticated routes so that HttpOnly cookies can be set and sent
+ * without CORS issues. We forward /auth/*, /users/*, /settings/*.
+ */
+app.use(
+  ['/auth', '/users', '/settings', '/spotify', '/admin', '/modo', '/overlays', '/overlay'],
+  async (req, res, next) => {
+    const method = req.method.toUpperCase();
+    const accept = (req.headers['accept'] || '').toString();
+    const isHtmlNav = accept.includes('text/html');
+    const isGetLike = method === 'GET' || method === 'HEAD';
+    const path = req.path || '';
+
+    // Laisser Angular gérer TOUTES les navigations GET/HEAD vers /auth/* (pages login/reset, etc.)
+    if (isGetLike && path.startsWith('/auth')) {
+      return next();
     }
-    res
-      .status(502)
-      .json({ status: 'error', message: 'Upstream fetch failed', detail: (err as Error).message });
+
+    // Pour les autres, ne pas proxifier les navigations HTML, uniquement les XHR/fetch
+    if (isGetLike && isHtmlNav) {
+      return next();
+    }
+
+    // Proxy uniquement les appels API (XHR/fetch)
+    await proxyPass(req, res);
   }
-});
+);
 
 /**
  * Serve static files from /browser
@@ -203,6 +292,11 @@ if (isMainModule(import.meta.url) || process.env['pm_id']) {
 
     const env = process.env['NODE_ENV'] || 'development';
     console.log(`[SSR] listening on http://localhost:${port} (env=${env})`);
+    if (!process.env['API_BASE_URL']) {
+      console.warn(
+        `[SSR] API_BASE_URL non défini, fallback sur ${API_BASE}. Définissez API_BASE_URL pour surcharger.`
+      );
+    }
     console.log(`[SSR] API_BASE = ${API_BASE}`);
   });
 }

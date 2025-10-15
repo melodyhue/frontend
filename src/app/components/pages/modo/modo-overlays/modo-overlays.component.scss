@@ -1,0 +1,14 @@
+@use '../../overlays/overlays.component.scss' as *;
+
+/* Ajustements spécifiques à la vue Modo si besoin */
+.overlays__pager {
+  margin-top: 1rem;
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+/* Les actions sont des <a>, supprimer le soulignement natif */
+.overlays__action-btn {
+  text-decoration: none;
+}

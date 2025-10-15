@@ -1,34 +1,74 @@
-import { UrlTree } from '@angular/router';
-import { inject } from '@angular/core';
-import { AuthService } from '../services/auth.service';
-import { Router } from '@angular/router';
+import { Router, UrlTree } from '@angular/router';
+import { PLATFORM_ID, inject } from '@angular/core';
+import { UsersService } from '../services/users.service';
+import { isPlatformBrowser } from '@angular/common';
+import { firstValueFrom } from 'rxjs';
 
-function denyTo(path: string = '/profile'): UrlTree {
-  const router = inject(Router);
-  return router.parseUrl(path);
+function buildUrlTree(router: Router, path: string = '/profile'): UrlTree {
+  const cleaned = (path ?? '/profile').trim();
+  const absolute = cleaned.startsWith('/') ? cleaned : `/${cleaned}`;
+  return router.parseUrl(absolute);
 }
 
-function getRole(): string | null {
-  const auth = inject(AuthService);
+let cachedRole: { value: string | null; ts: number } | null = null;
+const ROLE_TTL_MS = 30_000; // 30s de cache soft pour limiter les appels
+
+async function fetchRole(): Promise<string | null> {
+  const now = Date.now();
+  if (cachedRole && now - cachedRole.ts < ROLE_TTL_MS) {
+    return cachedRole.value;
+  }
+  const users = inject(UsersService);
   try {
-    const st = auth.readAuthState();
-    const role = (st?.role || '').toString().trim().toLowerCase();
-    return role || null;
+    const me = await firstValueFrom(users.me());
+    const role = (me as any)?.role ? String((me as any).role).toLowerCase() : null;
+    cachedRole = { value: role, ts: now };
+    return role;
   } catch {
+    // En cas d'erreur (401/403), considérer aucun rôle
+    cachedRole = { value: null, ts: now };
     return null;
   }
 }
 
 // Admin only
-export const adminOnlyCanMatch = () => {
-  const role = getRole();
+export const adminOnlyCanMatch = async () => {
+  const platformId = inject(PLATFORM_ID);
+  const isBrowser = isPlatformBrowser(platformId);
+  const router = inject(Router);
+  // En SSR, rediriger vers /profile pour éviter un flash de contenu admin avant la redirection côté client
+  if (!isBrowser) return buildUrlTree(router, '/profile');
+  const role = await fetchRole();
   if (role === 'admin') return true;
-  return denyTo('/profile');
+  return buildUrlTree(router, '/profile');
 };
 
 // Moderator or Admin
-export const moderatorOrAdminCanMatch = () => {
-  const role = getRole();
+export const moderatorOrAdminCanMatch = async () => {
+  const platformId = inject(PLATFORM_ID);
+  const isBrowser = isPlatformBrowser(platformId);
+  const router = inject(Router);
+  if (!isBrowser) return buildUrlTree(router, '/profile');
+  const role = await fetchRole();
   if (role === 'admin' || role === 'moderator') return true;
-  return denyTo('/profile');
+  return buildUrlTree(router, '/profile');
+};
+
+// canActivate variantes pour forcer la redirection au lieu d'un simple "non match"
+export const adminOnlyCanActivate = async () => {
+  const platformId = inject(PLATFORM_ID);
+  const isBrowser = isPlatformBrowser(platformId);
+  const router = inject(Router);
+  if (!isBrowser) return buildUrlTree(router, '/profile');
+  const role = await fetchRole();
+  return role === 'admin' ? true : buildUrlTree(router, '/profile');
+};
+
+export const moderatorOrAdminCanActivate = async () => {
+  const platformId = inject(PLATFORM_ID);
+  const isBrowser = isPlatformBrowser(platformId);
+  const router = inject(Router);
+  if (!isBrowser) return buildUrlTree(router, '/profile');
+  const role = await fetchRole();
+  return role === 'admin' || role === 'moderator' ? true : buildUrlTree(router, '/profile');
 };

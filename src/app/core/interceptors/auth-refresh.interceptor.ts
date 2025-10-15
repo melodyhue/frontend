@@ -1,4 +1,4 @@
-import { PLATFORM_ID, inject } from '@angular/core';
+import { inject } from '@angular/core';
 import {
   HttpErrorResponse,
   HttpEvent,
@@ -17,8 +17,6 @@ import {
   throwError,
 } from 'rxjs';
 import { AuthService } from '../services/auth.service';
-import { Router } from '@angular/router';
-import { isPlatformBrowser } from '@angular/common';
 
 let refreshing = false;
 const refreshed$ = new Subject<boolean>();
@@ -28,9 +26,7 @@ export const authRefreshInterceptor: HttpInterceptorFn = (
   next: HttpHandlerFn
 ): Observable<HttpEvent<unknown>> => {
   const auth = inject(AuthService);
-  const router = inject(Router);
-  const platformId = inject(PLATFORM_ID);
-  const isBrowser = isPlatformBrowser(platformId);
+
   // Ne pas intercepter la route de refresh elle-même pour éviter les boucles
   const urlPath = (() => {
     try {
@@ -69,28 +65,20 @@ export const authRefreshInterceptor: HttpInterceptorFn = (
 
       if (!refreshing) {
         refreshing = true;
-        // Utiliser le refresh via cookie HttpOnly si le backend l'autorise
-        return auth.refreshWithCookie().pipe(
+        // start refresh
+        // Choisir la meilleure stratégie: si un refresh_token est disponible, utiliser le BODY refresh.
+        const refresh$ = auth.refreshWithCookie();
+        return refresh$.pipe(
           switchMap((tokens) => {
-            auth.storeTokenPair(tokens);
+            // Pas d'Authorization nécessaire en mode cookies; on indique succès et rejoue la requête telle quelle
             refreshed$.next(true);
-            // Rejouer la requête avec le nouveau token
-            const tokenType = (tokens.token_type || 'bearer').trim();
-            const header = `${tokenType.charAt(0).toUpperCase()}${tokenType.slice(1)} ${
-              tokens.access_token
-            }`;
-            const retried = req.clone({ setHeaders: { Authorization: header } });
+            const retried = req.clone({ withCredentials: true });
             return next(retried);
           }),
           catchError((refreshErr) => {
+            // refresh failed; clear auth
             refreshed$.next(false);
             auth.clearAuth();
-            // Redirection vers /login si le refresh échoue et que l'on est côté navigateur
-            if (isBrowser) {
-              try {
-                router.navigateByUrl('/login');
-              } catch {}
-            }
             return throwError(() => refreshErr);
           }),
           finalize(() => {
@@ -104,16 +92,8 @@ export const authRefreshInterceptor: HttpInterceptorFn = (
         first(),
         switchMap((ok) => {
           if (ok) {
-            // Utiliser le token fraîchement stocké
-            const state = auth.readAuthState();
-            const access = state?.access_token;
-            if (access) {
-              const tokenType = (state?.token_type || 'bearer').trim();
-              const header = `${tokenType.charAt(0).toUpperCase()}${tokenType.slice(1)} ${access}`;
-              const retried = req.clone({ setHeaders: { Authorization: header } });
-              return next(retried);
-            }
-            return next(req);
+            const retried = req.clone({ withCredentials: true });
+            return next(retried);
           }
           // Refresh a échoué: propager l'erreur et (si possible) on est déjà redirigé plus haut
           return throwError(() => error);

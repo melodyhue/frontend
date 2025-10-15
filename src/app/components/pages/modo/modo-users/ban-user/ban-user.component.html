@@ -1,0 +1,38 @@
+<div class="overlays">
+    <div class="overlays__header">
+        <div class="overlays__header-content">
+            <h1 class="overlays__title">Bannir l’utilisateur</h1>
+            <p class="overlays__description">Appliquer un bannissement temporaire ou permanent.</p>
+        </div>
+    </div>
+
+    <div class="overlays__card">
+        <div class="overlays__form">
+            <label class="overlays__form-group">
+                <span>Raison</span>
+                <textarea class="overlays__textarea" [ngModel]="reason()" (ngModelChange)="reason.set($event)"
+                    rows="5"></textarea>
+            </label>
+
+            <label class="overlays__form-group">
+                <span>Jusqu’au (optionnel)</span>
+                <input class="overlays__input" type="datetime-local" [ngModel]="until()"
+                    (ngModelChange)="until.set($event)" />
+            </label>
+
+            <div class="overlays__form-actions">
+                <button class="overlays__primary-btn" type="button" (click)="submit()" [disabled]="sending()">
+                    <i class="fa-solid fa-gavel"></i>
+                    <span>Bannir</span>
+                </button>
+            </div>
+
+            @if (error()) {
+            <p class="overlays__status overlays__status--error">Échec du bannissement.</p>
+            }
+            @if (done()) {
+            <p class="overlays__status overlays__status--success">Bannissement appliqué.</p>
+            }
+        </div>
+    </div>
+</div>

@@ -129,11 +129,17 @@
 
     <div class="security__2fa-content">
       <div class="security__2fa-wrapper">
-        <app-button variant="success" [disabled]="true">
+        @if (!twoFactorEnabled()) {
+        <app-button variant="success" (clicked)="goTo2FASetup()">
           <i class="fa-solid fa-shield"></i>
           <span>{{ labels().enable2FA }}</span>
         </app-button>
-        <span class="security__coming-soon">{{ labels().comingSoon }}</span>
+        } @else {
+        <app-button variant="danger" routerLink="/auth/2fa/disable">
+          <i class="fa-solid fa-ban"></i>
+          <span>{{ labels().disable2FA }}</span>
+        </app-button>
+        }
       </div>
     </div>
   </div>
