@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { getTestProvidersWithRoute } from '../../../../../../test-helpers';
 
 import { WarnUserComponent } from './warn-user.component';
 
@@ -8,9 +9,9 @@ describe('WarnUserComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [WarnUserComponent]
-    })
-    .compileComponents();
+      imports: [WarnUserComponent],
+      providers: [...getTestProvidersWithRoute()],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(WarnUserComponent);
     component = fixture.componentInstance;

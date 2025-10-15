@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { getTestProviders } from '../../../../../../test-helpers';
 
 import { CallbackComponent } from './callback.component';
 
@@ -9,6 +10,7 @@ describe('CallbackComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [CallbackComponent],
+      providers: [...getTestProviders()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(CallbackComponent);

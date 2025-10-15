@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { getTestProvidersWithRoute } from '../../../../../../test-helpers';
 
 import { ViewUserComponent } from './view-user.component';
 
@@ -8,9 +9,9 @@ describe('ViewUserComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ViewUserComponent]
-    })
-    .compileComponents();
+      imports: [ViewUserComponent],
+      providers: [...getTestProvidersWithRoute()],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(ViewUserComponent);
     component = fixture.componentInstance;

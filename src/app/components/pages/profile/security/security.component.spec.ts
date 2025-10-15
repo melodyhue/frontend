@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideZonelessChangeDetection } from '@angular/core';
+import { getTestProviders } from '../../../../../test-helpers';
 
 import { SecurityComponent } from './security.component';
 
@@ -10,7 +11,7 @@ describe('SecurityComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [SecurityComponent],
-      providers: [provideZonelessChangeDetection()],
+      providers: [...getTestProviders(), provideZonelessChangeDetection()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(SecurityComponent);

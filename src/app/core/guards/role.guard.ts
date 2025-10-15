@@ -13,6 +13,15 @@ function buildUrlTree(router: Router, path: string = '/profile'): UrlTree {
 let cachedRole: { value: string | null; ts: number } | null = null;
 const ROLE_TTL_MS = 30_000; // 30s de cache soft pour limiter les appels
 
+/**
+ * Réinitialise le cache du rôle utilisateur.
+ * Utile pour les tests unitaires.
+ * @internal
+ */
+export function resetRoleCache(): void {
+  cachedRole = null;
+}
+
 async function fetchRole(): Promise<string | null> {
   const now = Date.now();
   if (cachedRole && now - cachedRole.ts < ROLE_TTL_MS) {

@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { getTestProviders } from '../../../../../test-helpers';
 
 import { CopyComponent } from './copy.component';
 
@@ -9,6 +10,7 @@ describe('CopyComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [CopyComponent],
+      providers: [...getTestProviders()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(CopyComponent);

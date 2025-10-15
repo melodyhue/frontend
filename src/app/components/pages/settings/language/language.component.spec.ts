@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { getTestProviders } from '../../../../../test-helpers';
 import { LanguageComponent } from './language.component';
 
 describe('SettingsLanguageComponent', () => {
@@ -8,6 +9,7 @@ describe('SettingsLanguageComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [LanguageComponent],
+      providers: [...getTestProviders()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(LanguageComponent);

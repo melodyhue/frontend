@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { getTestProviders } from '../../../../../../test-helpers';
 
 import { DisableComponent } from './disable.component';
 
@@ -8,9 +9,9 @@ describe('DisableComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [DisableComponent]
-    })
-    .compileComponents();
+      imports: [DisableComponent],
+      providers: [...getTestProviders()],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(DisableComponent);
     component = fixture.componentInstance;
