@@ -26,6 +26,9 @@ export const serverRoutes: ServerRoute[] = [
   { path: 'modo/overlays/edit/:id', renderMode: RenderMode.Server },
   { path: 'modo/overlays/delete/:id', renderMode: RenderMode.Server },
 
+  // Route Admin warnlist delete (dynamiques)
+  { path: 'admin/warnlist/delete/:warning_id/:user_id', renderMode: RenderMode.Server },
+
   // Eviter le prerender sur la page logout (déclenche des appels API)
   { path: 'auth/logout', renderMode: RenderMode.Server },
 

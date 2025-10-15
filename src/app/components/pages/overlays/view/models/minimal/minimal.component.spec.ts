@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { getTestProviders } from '../../../../../../../test-helpers';
 
 import { MinimalComponent } from './minimal.component';
 
@@ -9,6 +10,7 @@ describe('MinimalComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [MinimalComponent],
+      providers: [...getTestProviders()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(MinimalComponent);

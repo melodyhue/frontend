@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { PLATFORM_ID } from '@angular/core';
 import { LocaleService } from './locale.service';
 
 describe('LocaleService', () => {
@@ -6,7 +7,9 @@ describe('LocaleService', () => {
 
   beforeEach(() => {
     window.localStorage.removeItem('melodyhue:locale');
-    TestBed.configureTestingModule({});
+    TestBed.configureTestingModule({
+      providers: [{ provide: PLATFORM_ID, useValue: 'browser' }],
+    });
     service = TestBed.inject(LocaleService);
   });
 
@@ -28,6 +31,10 @@ describe('LocaleService', () => {
 
   it('should select a specific locale', () => {
     service.selectLocale('en');
+
+    // Wait for effect to run
+    TestBed.flushEffects();
+
     expect(service.locale()).toBe('en');
     expect(window.localStorage.getItem('melodyhue:locale')).toBe('en');
   });

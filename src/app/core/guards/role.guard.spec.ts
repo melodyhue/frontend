@@ -1,21 +1,24 @@
-import { adminOnlyCanMatch, moderatorOrAdminCanMatch } from './role.guard';
+import { adminOnlyCanMatch, moderatorOrAdminCanMatch, resetRoleCache } from './role.guard';
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { UsersService } from '../services/users.service';
 import { PLATFORM_ID } from '@angular/core';
+import { getTestProviders } from '../../../test-helpers';
 
 describe('role.guard', () => {
   let usersServiceSpy: jasmine.SpyObj<UsersService>;
   let routerSpy: jasmine.SpyObj<Router>;
 
   beforeEach(() => {
+    resetRoleCache(); // Réinitialiser le cache avant chaque test
     usersServiceSpy = jasmine.createSpyObj('UsersService', ['me']);
     routerSpy = jasmine.createSpyObj('Router', ['parseUrl']);
     routerSpy.parseUrl.and.callFake((p: string) => ({} as any));
 
     TestBed.configureTestingModule({
       providers: [
+        ...getTestProviders(),
         { provide: UsersService, useValue: usersServiceSpy },
         { provide: Router, useValue: routerSpy },
         { provide: PLATFORM_ID, useValue: 'browser' },

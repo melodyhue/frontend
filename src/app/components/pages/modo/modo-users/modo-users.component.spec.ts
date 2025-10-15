@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { getTestProviders } from '../../../../../test-helpers';
 
 import { ModoUsersComponent } from './modo-users.component';
 
@@ -8,9 +9,9 @@ describe('ModoUsersComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ModoUsersComponent]
-    })
-    .compileComponents();
+      imports: [ModoUsersComponent],
+      providers: [...getTestProviders()],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(ModoUsersComponent);
     component = fixture.componentInstance;

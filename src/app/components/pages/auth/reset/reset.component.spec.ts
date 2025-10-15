@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { getTestProviders } from '../../../../../test-helpers';
 
 import { ResetComponent } from './reset.component';
 
@@ -9,6 +10,7 @@ describe('ResetComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [ResetComponent],
+      providers: [...getTestProviders()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ResetComponent);

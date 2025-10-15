@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { getTestProviders } from '../../../../../test-helpers';
 
 import { EditComponent } from './edit.component';
 
@@ -9,6 +10,7 @@ describe('EditComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [EditComponent],
+      providers: [...getTestProviders()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(EditComponent);

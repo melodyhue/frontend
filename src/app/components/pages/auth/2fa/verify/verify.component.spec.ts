@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { getTestProviders } from '../../../../../../test-helpers';
 
 import { VerifyComponent } from './verify.component';
 
@@ -9,6 +10,7 @@ describe('VerifyComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [VerifyComponent],
+      providers: [...getTestProviders()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(VerifyComponent);

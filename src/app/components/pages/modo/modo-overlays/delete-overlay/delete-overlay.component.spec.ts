@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { getTestProvidersWithRoute } from '../../../../../../test-helpers';
 
 import { DeleteOverlayComponent } from './delete-overlay.component';
 
@@ -8,9 +9,9 @@ describe('DeleteOverlayComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [DeleteOverlayComponent]
-    })
-    .compileComponents();
+      imports: [DeleteOverlayComponent],
+      providers: [...getTestProvidersWithRoute()],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(DeleteOverlayComponent);
     component = fixture.componentInstance;

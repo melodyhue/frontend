@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { getTestProvidersWithRoute } from '../../../../../../test-helpers';
 
 import { EditOverlayComponent } from './edit-overlay.component';
 
@@ -8,9 +9,9 @@ describe('EditOverlayComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [EditOverlayComponent]
-    })
-    .compileComponents();
+      imports: [EditOverlayComponent],
+      providers: [...getTestProvidersWithRoute()],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(EditOverlayComponent);
     component = fixture.componentInstance;

@@ -1,7 +1,7 @@
 import { DOCUMENT } from '@angular/common';
 import { provideZonelessChangeDetection } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
+import { getTestProviders } from '../../../../test-helpers';
 import { LocaleService } from '../../../core/services/locale.service';
 
 import { NavigationComponent } from './navigation.component';
@@ -13,9 +13,12 @@ describe('NavigationComponent', () => {
   let localeService: LocaleService;
 
   beforeEach(async () => {
+    // Nettoyer le localStorage avant chaque test pour réinitialiser la locale
+    window.localStorage.removeItem('melodyhue:locale');
+
     await TestBed.configureTestingModule({
       imports: [NavigationComponent],
-      providers: [provideRouter([]), provideZonelessChangeDetection()],
+      providers: [...getTestProviders(), provideZonelessChangeDetection()],
     }).compileComponents();
 
     documentRef = TestBed.inject(DOCUMENT);
@@ -77,8 +80,10 @@ describe('NavigationComponent', () => {
     expect(component.isMenuOpen()).toBeTrue();
     expect(nativeElement.querySelector('.mobile-nav')).toBeTruthy();
 
-    const closeButton = nativeElement.querySelector('.mobile-nav__close') as HTMLButtonElement;
-    closeButton.click();
+    // Cliquer sur l'overlay pour fermer le menu
+    const overlay = nativeElement.querySelector('.overlay') as HTMLDivElement;
+    expect(overlay).toBeTruthy();
+    overlay.click();
     fixture.detectChanges();
 
     expect(component.isMenuOpen()).toBeFalse();

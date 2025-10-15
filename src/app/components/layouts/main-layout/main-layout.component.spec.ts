@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideZonelessChangeDetection } from '@angular/core';
-import { provideRouter } from '@angular/router';
+import { getTestProviders } from '../../../../test-helpers';
 
 import { MainLayoutComponent } from './main-layout.component';
 
@@ -11,7 +11,7 @@ describe('MainLayoutComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [MainLayoutComponent],
-      providers: [provideRouter([]), provideZonelessChangeDetection()],
+      providers: [...getTestProviders(), provideZonelessChangeDetection()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(MainLayoutComponent);

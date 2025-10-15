@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { getTestProviders } from '../../../../../../../test-helpers';
 
 import { FocusComponent } from './focus.component';
 
@@ -9,6 +10,7 @@ describe('FocusComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [FocusComponent],
+      providers: [...getTestProviders()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(FocusComponent);
