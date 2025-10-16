@@ -282,11 +282,48 @@ app.use(
 /**
  * Handle all other requests by rendering the Angular application.
  */
-app.use((req, res, next) => {
+app.use('*', (req, res, next) => {
   angularApp
     .handle(req)
-    .then((response) => (response ? writeResponseToNodeResponse(response, res) : next()))
+    .then((response) => {
+      if (response) {
+        writeResponseToNodeResponse(response, res);
+      } else {
+        // Si Angular ne peut pas gérer la requête, on renvoie quand même une 404
+        res.status(404);
+        next();
+      }
+    })
     .catch(next);
+});
+
+/**
+ * Final error handler for 404
+ */
+app.use((req, res) => {
+  if (!res.headersSent) {
+    res.status(404).send(`
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <title>Page non trouvée - MelodyHue</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { font-family: system-ui, -apple-system, sans-serif; text-align: center; padding: 50px; }
+    h1 { font-size: 50px; margin: 0; }
+    p { font-size: 18px; color: #666; }
+    a { color: #007bff; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <h1>404</h1>
+  <p>La page que vous recherchez n'existe pas.</p>
+  <a href="/">Retour à l'accueil</a>
+</body>
+</html>
+    `);
+  }
 });
 
 /**

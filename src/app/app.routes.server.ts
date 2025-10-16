@@ -3,6 +3,15 @@ import { RenderMode, ServerRoute } from '@angular/ssr';
 // Définir explicitement les routes avec paramètres pour ne PAS être prerender,
 // afin d'éviter l'exigence getPrerenderParams.
 export const serverRoutes: ServerRoute[] = [
+  // Routes statiques à prerender
+  { path: '', renderMode: RenderMode.Prerender }, // Home
+  { path: 'about', renderMode: RenderMode.Prerender },
+  { path: 'auth/login', renderMode: RenderMode.Prerender },
+  { path: 'auth/signup', renderMode: RenderMode.Prerender },
+  { path: 'auth/forgot-password', renderMode: RenderMode.Prerender },
+  { path: 'legal/terms', renderMode: RenderMode.Prerender },
+  { path: 'legal/privacy', renderMode: RenderMode.Prerender },
+
   // Routes dynamiques API développeur
   { path: 'developer/api/:userId/infos', renderMode: RenderMode.Server },
   { path: 'developer/api/:userId/color', renderMode: RenderMode.Server },
@@ -32,9 +41,6 @@ export const serverRoutes: ServerRoute[] = [
   // Eviter le prerender sur la page logout (déclenche des appels API)
   { path: 'auth/logout', renderMode: RenderMode.Server },
 
-  // Le reste reste prerender statique
-  {
-    path: '**',
-    renderMode: RenderMode.Prerender,
-  },
+  // Toutes les autres routes (404, routes authentifiées, etc.) en mode Server
+  { path: '**', renderMode: RenderMode.Server },
 ];
