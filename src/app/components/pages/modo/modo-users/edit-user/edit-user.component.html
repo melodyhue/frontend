@@ -1,39 +1,39 @@
 <div class="overlays">
-    <div class="overlays__header">
-        <div class="overlays__header-content">
-            <h1 class="overlays__title">Éditer l’utilisateur</h1>
-            <p class="overlays__description">Mettre à jour les informations du compte.</p>
-        </div>
+  <div class="overlays__header">
+    <div class="overlays__header-content">
+      <h1 class="overlays__title">Éditer l’utilisateur</h1>
+      <p class="overlays__description">Mettre à jour les informations du compte.</p>
     </div>
+  </div>
 
-    @if (loading()) {
-    <div class="overlays__empty">
-        <p>Chargement…</p>
-    </div>
-    } @else if (error()) {
-    <div class="overlays__empty">
-        <p>Impossible de charger l’utilisateur.</p>
-    </div>
-    } @else if (user()) {
-    <div class="overlays__card">
-        <form class="overlays__form" (ngSubmit)="onSave()">
-            <label class="overlays__form-group">
-                <span>Username</span>
-                <input class="overlays__input" type="text" [ngModel]="form().username" name="username"
-                    (ngModelChange)="onUsernameChange($event)" />
-            </label>
-            <label class="overlays__form-group">
-                <span>Email</span>
-                <input class="overlays__input" type="email" [ngModel]="form().email" name="email"
-                    (ngModelChange)="onEmailChange($event)" />
-            </label>
-            <div class="overlays__form-actions">
-                <button class="overlays__primary-btn" type="submit" [disabled]="saving()">
-                    <i class="fa-solid fa-floppy-disk"></i>
-                    <span>Sauvegarder</span>
-                </button>
-            </div>
-        </form>
-    </div>
-    }
+  @if (loading()) {
+  <div class="overlays__empty">
+    <p>Chargement…</p>
+  </div>
+  } @else if (error()) {
+  <div class="overlays__empty">
+    <p>Impossible de charger l’utilisateur.</p>
+  </div>
+  } @else if (user()) {
+  <div class="overlays__card">
+    <form class="overlays__form" (ngSubmit)="onSave()">
+      <label class="overlays__form-group">
+        <span>Username</span>
+        <input class="overlays__input" type="text" [ngModel]="form().username" name="username"
+          (ngModelChange)="onUsernameChange($event)" />
+      </label>
+      <label class="overlays__form-group">
+        <span>Email</span>
+        <input class="overlays__input" type="email" [ngModel]="form().email" name="email"
+          (ngModelChange)="onEmailChange($event)" />
+      </label>
+      <div class="overlays__form-actions">
+        <button class="overlays__primary-btn" type="submit" [disabled]="saving()">
+          <i class="fa-solid fa-floppy-disk"></i>
+          <span>Sauvegarder</span>
+        </button>
+      </div>
+    </form>
+  </div>
+  }
 </div>

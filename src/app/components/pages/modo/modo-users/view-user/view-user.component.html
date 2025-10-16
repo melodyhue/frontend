@@ -1,39 +1,39 @@
 <div class="overlays">
-    <div class="overlays__header">
-        <div class="overlays__header-content">
-            <h1 class="overlays__title">Détails utilisateur</h1>
-            <p class="overlays__description">Informations du compte et activité.</p>
-        </div>
+  <div class="overlays__header">
+    <div class="overlays__header-content">
+      <h1 class="overlays__title">Détails utilisateur</h1>
+      <p class="overlays__description">Informations du compte et activité.</p>
     </div>
+  </div>
 
-    @if (loading()) {
-    <div class="overlays__empty">
-        <p>Chargement…</p>
-    </div>
-    } @else if (error()) {
-    <div class="overlays__empty">
-        <p>Impossible de charger l’utilisateur.</p>
-    </div>
-    } @else if (user()) {
-    <div class="overlays__card">
-        <ul class="overlays__details">
-            <li><strong>ID:</strong> {{ user()!.id }}</li>
-            <li><strong>Username:</strong> {{ user()!.username }}</li>
-            <li><strong>Email:</strong> {{ user()!.email }}</li>
-            <li><strong>Rôle:</strong> {{ roleLabel(user()!.role) }}</li>
-            <li><strong>Inscription:</strong> {{ formatDate(user()?.created_at) }}</li>
-            <li><strong>Dernière connexion:</strong> {{ formatDate(user()?.last_login_at) }}</li>
-        </ul>
-    </div>
-    @if (user()?.is_banned) {
-    <div class="overlays__card ban-info" role="status" aria-live="polite">
-        <p class="ban-info__title"><i class="fa-solid fa-ban"></i> Utilisateur banni</p>
-        <ul class="overlays__details">
-            <li><strong>Raison:</strong> {{ user()!.ban_reason || '-' }}</li>
-            <li><strong>Jusqu'au:</strong> {{ formatDate(user()?.ban_until) }}</li>
-        </ul>
-    </div>
-    }
-    }
+  @if (loading()) {
+  <div class="overlays__empty">
+    <p>Chargement…</p>
+  </div>
+  } @else if (error()) {
+  <div class="overlays__empty">
+    <p>Impossible de charger l’utilisateur.</p>
+  </div>
+  } @else if (user()) {
+  <div class="overlays__card">
+    <ul class="overlays__details">
+      <li><strong>ID:</strong> {{ user()!.id }}</li>
+      <li><strong>Username:</strong> {{ user()!.username }}</li>
+      <li><strong>Email:</strong> {{ user()!.email }}</li>
+      <li><strong>Rôle:</strong> {{ roleLabel(user()!.role) }}</li>
+      <li><strong>Inscription:</strong> {{ formatDate(user()?.created_at) }}</li>
+      <li><strong>Dernière connexion:</strong> {{ formatDate(user()?.last_login_at) }}</li>
+    </ul>
+  </div>
+  @if (user()?.is_banned) {
+  <div class="overlays__card ban-info" role="status" aria-live="polite">
+    <p class="ban-info__title"><i class="fa-solid fa-ban"></i> Utilisateur banni</p>
+    <ul class="overlays__details">
+      <li><strong>Raison:</strong> {{ user()!.ban_reason || '-' }}</li>
+      <li><strong>Jusqu'au:</strong> {{ formatDate(user()?.ban_until) }}</li>
+    </ul>
+  </div>
+  }
+  }
 
 </div>
