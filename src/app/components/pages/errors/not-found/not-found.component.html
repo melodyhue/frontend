@@ -1,0 +1,16 @@
+<div class="not-found">
+  <div class="not-found__container">
+    <div class="not-found__error">404</div>
+    <h1 class="not-found__title">{{ content().title }}</h1>
+    <p class="not-found__message">{{ content().description }}</p>
+
+    <div class="not-found__actions">
+      <app-button variant="primary" (clicked)="goToHome()">
+        {{ content().buttons.home }}
+      </app-button>
+      <app-button variant="secondary" (clicked)="goBack()">
+        {{ content().buttons.previous }}
+      </app-button>
+    </div>
+  </div>
+</div>

@@ -386,4 +386,11 @@ export const routes: Routes = [
       },
     ],
   },
+  {
+    path: '**',
+    loadComponent: () =>
+      import('./components/pages/errors/not-found/not-found.component').then(
+        (m) => m.NotFoundComponent
+      ),
+  },
 ];
