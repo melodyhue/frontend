@@ -41,23 +41,19 @@ export const appConfig: ApplicationConfig = {
 
         // On déclenche sans bloquer le démarrage
         queueMicrotask(() => {
-          // Ne pas faire l'appel /users/me sur les pages publiques
-          const currentUrl = window.location.pathname;
-          const isPublicPage =
-            // Pages d'auth publiques
-            currentUrl.startsWith('/auth/reset') ||
-            currentUrl.startsWith('/auth/forgot') ||
-            currentUrl.startsWith('/auth/login') ||
-            currentUrl.startsWith('/auth/register') ||
-            // Pages publiques principales
-            currentUrl === '/' ||
-            currentUrl.startsWith('/about') ||
-            currentUrl.startsWith('/developer/api/') ||
-            currentUrl.startsWith('/overlay/') ||
-            currentUrl.startsWith('/legal/');
+          // Ne faire l'appel /users/me que sur les pages privées connues.
+          // Toute autre URL (y compris 404) est considérée publique pour éviter des redirections involontaires.
+          const currentUrl = window.location.pathname || '/';
+          const isPrivatePage =
+            currentUrl.startsWith('/profile') ||
+            currentUrl.startsWith('/overlays') ||
+            currentUrl.startsWith('/settings') ||
+            currentUrl.startsWith('/admin') ||
+            currentUrl.startsWith('/modo') ||
+            currentUrl.startsWith('/auth/2fa');
 
-          if (isPublicPage) {
-            // Sur les pages d'auth publiques, juste arrêter les services temps réel
+          if (!isPrivatePage) {
+            // Sur les pages publiques/inconnues (incl. 404), stopper le temps réel et ne rien déclencher.
             rt.stop();
             return;
           }
