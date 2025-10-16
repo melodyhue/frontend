@@ -42,5 +42,5 @@ export const serverRoutes: ServerRoute[] = [
   { path: 'auth/logout', renderMode: RenderMode.Server },
 
   // Toutes les autres routes (404, routes authentifiées, etc.) en mode Server
-  { path: '**', renderMode: RenderMode.Server },
+  { path: '*', renderMode: RenderMode.Server },
 ];
