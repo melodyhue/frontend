@@ -1,40 +1,38 @@
 <div class="overlay-form">
-    <div class="overlay-form__header">
-        <h2 class="overlay-form__title">Modifier l’overlay</h2>
-        <p class="overlay-form__desc">Mettez à jour le nom et le template de l’overlay.</p>
-    </div>
+  <div class="overlay-form__header">
+    <h2 class="overlay-form__title">Modifier l’overlay</h2>
+    <p class="overlay-form__desc">Mettez à jour le nom et le template de l’overlay.</p>
+  </div>
 
-    @if (loading()) {
-    <div class="overlays__empty">
-        <p>Chargement…</p>
-    </div>
-    } @else if (error()) {
-    <div class="overlays__empty">
-        <p>Erreur de chargement.</p>
-    </div>
-    } @else {
-    <div class="overlay-form__card">
-        <form [formGroup]="form" (ngSubmit)="save()" class="overlay-form__grid">
-            <div class="overlay-form__field">
-                <label class="overlay-form__label">Nom <span class="overlay-form__required">*</span></label>
-                <input class="overlay-form__input" type="text" formControlName="name" required maxlength="120" />
-            </div>
-            <div class="overlay-form__field">
-                <label class="overlay-form__label">Template <span class="overlay-form__required">*</span></label>
-                <select class="overlay-form__input" formControlName="template">
-                    @for (t of availableTemplates; track t.id) {
-                    <option [value]="t.id">{{ t.name }}</option>
-                    }
-                </select>
-                <p class="overlay-form__hint">Type détecté: <strong>{{ selectedTemplateType }}</strong></p>
-            </div>
-            <div class="overlay-form__actions">
-                <app-button type="submit" [disabled]="form.invalid || saving()"
-                    variant="primary">Enregistrer</app-button>
-                <app-button type="button" (clicked)="goBack()" [disabled]="saving()"
-                    variant="cancel">Annuler</app-button>
-            </div>
-        </form>
-    </div>
-    }
+  @if (loading()) {
+  <div class="overlays__empty">
+    <p>Chargement…</p>
+  </div>
+  } @else if (error()) {
+  <div class="overlays__empty">
+    <p>Erreur de chargement.</p>
+  </div>
+  } @else {
+  <div class="overlay-form__card">
+    <form [formGroup]="form" (ngSubmit)="save()" class="overlay-form__grid">
+      <div class="overlay-form__field">
+        <label class="overlay-form__label">Nom <span class="overlay-form__required">*</span></label>
+        <input class="overlay-form__input" type="text" formControlName="name" required maxlength="120" />
+      </div>
+      <div class="overlay-form__field">
+        <label class="overlay-form__label">Template <span class="overlay-form__required">*</span></label>
+        <select class="overlay-form__input" formControlName="template">
+          @for (t of availableTemplates; track t.id) {
+          <option [value]="t.id">{{ t.name }}</option>
+          }
+        </select>
+        <p class="overlay-form__hint">Type détecté: <strong>{{ selectedTemplateType }}</strong></p>
+      </div>
+      <div class="overlay-form__actions">
+        <app-button type="submit" [disabled]="form.invalid || saving()" variant="primary">Enregistrer</app-button>
+        <app-button type="button" (clicked)="goBack()" [disabled]="saving()" variant="cancel">Annuler</app-button>
+      </div>
+    </form>
+  </div>
+  }
 </div>

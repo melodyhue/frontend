@@ -1,30 +1,30 @@
 <div class="overlays">
-    <div class="overlays__header">
-        <div class="overlays__header-content">
-            <h1 class="overlays__title">{{ labels().title }}</h1>
-            <p class="overlays__description">{{ labels().description }}</p>
-        </div>
+  <div class="overlays__header">
+    <div class="overlays__header-content">
+      <h1 class="overlays__title">{{ labels().title }}</h1>
+      <p class="overlays__description">{{ labels().description }}</p>
     </div>
+  </div>
 
-    @if (statsLoading()) {
-    <div class="overlays__empty">
-        <p>{{ labels().loading }}</p>
-    </div>
-    } @else if (statsError()) {
-    <div class="overlays__empty">
-        <p>{{ labels().error }}</p>
-    </div>
-    } @else if (stats()) {
-    <div class="overlays__card">
-        <ul class="overlays__details">
-            <li><strong>{{ labels().details.users }}:</strong> {{ stats()!.users_count }}</li>
-            <li><strong>{{ labels().details.overlays }}:</strong> {{ stats()!.overlays_count }}</li>
-            <li><strong>{{ labels().details.moderators }}:</strong> {{ stats()!.moderators_count }}</li>
-            <li><strong>{{ labels().details.admins }}:</strong> {{ stats()!.admins_count }}</li>
-            <li><strong>{{ labels().details.active2fa }}:</strong> {{ stats()!.active_2fa_count }}</li>
-            <li><strong>{{ labels().details.lastRegistered }}:</strong> {{
-                formatDateTime(stats()!.last_user_registered_at) }}</li>
-        </ul>
-    </div>
-    }
+  @if (statsLoading()) {
+  <div class="overlays__empty">
+    <p>{{ labels().loading }}</p>
+  </div>
+  } @else if (statsError()) {
+  <div class="overlays__empty">
+    <p>{{ labels().error }}</p>
+  </div>
+  } @else if (stats()) {
+  <div class="overlays__card">
+    <ul class="overlays__details">
+      <li><strong>{{ labels().details.users }}:</strong> {{ stats()!.users_count }}</li>
+      <li><strong>{{ labels().details.overlays }}:</strong> {{ stats()!.overlays_count }}</li>
+      <li><strong>{{ labels().details.moderators }}:</strong> {{ stats()!.moderators_count }}</li>
+      <li><strong>{{ labels().details.admins }}:</strong> {{ stats()!.admins_count }}</li>
+      <li><strong>{{ labels().details.active2fa }}:</strong> {{ stats()!.active_2fa_count }}</li>
+      <li><strong>{{ labels().details.lastRegistered }}:</strong> {{
+        formatDateTime(stats()!.last_user_registered_at) }}</li>
+    </ul>
+  </div>
+  }
 </div>
