@@ -46,8 +46,9 @@ function forwardOrFetchJson(target: string, res: express.Response) {
 /**
  * Generic proxy that forwards method, headers (including Cookie), and body to the upstream API,
  * and passes back Set-Cookie so the browser can store HttpOnly cookies on the SAME ORIGIN.
+ * Returns true if the request was successfully proxied, false otherwise.
  */
-async function proxyPass(req: ExpressRequest, res: ExpressResponse) {
+async function proxyPass(req: ExpressRequest, res: ExpressResponse): Promise<boolean> {
   const target = `${API_BASE}${req.originalUrl}`;
   try {
     const headers: Record<string, string> = {
@@ -76,6 +77,11 @@ async function proxyPass(req: ExpressRequest, res: ExpressResponse) {
     }
 
     const upstream = await fetch(target, fetchOpts);
+
+    // Si l'API retourne 404, on ne proxy pas et on laisse Angular gérer
+    if (upstream.status === 404) {
+      return false;
+    }
 
     // Status code
     res.status(upstream.status);
@@ -122,13 +128,13 @@ async function proxyPass(req: ExpressRequest, res: ExpressResponse) {
     // Stream/relay body
     const bodyText = await upstream.text();
     res.send(bodyText);
+    return true;
   } catch (err) {
     if (process.env['DEBUG_PROXY']) {
       console.error('[Proxy] ERROR', req.method, req.originalUrl, '->', target, 'Error:', err);
     }
-    res
-      .status(502)
-      .json({ status: 'error', message: 'Upstream fetch failed', detail: (err as Error).message });
+    // En cas d'erreur réseau, on laisse Angular gérer
+    return false;
   }
 }
 
@@ -248,13 +254,17 @@ app.use(
       return next();
     }
 
-    // Pour les autres, ne pas proxifier les navigations HTML, uniquement les XHR/fetch
+    // Pour les autres routes, ne pas proxifier les navigations HTML, uniquement les XHR/fetch
     if (isGetLike && isHtmlNav) {
       return next();
     }
 
     // Proxy uniquement les appels API (XHR/fetch)
-    await proxyPass(req, res);
+    // Si le proxy retourne false (route non trouvée ou erreur), on laisse Angular gérer
+    const proxied = await proxyPass(req, res);
+    if (!proxied) {
+      return next();
+    }
   }
 );
 
