@@ -81,10 +81,22 @@ export const authRefreshInterceptor: HttpInterceptorFn = (
                   } catch {}
                   auth.clearAuth();
                   forcedLogout = true;
-                  setTimeout(
-                    () => router.navigate(['/login'], { queryParams: { reason: 'banned' } }),
-                    0
-                  );
+                  try {
+                    const path = (typeof location !== 'undefined' ? location.pathname : '/') || '/';
+                    const isPrivate =
+                      path.startsWith('/profile') ||
+                      path.startsWith('/overlays') ||
+                      path.startsWith('/settings') ||
+                      path.startsWith('/admin') ||
+                      path.startsWith('/modo') ||
+                      path.startsWith('/auth/2fa');
+                    if (isPrivate) {
+                      setTimeout(
+                        () => router.navigate(['/login'], { queryParams: { reason: 'banned' } }),
+                        0
+                      );
+                    }
+                  } catch {}
                 }
               } catch {}
             }
@@ -139,9 +151,23 @@ export const authRefreshInterceptor: HttpInterceptorFn = (
           } catch {}
           auth.clearAuth();
           forcedLogout = true;
-          // Rediriger vers la page de login avec un motif explicite
-          // Utiliser setTimeout pour éviter des conflits de cycle Angular dans certains cas
-          setTimeout(() => router.navigate(['/login'], { queryParams: { reason: 'banned' } }), 0);
+          // Rediriger vers la page de login uniquement si l'utilisateur est sur une page privée
+          try {
+            const path = (typeof location !== 'undefined' ? location.pathname : '/') || '/';
+            const isPrivate =
+              path.startsWith('/profile') ||
+              path.startsWith('/overlays') ||
+              path.startsWith('/settings') ||
+              path.startsWith('/admin') ||
+              path.startsWith('/modo') ||
+              path.startsWith('/auth/2fa');
+            if (isPrivate) {
+              setTimeout(
+                () => router.navigate(['/login'], { queryParams: { reason: 'banned' } }),
+                0
+              );
+            }
+          } catch {}
         } catch {}
         return throwError(() => error);
       }
@@ -190,12 +216,22 @@ export const authRefreshInterceptor: HttpInterceptorFn = (
               realtime.stop();
             } catch {}
             auth.clearAuth();
-            // Redirige vers /login sur échec de refresh (expiré/banni/invalidé)
+            // Redirige vers /login sur échec de refresh uniquement si on est sur une page privée.
             try {
-              setTimeout(
-                () => router.navigate(['/login'], { queryParams: { reason: 'expired' } }),
-                0
-              );
+              const path = (typeof location !== 'undefined' ? location.pathname : '/') || '/';
+              const isPrivate =
+                path.startsWith('/profile') ||
+                path.startsWith('/overlays') ||
+                path.startsWith('/settings') ||
+                path.startsWith('/admin') ||
+                path.startsWith('/modo') ||
+                path.startsWith('/auth/2fa');
+              if (isPrivate) {
+                setTimeout(
+                  () => router.navigate(['/login'], { queryParams: { reason: 'expired' } }),
+                  0
+                );
+              }
             } catch {}
             return throwError(() => refreshErr);
           }),

@@ -1,9 +1,15 @@
 .not-found {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  /* Fallback puis unité dynamique pour éviter le scroll lié aux barres d'UI mobiles */
+  height: 100vh;
+  height: 100dvh;
+  /* Inclure le padding dans la hauteur pour ne pas dépasser le viewport */
+  box-sizing: border-box;
+  /* Centrage simple et fiable */
+  display: grid;
+  place-items: center;
   padding: 2rem;
+  /* Éviter toute scrollbar verticale résiduelle */
+  overflow: hidden;
   background: #fafbfc;
 
   &__container {

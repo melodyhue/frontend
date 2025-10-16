@@ -1,4 +1,4 @@
-import { Router, UrlTree } from '@angular/router';
+import { Router, UrlSegment, UrlTree } from '@angular/router';
 import { PLATFORM_ID, inject } from '@angular/core';
 import { AuthService } from '../services/auth.service';
 import { firstValueFrom } from 'rxjs';
@@ -9,13 +9,30 @@ function denyToLogin(router: Router): UrlTree {
   return router.createUrlTree(['/login']);
 }
 
-export const authRequiredCanMatch = async () => {
+export const authRequiredCanMatch = async (_route?: unknown, segments?: UrlSegment[]) => {
   const platformId = inject(PLATFORM_ID);
   const isBrowser = isPlatformBrowser(platformId);
   const router = inject(Router);
   const auth = inject(AuthService);
   const users = inject(UsersService);
   try {
+    // Ne s'applique qu'aux préfixes "privés"; sinon, laisser matcher d'autres routes (dont **)
+    const s0 = segments?.[0]?.path ?? '';
+    const s1 = segments?.[1]?.path ?? '';
+    const isPrivatePrefix =
+      s0 === 'profile' ||
+      s0 === 'overlays' ||
+      s0 === 'settings' ||
+      s0 === 'admin' ||
+      s0 === 'modo' ||
+      (s0 === 'auth' && s1 === '2fa') ||
+      (s0 === 'developer' && s1 === 'api');
+
+    if (!isPrivatePrefix) {
+      // Ne pas appliquer le guard: permet d'atteindre la route 404 (**)
+      return false;
+    }
+
     // En SSR (pas de localStorage), on laisse passer: le check se fera côté navigateur
     if (!isBrowser) return true;
     // Cookie-only flow: tenter directement /users/me
