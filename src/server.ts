@@ -15,7 +15,7 @@ const app = express();
 const angularApp = new AngularNodeAppEngine();
 // Base API: surchargée via la variable d'environnement API_BASE_URL.
 // Fallback: même valeur que le front par défaut (développement).
-const API_BASE_RAW = process.env['API_BASE_URL'] || 'https://developer.laxe4k.com';
+const API_BASE_RAW = process.env['API_BASE_URL'] || 'https://api.melodyhue.com';
 // Normaliser (supprimer slash fin) pour éviter les doubles // dans l’URL cible
 const API_BASE = API_BASE_RAW.replace(/\/+$/, '');
 // Headers communs pour les requêtes upstream
@@ -247,10 +247,17 @@ app.use(
     const accept = (req.headers['accept'] || '').toString();
     const isHtmlNav = accept.includes('text/html');
     const isGetLike = method === 'GET' || method === 'HEAD';
+    // Attention: dans un middleware monté sur des préfixes (ex: '/spotify'),
+    // req.path ne contient QUE la partie après le préfixe. Pour distinguer
+    // correctement les routes de première section (ex: '/auth/...'), il faut
+    // utiliser originalUrl qui contient le chemin complet tel que reçu.
     const path = req.path || '';
+    const fullPath = (req.originalUrl || req.url || '').split('?')[0] || path;
 
     // Laisser Angular gérer TOUTES les navigations GET/HEAD vers /auth/* (pages login/reset, etc.)
-    if (isGetLike && path.startsWith('/auth')) {
+    // Utiliser le chemin complet pour éviter de confondre '/spotify/auth/...'
+    // avec une page '/auth/...'.
+    if (isGetLike && fullPath.startsWith('/auth')) {
       return next();
     }
 
