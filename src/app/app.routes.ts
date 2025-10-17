@@ -104,6 +104,32 @@ export const routes: Routes = [
           },
         ],
       },
+      {
+        path: '2fa',
+        children: [
+          {
+            path: 'setup',
+            loadComponent: () =>
+              import('./components/pages/auth/2fa/setup/setup.component').then(
+                (m) => m.SetupComponent
+              ),
+          },
+          {
+            path: 'verify',
+            loadComponent: () =>
+              import('./components/pages/auth/2fa/verify/verify.component').then(
+                (m) => m.VerifyComponent
+              ),
+          },
+          {
+            path: 'disable',
+            loadComponent: () =>
+              import('./components/pages/auth/2fa/disable/disable.component').then(
+                (m) => m.DisableComponent
+              ),
+          },
+        ],
+      },
     ],
   },
   {
@@ -144,35 +170,6 @@ export const routes: Routes = [
             loadComponent: () =>
               import('./components/pages/profile/security/security.component').then(
                 (m) => m.SecurityComponent
-              ),
-          },
-        ],
-      },
-      {
-        path: 'auth/2fa',
-        children: [
-          {
-            path: 'setup',
-            canMatch: [authRequiredCanMatch],
-            loadComponent: () =>
-              import('./components/pages/auth/2fa/setup/setup.component').then(
-                (m) => m.SetupComponent
-              ),
-          },
-          {
-            path: 'verify',
-            canMatch: [authRequiredCanMatch],
-            loadComponent: () =>
-              import('./components/pages/auth/2fa/verify/verify.component').then(
-                (m) => m.VerifyComponent
-              ),
-          },
-          {
-            path: 'disable',
-            canMatch: [authRequiredCanMatch],
-            loadComponent: () =>
-              import('./components/pages/auth/2fa/disable/disable.component').then(
-                (m) => m.DisableComponent
               ),
           },
         ],

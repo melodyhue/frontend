@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import {
   ModerationService,
   type ModoOverlayOut,
@@ -17,6 +17,7 @@ import { ButtonComponent } from '../../../../shared/button/button.component';
 export class DeleteOverlayComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly modo = inject(ModerationService);
+  private readonly router = inject(Router);
 
   readonly loading = signal(false);
   readonly error = signal<string | null>(null);
@@ -55,6 +56,8 @@ export class DeleteOverlayComponent {
       next: () => {
         this.loading.set(false);
         this.done.set(true);
+        // Redirige vers la liste des overlays modo après succès
+        void this.router.navigate(['/modo/overlays']);
       },
       error: (err) => {
         console.error('delete overlay failed', err);
