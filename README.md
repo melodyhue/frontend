@@ -1,72 +1,161 @@
-# MelodyhueFrontend
+# MelodyHue – Frontend (Angular 20 + SSR)
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.3.4.
+[![GitHub Release](https://img.shields.io/github/v/release/melodyhue/frontend)](https://github.com/melodyhue/frontend/releases)
+[![GitHub Release Date](https://img.shields.io/github/release-date/melodyhue/frontend)](https://github.com/melodyhue/frontend/releases)
+[![GitHub License](https://img.shields.io/github/license/melodyhue/frontend)](https://github.com/melodyhue/frontend/blob/main/LICENSE)
+[![GitHub contributors](https://img.shields.io/github/contributors/melodyhue/frontend)](https://github.com/melodyhue/frontend/graphs/contributors)
+[![GitHub Issues](https://img.shields.io/github/issues/melodyhue/frontend)](https://github.com/melodyhue/frontend/issues)
 
-## Development server
+Interface web d’affichage et de gestion des overlays MelodyHue. Application Angular 20 (standalone, signals, OnPush) avec rendu SSR côté Node et un proxy intégré vers l’API publique/privée.
 
-To start a local development server, run:
+---
 
-```bash
-ng serve
+## ✨ Périmètre rapide
+
+- Angular 20 (standalone components, Router, HttpClient)
+- SSR via `@angular/ssr` + Express (fichier `src/server.ts`)
+- Intercepteur API qui préfixe automatiquement les appels (`API_BASE_URL`) et gère `withCredentials`
+- Pages publiques (home, about, legal, …) et pages privées (profile, overlays, settings, admin/modo)
+- Endpoints développeur pour récupérer du JSON brut: `/developer/api/:userId/(infos|color)`
+
+---
+
+## 🧰 Prérequis
+
+- Node.js 20 LTS recommandé (Angular 20)
+- npm ≥ 10
+
+---
+
+## 🚀 Installation
+
+Dans le dossier `melodyhue-frontend`:
+
+```powershell
+npm install
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+---
 
-### Environment variables (SSR)
+## ▶️ Démarrer en développement
 
-The SSR server proxies the public API for developer pages and returns raw JSON. You can configure the upstream base URL via the following environment variable:
+Lance le serveur de dev (Angular CLI + SSR) sur http://localhost:4200 :
 
-- `API_BASE_URL` (default: `https://api.melodyhue.com`)
+```powershell
+npm start
+```
 
-On Windows PowerShell:
+Le hot-reload est activé. Le SSR côté Node est géré par Angular CLI en dev et utilise la configuration de `src/server.ts` (dont le proxy d’API).
+
+---
+
+## 🔧 Variables d’environnement
+
+Un fichier `.env.example` est fourni. Copiez‑le si besoin vers `.env` à la racine du projet.
+
+- `API_BASE_URL` (défaut: `https://api.melodyhue.com`) – Base de l’API FastAPI en amont. Utilisée par:
+	- l’intercepteur HTTP (préfixe des URLs relatives non proxifiées)
+	- le serveur SSR/Express pour les proxys `/infos`, `/color`, `/health`, mais aussi pour les routes authentifiées (`/auth`, `/users`, `/settings`, `/overlays`, `/overlay`, `/spotify`, `/admin`, `/modo`)
+- `PORT` (défaut: `3000` quand vous servez le build SSR via Node)
+- `NODE_ENV` (`development`/`production`)
+- `PROXY_FORWARD` (`fetch` | `redirect`, défaut `fetch`) – Sur SSR, choisir redirection au lieu du fetch serveur si votre hébergeur bloque les requêtes sortantes.
+- `DEBUG_PROXY` (`1` pour activer des logs proxy côté SSR)
+
+Exemple (PowerShell):
 
 ```powershell
 $env:API_BASE_URL = "https://api.melodyhue.com"
 npm start
 ```
 
-## Code scaffolding
+---
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+## 📜 Scripts npm utiles
 
-```bash
-ng generate component component-name
+- `npm start` → `ng serve` (dev + SSR)
+- `npm run build` → build dev
+- `npm run build:prod` → build de prod optimisé
+- `npm run start:prod` → sert le build SSR via Node (`dist/melodyhue-frontend/server/server.mjs`)
+- `npm run serve:ssr:melodyhue-frontend` → alias pour servir le SSR après build
+- `npm test` → tests unitaires (Karma + Jasmine)
+
+---
+
+## 🏗️ Build et exécution en production
+
+1) Construire:
+
+```powershell
+npm run build:prod
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+2) Lancer le serveur SSR Node (Express):
 
-```bash
-ng generate --help
+```powershell
+npm run start:prod
 ```
 
-## Building
+Le serveur écoute sur le port `PORT` (défaut `3000`). Placez un reverse proxy (Nginx/Caddy/Traefik) en frontal si nécessaire. Le proxy interne réécrit les cookies `Set-Cookie` pour rester sur le même domaine et applique `Secure; SameSite=None` en HTTPS.
 
-To build the project run:
+---
 
-```bash
-ng build
+## 🌐 Intégration API & Réseau
+
+- Intercepteur: `src/app/core/interceptors/api-prefix.interceptor.ts`
+	- Préfixe les appels relatifs avec `API_BASE_URL` sauf pour les routes gérées en même origine par le SSR (`/auth`, `/users`, `/settings`, `/overlays`, `/overlay`, `/spotify`, `/admin`, `/modo`, `/developer/api/*`).
+	- Force `withCredentials: true` pour envoyer/recevoir les cookies (auth HttpOnly).
+	- N’ajoute pas d’Authorization pour les endpoints publics (`/infos`, `/color`, `/health`, `/auth/*`, `/overlay/*`).
+- SSR/Proxy: `src/server.ts`
+	- Proxifie en même origine les routes authentifiées afin d’émettre et consommer des cookies HttpOnly sans CORS.
+	- Endpoints développeur JSON direct: `/developer/api/:userId/infos` et `/developer/api/:userId/color` (bypass Angular, renvoient le JSON de l’API amont).
+	- Paramètres: `API_BASE_URL`, `PROXY_FORWARD` (`fetch` ou `redirect`).
+
+---
+
+## 📁 Structure principale
+
+- `src/app/components/layouts` – gabarits `main-layout` et `private-layout`
+- `src/app/components/pages` – pages (about, home, auth, profile, overlays, settings, admin, modo, …)
+- `src/app/core/services` – services métier (auth, users, settings, overlays, public, spotify, …)
+- `src/app/core/interceptors` – intercepteurs HTTP (`api-prefix`, `auth-refresh`)
+- `src/app/core/tokens` – tokens d’injection (`API_BASE_URL`)
+- `src/server.ts` – serveur SSR Express + proxy
+
+Conventions Angular appliquées: standalone components, `ChangeDetectionStrategy.OnPush`, usage de signals pour l’état local.
+
+---
+
+## ✅ Tests unitaires
+
+```powershell
+npm test
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+Karma + Jasmine. Les tests résident aux côtés des fichiers (`*.spec.ts`).
 
-## Running unit tests
+---
 
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
+## 🧪 Endpoints utiles (dev)
 
-```bash
-ng test
-```
+- Public: `GET /infos/:userId`, `GET /color/:userId`, `GET /health`
+- Développeur (JSON brut):
+	- `GET /developer/api/:userId/infos`
+	- `GET /developer/api/:userId/color`
 
-## Running end-to-end tests
+Ces routes sont servies par le SSR et reçoivent la réponse de l’API configurée par `API_BASE_URL`.
 
-For end-to-end (e2e) testing, run:
+---
 
-```bash
-ng e2e
-```
+## 🩺 Dépannage rapide
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+- Cookies non conservés après login: vérifier que l’app est servie en HTTPS avec `SameSite=None; Secure` et que le domaine correspond. Le proxy SSR réécrit déjà `Domain` et ajoute `Secure/SameSite` en HTTPS.
+- 401 sur pages privées au rechargement: assurez‑vous que le backend expose bien les endpoints `/auth/refresh` et que `API_BASE_URL` pointe vers le bon hôte.
+- CORS: en dev, utilisez les routes proxifiées (même origine). Évitez d’appeler directement l’API amont depuis le navigateur si elle n’autorise pas l’origine de dev.
+- Hébergement qui bloque les sorties HTTP: définissez `PROXY_FORWARD=redirect` pour rediriger plutôt que d’effectuer le fetch côté serveur.
 
-## Additional Resources
+---
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+## 📄 Licence
+
+MIT – voir `LICENSE`.
+

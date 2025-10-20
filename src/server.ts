@@ -133,8 +133,16 @@ async function proxyPass(req: ExpressRequest, res: ExpressResponse): Promise<boo
     if (process.env['DEBUG_PROXY']) {
       console.error('[Proxy] ERROR', req.method, req.originalUrl, '->', target, 'Error:', err);
     }
-    // En cas d'erreur réseau, on laisse Angular gérer
-    return false;
+    // En cas d'erreur réseau vers l'API amont, renvoyer 503 Service Unavailable
+    // et ne pas déléguer à Angular (pour éviter des 404 HTML côté client XHR)
+    res.status(503).json({
+      error: {
+        code: 'UPSTREAM_UNAVAILABLE',
+        message: 'Upstream fetch failed',
+        detail: (err as Error).message,
+      },
+    });
+    return true;
   }
 }
 
@@ -155,9 +163,13 @@ app.get('/developer/api/:userId/infos', async (req, res) => {
     if (process.env['DEBUG_PROXY']) {
       console.error('[Proxy] GET /developer/api/:userId/infos ->', target, 'Error:', err);
     }
-    res
-      .status(502)
-      .json({ status: 'error', message: 'Upstream fetch failed', detail: (err as Error).message });
+    res.status(503).json({
+      error: {
+        code: 'UPSTREAM_UNAVAILABLE',
+        message: 'Upstream fetch failed',
+        detail: (err as Error).message,
+      },
+    });
   }
 });
 
@@ -174,9 +186,13 @@ app.get('/developer/api/:userId/color', async (req, res) => {
     if (process.env['DEBUG_PROXY']) {
       console.error('[Proxy] GET /developer/api/:userId/color ->', target, 'Error:', err);
     }
-    res
-      .status(502)
-      .json({ status: 'error', message: 'Upstream fetch failed', detail: (err as Error).message });
+    res.status(503).json({
+      error: {
+        code: 'UPSTREAM_UNAVAILABLE',
+        message: 'Upstream fetch failed',
+        detail: (err as Error).message,
+      },
+    });
   }
 });
 
@@ -197,9 +213,13 @@ app.get('/infos/:userId', async (req, res) => {
     if (process.env['DEBUG_PROXY']) {
       console.error('[Proxy] GET /infos/:userId ->', target, 'Error:', err);
     }
-    res
-      .status(502)
-      .json({ status: 'error', message: 'Upstream fetch failed', detail: (err as Error).message });
+    res.status(503).json({
+      error: {
+        code: 'UPSTREAM_UNAVAILABLE',
+        message: 'Upstream fetch failed',
+        detail: (err as Error).message,
+      },
+    });
   }
 });
 
@@ -216,9 +236,13 @@ app.get('/color/:userId', async (req, res) => {
     if (process.env['DEBUG_PROXY']) {
       console.error('[Proxy] GET /color/:userId ->', target, 'Error:', err);
     }
-    res
-      .status(502)
-      .json({ status: 'error', message: 'Upstream fetch failed', detail: (err as Error).message });
+    res.status(503).json({
+      error: {
+        code: 'UPSTREAM_UNAVAILABLE',
+        message: 'Upstream fetch failed',
+        detail: (err as Error).message,
+      },
+    });
   }
 });
 
