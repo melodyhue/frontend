@@ -1,10 +1,10 @@
 # MelodyHue – Frontend (Angular 20 + SSR)
 
-[![GitHub Release](https://img.shields.io/github/v/release/laxe4k/melodyhue-frontend)](https://github.com/laxe4k/melodyhue-frontend/releases)
-[![GitHub Release Date](https://img.shields.io/github/release-date/laxe4k/melodyhue-frontend)](https://github.com/laxe4k/melodyhue-frontend/releases)
-[![GitHub License](https://img.shields.io/github/license/laxe4k/melodyhue-frontend)](https://github.com/laxe4k/melodyhue-frontend/blob/main/LICENSE)
-[![GitHub contributors](https://img.shields.io/github/contributors/laxe4k/melodyhue-frontend)](https://github.com/laxe4k/melodyhue-frontend/graphs/contributors)
-[![GitHub Issues](https://img.shields.io/github/issues/laxe4k/melodyhue-frontend)](https://github.com/laxe4k/melodyhue-frontend/issues)
+[![GitHub Release](https://img.shields.io/github/v/release/melodyhue/frontend)](https://github.com/melodyhue/frontend/releases)
+[![GitHub Release Date](https://img.shields.io/github/release-date/melodyhue/frontend)](https://github.com/melodyhue/frontend/releases)
+[![GitHub License](https://img.shields.io/github/license/melodyhue/frontend)](https://github.com/melodyhue/frontend/blob/main/LICENSE)
+[![GitHub contributors](https://img.shields.io/github/contributors/melodyhue/frontend)](https://github.com/melodyhue/frontend/graphs/contributors)
+[![GitHub Issues](https://img.shields.io/github/issues/melodyhue/frontend)](https://github.com/melodyhue/frontend/issues)
 
 Interface web d’affichage et de gestion des overlays MelodyHue. Application Angular 20 (standalone, signals, OnPush) avec rendu SSR côté Node et un proxy intégré vers l’API publique/privée.
 
