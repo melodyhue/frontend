@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, computed, inject } from '@angular/core';
+import { Component, ChangeDetectionStrategy, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { LocaleService } from '../../../core/services/locale.service';
 import pkg from '../../../../../package.json';
@@ -13,14 +13,21 @@ import pkg from '../../../../../package.json';
 export class FooterComponent {
   private readonly localeService = inject(LocaleService);
 
-  readonly currentYear = new Date().getFullYear();
+  private readonly creationYear = 2025;
+  readonly currentYear = signal(new Date().getFullYear());
+  readonly yearsRange = computed(() =>
+    this.currentYear() > this.creationYear
+      ? `${this.creationYear} - ${this.currentYear()}`
+      : `${this.creationYear}`
+  );
+
   readonly version = pkg.version as string;
 
   readonly copyright = computed(() => {
     const locale = this.localeService.locale();
     return locale === 'fr'
-      ? `© ${this.currentYear} MelodyHue - Tous droits réservés.`
-      : `© ${this.currentYear} MelodyHue - All rights reserved.`;
+      ? `© ${this.yearsRange()} MelodyHue - Tous droits réservés.`
+      : `© ${this.yearsRange()} MelodyHue - All rights reserved.`;
   });
 
   readonly madeWith = computed(() => {
