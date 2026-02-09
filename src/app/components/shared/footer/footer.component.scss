@@ -75,6 +75,32 @@
   color: #d2faf0;
 }
 
+.footer__bmc {
+  display: block;
+  width: fit-content;
+  margin-top: 0.5rem;
+  transition: transform 200ms ease, filter 200ms ease;
+  border-radius: 8px;
+  overflow: hidden;
+  line-height: 0;
+
+  img {
+    display: block;
+    height: 40px;
+    width: auto;
+  }
+
+  &:hover,
+  &:focus-visible {
+    transform: translateY(-2px);
+    filter: brightness(1.1);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
 .footer__heading {
   font-size: 1rem;
   font-weight: 600;
